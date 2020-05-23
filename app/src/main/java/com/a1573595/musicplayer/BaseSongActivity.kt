@@ -1,6 +1,6 @@
 package com.a1573595.musicplayer
 
-import android.Manifest.permission.READ_EXTERNAL_STORAGE
+import android.Manifest.permission.WRITE_EXTERNAL_STORAGE
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
@@ -13,7 +13,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import java.util.*
 
 abstract class BaseSongActivity<P : BasePresenter<*>> : BaseActivity<P>(), Observer {
-    private val REQUEST_READ_EXTERNAL_STORAGE: Int = 10
+    private val REQUEST_WRITE_EXTERNAL_STORAGE: Int = 10
 
     private lateinit var player: PlayerService
 
@@ -46,7 +46,7 @@ abstract class BaseSongActivity<P : BasePresenter<*>> : BaseActivity<P>(), Obser
         val intent = Intent(this, PlayerService::class.java)
         startService(intent)
 
-        if (hasPermission(READ_EXTERNAL_STORAGE) && !isBound) {
+        if (hasPermission(WRITE_EXTERNAL_STORAGE) && !isBound) {
             bindService(intent, mConnection, Context.BIND_AUTO_CREATE)
         }
     }
@@ -84,7 +84,7 @@ abstract class BaseSongActivity<P : BasePresenter<*>> : BaseActivity<P>(), Obser
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         when (requestCode) {
-            REQUEST_READ_EXTERNAL_STORAGE -> if (grantResults.isNotEmpty() &&
+            REQUEST_WRITE_EXTERNAL_STORAGE -> if (grantResults.isNotEmpty() &&
                 grantResults[0] == PERMISSION_GRANTED
             ) {
                 val intent = Intent(this, PlayerService::class.java)
@@ -96,8 +96,8 @@ abstract class BaseSongActivity<P : BasePresenter<*>> : BaseActivity<P>(), Obser
     }
 
     private fun checkPermission() {
-        if (!hasPermission(READ_EXTERNAL_STORAGE)) {
-            requestPermission(REQUEST_READ_EXTERNAL_STORAGE, READ_EXTERNAL_STORAGE)
+        if (!hasPermission(WRITE_EXTERNAL_STORAGE)) {
+            requestPermission(REQUEST_WRITE_EXTERNAL_STORAGE, WRITE_EXTERNAL_STORAGE)
         }
     }
 
