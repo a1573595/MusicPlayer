@@ -1,17 +1,17 @@
 <resources>
     <string name="app_name">MusicPlayer</string>
-    <string name="unknown">\u003cunknown\u003e</string>
-    <string name="search_song">Search song</string>
-    <string name="found_new_song">Fond new song</string>
-    <string name="no_song_found">No song found</string>
-    <string name="need_permission">Need permission</string>
-    <string name="need_permission_to_access">Need permission to access music.</string>
     <string name="agree">Agree</string>
-    <string name="disagree">Disagree</string>
-    <string name="unsupported_format">Unsupported format</string>
     <string name="cancel">Cancel</string>
+    <string name="disagree">Disagree</string>
     <string name="download">Download</string>
     <string name="download_music">Download music</string>
+    <string name="found_new_song">Fond new song</string>
+    <string name="need_permission_to_access">Need permission to access media.</string>
+    <string name="no_song_found">No song found</string>
+    <string name="permission_requirement">Permission requirement</string>
+    <string name="search_song">Search song</string>
+    <string name="unknown">\u003cunknown\u003e</string>
+    <string name="unsupported_format">Unsupported format</string>
 
     <declare-styleable name="PlayPauseState">
         <attr name="state_pause" format="boolean" />

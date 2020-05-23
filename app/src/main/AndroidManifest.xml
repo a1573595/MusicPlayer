@@ -2,6 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.a1573595.musicplayer">
 
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -10,7 +12,8 @@
         android:supportsRtl="true"
         android:theme="@style/NoActionBar">
 
-        <activity android:name=".songList.SongListActivity"
+        <activity
+            android:name=".songList.SongListActivity"
             android:launchMode="singleTask"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="stateAlwaysHidden|adjustPan">
@@ -19,8 +22,14 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".playSong.PlaySongActivity"
-            android:screenOrientation="portrait"/>
+        <activity
+            android:name=".playSong.PlaySongActivity"
+            android:screenOrientation="portrait" />
+
+        <service
+            android:name=".player.PlayerService"
+            android:enabled="true"
+            android:exported="false" />
     </application>
 
 </manifest>
