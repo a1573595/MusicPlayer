@@ -21,7 +21,7 @@ abstract class BaseActivity<P : BasePresenter<*>> : AppCompatActivity(), BaseVie
 
     override fun isActive(): Boolean = lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)
 
-    override fun context(): Context = baseContext
+    override fun context(): Context = this
 
     override fun showToast(msg: String) {
         Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()

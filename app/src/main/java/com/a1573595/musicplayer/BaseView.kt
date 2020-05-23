@@ -8,8 +8,6 @@ interface BaseView {
 
     fun context(): Context
 
-    fun init()
-
     fun showToast(msg: String)
 
     fun showSnackBar(v: View, msg: String)

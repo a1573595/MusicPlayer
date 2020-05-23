@@ -6,7 +6,7 @@
     <string name="download">Download</string>
     <string name="download_music">Download music</string>
     <string name="found_new_song">Fond new song</string>
-    <string name="need_permission_to_access">Need permission to access media.</string>
+    <string name="need_permission_to_access">Need permission to access music.</string>
     <string name="no_song_found">No song found</string>
     <string name="permission_requirement">Permission requirement</string>
     <string name="search_song">Search song</string>

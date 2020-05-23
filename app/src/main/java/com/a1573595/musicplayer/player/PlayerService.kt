@@ -16,7 +16,7 @@ class PlayerService : Service() {
     override fun onCreate() {
         super.onCreate()
 
-        player = PlayerManager()
+        player = PlayerManager(this)
     }
 
     override fun onBind(intent: Intent): IBinder {
