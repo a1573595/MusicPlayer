@@ -4,9 +4,9 @@ import com.a1573595.musicplayer.BaseView
 import com.a1573595.musicplayer.model.Song
 
 interface SongListView: BaseView {
-    suspend fun showLoading()
+    fun showLoading()
 
-    suspend fun stopLoading()
+    fun stopLoading()
 
     fun updateSongState(song: Song, isPlaying: Boolean)
 }

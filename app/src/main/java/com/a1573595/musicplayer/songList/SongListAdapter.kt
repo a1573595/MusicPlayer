@@ -10,16 +10,21 @@ import com.a1573595.musicplayer.R
 import com.a1573595.musicplayer.model.Song
 import com.a1573595.musicplayer.model.TimeUtil
 import kotlinx.android.synthetic.main.adapter_song_list.view.*
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 
 class SongListAdapter : RecyclerView.Adapter<SongListAdapter.SongHolder>() {
-    private val songList: SparseArray<Song> = SparseArray()
+    private val filteredList: SparseArray<Song> = SparseArray()
+
+    private var listener: SongClickListener? = null
+
+    interface SongClickListener {
+        fun onSongClick(position: Int)
+    }
 
     inner class SongHolder(v: View) : RecyclerView.ViewHolder(v) {
         init {
             itemView.setOnClickListener {
-
+                val position = filteredList.keyAt(adapterPosition)
+                listener?.onSongClick(position)
             }
         }
     }
@@ -30,19 +35,23 @@ class SongListAdapter : RecyclerView.Adapter<SongListAdapter.SongHolder>() {
         return SongHolder(view)
     }
 
-    override fun getItemCount(): Int = songList.size()
+    override fun getItemCount(): Int = filteredList.size()
 
     override fun onBindViewHolder(holder: SongHolder, position: Int) {
-        val song: Song = songList.valueAt(position)
+        val song: Song = filteredList.valueAt(position)
 
         holder.itemView.tv_name.text = song.name
         holder.itemView.tv_artist.text = song.author
         holder.itemView.tv_duration.text = TimeUtil.timeMillisToTime(song.duration)
     }
 
-    suspend fun putSong(list: SparseArray<Song>) = withContext(Dispatchers.Main) {
-        songList.clear()
-        songList.putAll(list)
+    fun setSongClickListener(listener: SongClickListener) {
+        this.listener = listener
+    }
+
+    fun putSong(list: SparseArray<Song>) {
+        filteredList.clear()
+        filteredList.putAll(list)
 
         notifyDataSetChanged()
     }

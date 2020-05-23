@@ -2,31 +2,45 @@ package com.a1573595.musicplayer.songList
 
 import android.animation.ValueAnimator
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.View
 import android.view.animation.AnimationUtils
 import android.view.animation.LayoutAnimationController
 import android.view.animation.LinearInterpolator
 import androidx.appcompat.app.AlertDialog
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.a1573595.musicplayer.*
 import com.a1573595.musicplayer.model.Song
 import com.a1573595.musicplayer.player.PlayerManager
+import com.a1573595.musicplayer.player.PlayerService
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.android.synthetic.main.activity_song_list.*
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
 import java.util.*
 
-class SongListActivity : BaseSongActivity<SongListPresenter>(), SongListView {
+class SongListActivity : BaseSongActivity<SongListPresenter>(), SongListView,
+    SongListAdapter.SongClickListener {
+    private val scope = MainScope()
+
     private lateinit var dialog: AlertDialog
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_song_list)
+        setBackground()
     }
 
-    override fun playerBound(player: PlayerManager) {
+    override fun onDestroy() {
+        super.onDestroy()
+
+        scope.cancel()
+    }
+
+    override fun playerBound(player: PlayerService) {
         initRecyclerView()
+        setListen()
 
         presenter.setPlayerManager(player)
     }
@@ -35,9 +49,9 @@ class SongListActivity : BaseSongActivity<SongListPresenter>(), SongListView {
         presenter.fetchSongState()
     }
 
-    override fun createPresenter(): SongListPresenter = SongListPresenter(this)
+    override fun createPresenter(): SongListPresenter = SongListPresenter(this, scope)
 
-    override suspend fun showLoading() = withContext(Dispatchers.Main) {
+    override fun showLoading() {
         val view = View.inflate(context(), R.layout.dialog_loading, null)
         val imgLoad = view.findViewById<View>(R.id.img_load)
 
@@ -60,23 +74,35 @@ class SongListActivity : BaseSongActivity<SongListPresenter>(), SongListView {
         animator.start()
     }
 
-    override suspend fun stopLoading() = withContext(Dispatchers.Main) {
+    override fun stopLoading() {
         recyclerView.scheduleLayoutAnimation()
 
         dialog.dismiss()
     }
 
     override fun updateSongState(song: Song, isPlaying: Boolean) {
-
+        tv_name.text = song.name
+        tv_artist.text = song.author
+        btn_play.setImageResource(if(isPlaying) R.drawable.ic_pause else R.drawable.ic_play)
     }
 
     override fun update(o: Observable?, arg: Any?) {
 
     }
 
+    override fun onSongClick(position: Int) {
+        presenter
+    }
+
+    private fun setBackground() {
+        root.background = ContextCompat.getDrawable(this, R.drawable.background_music)
+        root.background.alpha = 30
+    }
+
     private fun initRecyclerView() {
         recyclerView.layoutManager = LinearLayoutManager(this)
         val adapter = SongListAdapter()
+        adapter.setSongClickListener(this)
         recyclerView.adapter = adapter
         presenter.setAdapter(adapter)
 
@@ -86,5 +112,29 @@ class SongListActivity : BaseSongActivity<SongListPresenter>(), SongListView {
         controller.order = LayoutAnimationController.ORDER_NORMAL
         controller.delay = 0.3f
         recyclerView.layoutAnimation = controller
+    }
+
+    private fun setListen() {
+        ed_name.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
+
+            override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {}
+
+            override fun afterTextChanged(s: Editable) {
+                presenter.filterSong(s.toString())
+            }
+        })
+
+        img_download.setOnClickListener {
+
+        }
+
+        btn_play.setOnClickListener {
+
+        }
+
+        bottomAppBar.setOnClickListener {
+
+        }
     }
 }

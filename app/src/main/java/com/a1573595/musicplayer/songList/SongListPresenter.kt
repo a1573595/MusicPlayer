@@ -3,19 +3,21 @@ package com.a1573595.musicplayer.songList
 import android.util.SparseArray
 import com.a1573595.musicplayer.BasePresenter
 import com.a1573595.musicplayer.model.Song
-import com.a1573595.musicplayer.player.PlayerManager
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.MainScope
+import com.a1573595.musicplayer.player.PlayerService
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
-class SongListPresenter constructor(private val view: SongListView) :
+class SongListPresenter constructor(
+    private val view: SongListView,
+    private val scope: CoroutineScope
+) :
     BasePresenter<SongListView>(view) {
-    private lateinit var player: PlayerManager
+    private lateinit var player: PlayerService
 
     private lateinit var adapter: SongListAdapter
-    private val filteredList: SparseArray<Song> = SparseArray()
+    private val songList: SparseArray<Song> = SparseArray()
 
-    fun setPlayerManager(player: PlayerManager) {
+    fun setPlayerManager(player: PlayerService) {
         this.player = player
 
         loadSongList()
@@ -26,23 +28,34 @@ class SongListPresenter constructor(private val view: SongListView) :
     }
 
     private fun loadSongList() {
-        MainScope().launch(Dispatchers.IO) {
+        scope.launch {
             view.showLoading()
 
-            if (player.getSongList().isEmpty()) {
-                player.readSong()
-            }
+            player.readSong()
+            player.getSongList().forEachIndexed { index, song -> songList.put(index, song) }
 
-            player.getSongList().forEachIndexed { index, song -> filteredList.put(index, song) }
-            adapter.putSong(filteredList)
+            adapter.putSong(songList)
             view.stopLoading()
-        }
 
-        fetchSongState()
+            fetchSongState()
+        }
     }
 
     fun fetchSongState() {
-//        val song = player.getSong()
-//        view.updateSongState()
+        val song = player.getSong() ?: return
+        view.updateSongState(song, player.isPlaying())
+    }
+
+    fun filterSong(key: String) {
+        scope.launch {
+            songList.clear()
+            player.getSongList().forEachIndexed { index, song ->
+                if (song.name.contains(key, true)) {
+                    songList.put(index, song)
+                }
+            }
+
+            adapter.putSong(songList)
+        }
     }
 }

@@ -8,23 +8,23 @@ import android.content.ServiceConnection
 import android.content.pm.PackageManager.PERMISSION_GRANTED
 import android.os.Bundle
 import android.os.IBinder
-import com.a1573595.musicplayer.player.PlayerManager
 import com.a1573595.musicplayer.player.PlayerService
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import java.util.*
 
 abstract class BaseSongActivity<P : BasePresenter<*>> : BaseActivity<P>(), Observer {
     private val REQUEST_READ_EXTERNAL_STORAGE: Int = 10
-    private lateinit var player: PlayerManager
+
+    private lateinit var player: PlayerService
 
     private var isBound: Boolean = false
 
     private val mConnection = object : ServiceConnection {
         override fun onServiceConnected(p0: ComponentName?, binder: IBinder) {
             val localBinder = binder as PlayerService.LocalBinder
-            val service = localBinder.service
-            player = service.getPlayerManager()
-            player.addObserver(this@BaseSongActivity)
+            player = localBinder.service
+
+            player.addPlayerObserver(this@BaseSongActivity)
             isBound = true
             playerBound(player)
         }
@@ -55,7 +55,7 @@ abstract class BaseSongActivity<P : BasePresenter<*>> : BaseActivity<P>(), Obser
         super.onRestart()
 
         if (isBound) {
-            player.addObserver(this)
+            player.addPlayerObserver(this)
             updateState()
         }
     }
@@ -64,7 +64,7 @@ abstract class BaseSongActivity<P : BasePresenter<*>> : BaseActivity<P>(), Obser
         super.onStop()
 
         if (isBound) {
-            player.deleteObserver(this)
+            player.deletePlayerObserver(this)
         }
     }
 
@@ -116,7 +116,7 @@ abstract class BaseSongActivity<P : BasePresenter<*>> : BaseActivity<P>(), Obser
             .show()
     }
 
-    abstract fun playerBound(player: PlayerManager)
+    abstract fun playerBound(player: PlayerService)
 
     abstract fun updateState()
 }
