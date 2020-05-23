@@ -20,19 +20,6 @@ class PlayerManager : Observable() {
         setListen()
     }
 
-    private fun setListen() {
-        mediaPlayer.setOnPreparedListener {
-            mediaPlayer.seekTo(playerProgress)
-            mediaPlayer.start()
-
-            setChangedNotify(ACTION_PLAY)
-        }
-
-        mediaPlayer.setOnCompletionListener {
-            setChangedNotify(ACTION_COMPLETE)
-        }
-    }
-
     fun setChangedNotify(res: Any) {
         setChanged()
         notifyObservers(res)
@@ -79,6 +66,19 @@ class PlayerManager : Observable() {
         if (mediaPlayer.isPlaying) {
             mediaPlayer.stop()
             mediaPlayer.release()
+        }
+    }
+
+    private fun setListen() {
+        mediaPlayer.setOnPreparedListener {
+            mediaPlayer.seekTo(playerProgress)
+            mediaPlayer.start()
+
+            setChangedNotify(ACTION_PLAY)
+        }
+
+        mediaPlayer.setOnCompletionListener {
+            setChangedNotify(ACTION_COMPLETE)
         }
     }
 }

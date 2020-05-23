@@ -1,6 +1,7 @@
 package com.a1573595.musicplayer.songList
 
 import android.animation.ValueAnimator
+import android.content.Context
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -9,6 +10,7 @@ import android.view.animation.Animation
 import android.view.animation.AnimationUtils
 import android.view.animation.LayoutAnimationController
 import android.view.animation.LinearInterpolator
+import android.view.inputmethod.InputMethodManager
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -36,6 +38,12 @@ class SongListActivity : BaseSongActivity<SongListPresenter>(), SongListView,
 
         initElementAnimation()
         initRecyclerView()
+    }
+
+    override fun onRestart() {
+        super.onRestart()
+
+        presenter.filterSong(ed_name.text.toString())
     }
 
     override fun onDestroy() {
@@ -88,9 +96,9 @@ class SongListActivity : BaseSongActivity<SongListPresenter>(), SongListView,
     override fun updateSongState(song: Song, isPlaying: Boolean) {
         tv_name.text = song.name
         tv_artist.text = song.author
-        btn_play.setImageResource(if(isPlaying) R.drawable.ic_pause else R.drawable.ic_play)
+        btn_play.setImageResource(if (isPlaying) R.drawable.ic_pause else R.drawable.ic_play)
 
-        if(isPlaying) {
+        if (isPlaying) {
             img_disc.startAnimation(wheelAnimation)
         } else {
             img_disc.clearAnimation()
@@ -102,11 +110,17 @@ class SongListActivity : BaseSongActivity<SongListPresenter>(), SongListView,
             PlayerManager.ACTION_PLAY, PlayerManager.ACTION_PAUSE -> {
                 updateState()
             }
+            PlayerService.ACTION_FIND_NEW_SONG, PlayerService.ACTION_NOT_SONG_FOUND -> {
+                presenter.filterSong(ed_name.text.toString())
+            }
         }
     }
 
     override fun onSongClick(index: Int) {
         presenter.playSong(index)
+
+        hideKeyBoard()
+        bottomAppBar.performShow()
     }
 
     private fun setBackground() {
@@ -159,5 +173,10 @@ class SongListActivity : BaseSongActivity<SongListPresenter>(), SongListView,
         bottomAppBar.setOnClickListener {
 
         }
+    }
+
+    private fun hideKeyBoard() {
+        val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        imm.hideSoftInputFromWindow(ed_name.windowToken, 0)
     }
 }

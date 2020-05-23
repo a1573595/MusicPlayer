@@ -33,6 +33,8 @@ class SongListPresenter constructor(
     }
 
     fun filterSong(key: String) {
+        if (!::player.isInitialized) return
+
         scope.launch {
             songList.clear()
             player.getSongList().forEachIndexed { index, song ->
@@ -50,7 +52,7 @@ class SongListPresenter constructor(
     }
 
     fun onSongPlay() {
-        if(!player.isPlaying()) {
+        if (!player.isPlaying()) {
             player.play()
         } else {
             player.pause()
