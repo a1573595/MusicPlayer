@@ -17,14 +17,14 @@ class SongListAdapter : RecyclerView.Adapter<SongListAdapter.SongHolder>() {
     private var listener: SongClickListener? = null
 
     interface SongClickListener {
-        fun onSongClick(position: Int)
+        fun onSongClick(index: Int)
     }
 
     inner class SongHolder(v: View) : RecyclerView.ViewHolder(v) {
         init {
             itemView.setOnClickListener {
-                val position = filteredList.keyAt(adapterPosition)
-                listener?.onSongClick(position)
+                val index = filteredList.keyAt(adapterPosition)
+                listener?.onSongClick(index)
             }
         }
     }

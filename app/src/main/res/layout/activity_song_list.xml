@@ -29,6 +29,7 @@
                     android:drawablePadding="8dp"
                     android:hint="@string/search_song"
                     android:inputType="text"
+                    android:textColor="@android:color/white"
                     android:textColorHint="@android:color/white"
                     android:textSize="@dimen/text_medium"
                     app:layout_constraintEnd_toStartOf="@+id/img_download"

@@ -27,20 +27,6 @@ class SongListPresenter constructor(
         this.adapter = adapter
     }
 
-    private fun loadSongList() {
-        scope.launch {
-            view.showLoading()
-
-            player.readSong()
-            player.getSongList().forEachIndexed { index, song -> songList.put(index, song) }
-
-            adapter.putSong(songList)
-            view.stopLoading()
-
-            fetchSongState()
-        }
-    }
-
     fun fetchSongState() {
         val song = player.getSong() ?: return
         view.updateSongState(song, player.isPlaying())
@@ -56,6 +42,32 @@ class SongListPresenter constructor(
             }
 
             adapter.putSong(songList)
+        }
+    }
+
+    fun playSong(position: Int) {
+        player.play(position)
+    }
+
+    fun onSongPlay() {
+        if(!player.isPlaying()) {
+            player.play()
+        } else {
+            player.pause()
+        }
+    }
+
+    private fun loadSongList() {
+        scope.launch {
+            view.showLoading()
+
+            player.readSong()
+            player.getSongList().forEachIndexed { index, song -> songList.put(index, song) }
+
+            adapter.putSong(songList)
+            view.stopLoading()
+
+            fetchSongState()
         }
     }
 }

@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.View
+import android.view.animation.Animation
 import android.view.animation.AnimationUtils
 import android.view.animation.LayoutAnimationController
 import android.view.animation.LinearInterpolator
@@ -26,10 +27,15 @@ class SongListActivity : BaseSongActivity<SongListPresenter>(), SongListView,
 
     private lateinit var dialog: AlertDialog
 
+    private lateinit var wheelAnimation: Animation
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_song_list)
         setBackground()
+
+        initElementAnimation()
+        initRecyclerView()
     }
 
     override fun onDestroy() {
@@ -39,10 +45,9 @@ class SongListActivity : BaseSongActivity<SongListPresenter>(), SongListView,
     }
 
     override fun playerBound(player: PlayerService) {
-        initRecyclerView()
-        setListen()
-
         presenter.setPlayerManager(player)
+
+        setListen()
     }
 
     override fun updateState() {
@@ -84,19 +89,35 @@ class SongListActivity : BaseSongActivity<SongListPresenter>(), SongListView,
         tv_name.text = song.name
         tv_artist.text = song.author
         btn_play.setImageResource(if(isPlaying) R.drawable.ic_pause else R.drawable.ic_play)
+
+        if(isPlaying) {
+            img_disc.startAnimation(wheelAnimation)
+        } else {
+            img_disc.clearAnimation()
+        }
     }
 
-    override fun update(o: Observable?, arg: Any?) {
-
+    override fun update(o: Observable?, any: Any?) {
+        when (any) {
+            PlayerManager.ACTION_PLAY, PlayerManager.ACTION_PAUSE -> {
+                updateState()
+            }
+        }
     }
 
-    override fun onSongClick(position: Int) {
-        presenter
+    override fun onSongClick(index: Int) {
+        presenter.playSong(index)
     }
 
     private fun setBackground() {
         root.background = ContextCompat.getDrawable(this, R.drawable.background_music)
         root.background.alpha = 30
+    }
+
+    private fun initElementAnimation() {
+        wheelAnimation = AnimationUtils.loadAnimation(this, R.anim.roation_wheel)
+        wheelAnimation.duration = 1000
+        wheelAnimation.repeatCount = ValueAnimator.INFINITE
     }
 
     private fun initRecyclerView() {
@@ -130,7 +151,9 @@ class SongListActivity : BaseSongActivity<SongListPresenter>(), SongListView,
         }
 
         btn_play.setOnClickListener {
+            presenter.onSongPlay()
 
+            bottomAppBar.performShow()
         }
 
         bottomAppBar.setOnClickListener {
