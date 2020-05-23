@@ -2,6 +2,7 @@ package com.a1573595.musicplayer.songList
 
 import android.animation.ValueAnimator
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -12,10 +13,13 @@ import android.view.animation.LayoutAnimationController
 import android.view.animation.LinearInterpolator
 import android.view.inputmethod.InputMethodManager
 import androidx.appcompat.app.AlertDialog
+import androidx.core.app.ActivityOptionsCompat
 import androidx.core.content.ContextCompat
+import androidx.core.util.Pair
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.a1573595.musicplayer.*
 import com.a1573595.musicplayer.model.Song
+import com.a1573595.musicplayer.playSong.PlaySongActivity
 import com.a1573595.musicplayer.player.PlayerManager
 import com.a1573595.musicplayer.player.PlayerService
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -38,6 +42,8 @@ class SongListActivity : BaseSongActivity<SongListPresenter>(), SongListView,
 
         initElementAnimation()
         initRecyclerView()
+
+        tv_name.isSelected = true
     }
 
     override fun onRestart() {
@@ -171,7 +177,13 @@ class SongListActivity : BaseSongActivity<SongListPresenter>(), SongListView,
         }
 
         bottomAppBar.setOnClickListener {
+            val p1: Pair<View, String> = Pair.create(img_disc, "img_disc")
+            val p2: Pair<View, String> = Pair.create(tv_name, "tv_name")
+            val p3: Pair<View, String> = Pair.create(btn_play, "img_play")
 
+            val options = ActivityOptionsCompat.makeSceneTransitionAnimation(this, p1, p2, p3)
+
+            startActivity(Intent(this, PlaySongActivity::class.java), options.toBundle())
         }
     }
 

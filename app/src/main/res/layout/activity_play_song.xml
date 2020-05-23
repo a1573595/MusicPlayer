@@ -170,7 +170,7 @@
         app:layout_constraintTop_toBottomOf="@+id/img_background"
         app:layout_constraintVertical_bias="0.85"
         app:layout_constraintWidth_percent=".13"
-        app:srcCompat="@drawable/ic_play" />
+        app:srcCompat="@drawable/selector_play_pause" />
 
     <ImageView
         android:id="@+id/img_forward"
