@@ -39,8 +39,6 @@ class SongListPresenter constructor(
     }
 
     fun filterSong(key: String) {
-        if (!::player.isInitialized) return
-
         scope.launch {
             songList.clear()
             player.getSongList().forEachIndexed { index, song ->

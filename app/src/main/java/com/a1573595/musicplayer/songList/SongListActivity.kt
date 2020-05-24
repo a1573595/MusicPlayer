@@ -47,12 +47,6 @@ class SongListActivity : BaseSongActivity<SongListPresenter>(), SongListView,
         tv_name.isSelected = true
     }
 
-    override fun onRestart() {
-        super.onRestart()
-
-        presenter.filterSong(ed_name.text.toString())
-    }
-
     override fun onDestroy() {
         super.onDestroy()
 
@@ -66,6 +60,7 @@ class SongListActivity : BaseSongActivity<SongListPresenter>(), SongListView,
     }
 
     override fun updateState() {
+        presenter.filterSong(ed_name.text.toString())
         presenter.fetchSongState()
     }
 
