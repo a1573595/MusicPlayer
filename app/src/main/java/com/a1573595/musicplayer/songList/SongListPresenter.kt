@@ -21,7 +21,7 @@ class SongListPresenter constructor(
     private lateinit var player: PlayerService
 
     private lateinit var adapter: SongListAdapter
-    private val songList: SparseArray<Song> = SparseArray()
+    private val filteredSongList: SparseArray<Song> = SparseArray()
 
     fun setPlayerManager(player: PlayerService) {
         this.player = player
@@ -40,19 +40,15 @@ class SongListPresenter constructor(
 
     fun filterSong(key: String) {
         scope.launch {
-            songList.clear()
+            filteredSongList.clear()
             player.getSongList().forEachIndexed { index, song ->
                 if (song.name.contains(key, true)) {
-                    songList.put(index, song)
+                    filteredSongList.put(index, song)
                 }
             }
 
-            adapter.putSong(songList)
+            adapter.notifyDataSetChanged()
         }
-    }
-
-    fun playSong(position: Int) {
-        player.play(position)
     }
 
     fun onSongPlay() {
@@ -61,6 +57,17 @@ class SongListPresenter constructor(
         } else {
             player.pause()
         }
+    }
+
+    fun getItemCount() = filteredSongList.size()
+
+    fun getItem(position: Int): Song = filteredSongList[position]
+
+    fun onSongClick(index: Int) {
+        view.onSongClick()
+
+        val position = filteredSongList.keyAt(index)
+        playSong(position)
     }
 
     fun downloadSong(url: String) {
@@ -87,13 +94,17 @@ class SongListPresenter constructor(
             view.showLoading()
 
             player.readSong()
-            player.getSongList().forEachIndexed { index, song -> songList.put(index, song) }
+            player.getSongList().forEachIndexed { index, song -> filteredSongList.put(index, song) }
 
-            adapter.putSong(songList)
+            adapter.notifyDataSetChanged()
             view.stopLoading()
 
             fetchSongState()
         }
+    }
+
+    private fun playSong(position: Int) {
+        player.play(position)
     }
 
     private fun isSupport(extension: String): Boolean {

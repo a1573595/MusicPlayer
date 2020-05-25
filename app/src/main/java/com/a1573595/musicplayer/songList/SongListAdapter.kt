@@ -1,30 +1,20 @@
 package com.a1573595.musicplayer.songList
 
-import android.util.SparseArray
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.util.putAll
 import androidx.recyclerview.widget.RecyclerView
 import com.a1573595.musicplayer.R
 import com.a1573595.musicplayer.model.Song
 import com.a1573595.musicplayer.model.TimeUtil
 import kotlinx.android.synthetic.main.adapter_song_list.view.*
 
-class SongListAdapter : RecyclerView.Adapter<SongListAdapter.SongHolder>() {
-    private val filteredList: SparseArray<Song> = SparseArray()
-
-    private var listener: SongClickListener? = null
-
-    interface SongClickListener {
-        fun onSongClick(index: Int)
-    }
-
+class SongListAdapter(private val presenter: SongListPresenter) :
+    RecyclerView.Adapter<SongListAdapter.SongHolder>() {
     inner class SongHolder(v: View) : RecyclerView.ViewHolder(v) {
         init {
             itemView.setOnClickListener {
-                val index = filteredList.keyAt(adapterPosition)
-                listener?.onSongClick(index)
+                presenter.onSongClick(adapterPosition)
             }
         }
     }
@@ -35,28 +25,13 @@ class SongListAdapter : RecyclerView.Adapter<SongListAdapter.SongHolder>() {
         return SongHolder(view)
     }
 
-    override fun getItemCount(): Int = filteredList.size()
+    override fun getItemCount(): Int = presenter.getItemCount()
 
     override fun onBindViewHolder(holder: SongHolder, position: Int) {
-        val song: Song = filteredList.valueAt(position)
+        val song: Song = presenter.getItem(position)
 
         holder.itemView.tv_name.text = song.name
         holder.itemView.tv_artist.text = song.author
         holder.itemView.tv_duration.text = TimeUtil.timeMillisToTime(song.duration)
-    }
-
-    fun setSongClickListener(listener: SongClickListener) {
-        this.listener = listener
-    }
-
-    fun putSong(list: SparseArray<Song>) {
-        filteredList.clear()
-        filteredList.putAll(list)
-
-        notifyDataSetChanged()
-    }
-
-    fun removeSong() {
-
     }
 }

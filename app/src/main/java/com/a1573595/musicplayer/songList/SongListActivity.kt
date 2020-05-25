@@ -28,8 +28,7 @@ import kotlinx.android.synthetic.main.activity_song_list.*
 import kotlinx.coroutines.*
 import java.util.*
 
-class SongListActivity : BaseSongActivity<SongListPresenter>(), SongListView,
-    SongListAdapter.SongClickListener {
+class SongListActivity : BaseSongActivity<SongListPresenter>(), SongListView {
     private val scope = MainScope()
 
     private lateinit var dialog: AlertDialog
@@ -118,9 +117,7 @@ class SongListActivity : BaseSongActivity<SongListPresenter>(), SongListView,
         }
     }
 
-    override fun onSongClick(index: Int) {
-        presenter.playSong(index)
-
+    override fun onSongClick() {
         hideKeyBoard()
         bottomAppBar.performShow()
     }
@@ -138,8 +135,7 @@ class SongListActivity : BaseSongActivity<SongListPresenter>(), SongListView,
 
     private fun initRecyclerView() {
         recyclerView.layoutManager = LinearLayoutManager(this)
-        val adapter = SongListAdapter()
-        adapter.setSongClickListener(this)
+        val adapter = SongListAdapter(presenter)
         recyclerView.adapter = adapter
         presenter.setAdapter(adapter)
 

@@ -9,4 +9,6 @@ interface SongListView: BaseView {
     fun stopLoading()
 
     fun updateSongState(song: Song, isPlaying: Boolean)
+
+    fun onSongClick()
 }
