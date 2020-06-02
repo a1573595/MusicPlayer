@@ -61,7 +61,7 @@ class SongListPresenter constructor(
 
     fun getItemCount() = filteredSongList.size()
 
-    fun getItem(position: Int): Song = filteredSongList[position]
+    fun getItem(position: Int): Song = filteredSongList.valueAt(position)
 
     fun onSongClick(index: Int) {
         view.onSongClick()
