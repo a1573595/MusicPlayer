@@ -11,7 +11,9 @@ import com.a1573595.musicplayer.R
 import com.a1573595.musicplayer.model.Song
 import com.a1573595.musicplayer.player.PlayerService
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class SongListPresenter constructor(
     private val view: SongListView,
@@ -40,10 +42,13 @@ class SongListPresenter constructor(
 
     fun filterSong(key: String) {
         scope.launch {
-            filteredSongList.clear()
-            player.getSongList().forEachIndexed { index, song ->
-                if (song.name.contains(key, true)) {
-                    filteredSongList.put(index, song)
+            withContext(Dispatchers.IO) {
+                filteredSongList.clear()
+
+                player.getSongList().forEachIndexed { index, song ->
+                    if (song.name.contains(key, true) || song.author.contains(key, true)) {
+                        filteredSongList.put(index, song)
+                    }
                 }
             }
 
