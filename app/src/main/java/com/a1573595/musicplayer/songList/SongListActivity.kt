@@ -17,6 +17,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityOptionsCompat
 import androidx.core.content.ContextCompat
 import androidx.core.util.Pair
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.a1573595.musicplayer.*
 import com.a1573595.musicplayer.model.Song
@@ -25,12 +26,9 @@ import com.a1573595.musicplayer.player.PlayerManager
 import com.a1573595.musicplayer.player.PlayerService
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.android.synthetic.main.activity_song_list.*
-import kotlinx.coroutines.*
 import java.util.*
 
 class SongListActivity : BaseSongActivity<SongListPresenter>(), SongListView {
-    private val scope = MainScope()
-
     private lateinit var dialog: AlertDialog
 
     private lateinit var wheelAnimation: Animation
@@ -46,12 +44,6 @@ class SongListActivity : BaseSongActivity<SongListPresenter>(), SongListView {
         tv_name.isSelected = true
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-
-        scope.cancel()
-    }
-
     override fun playerBound(player: PlayerService) {
         presenter.setPlayerManager(player)
 
@@ -63,7 +55,7 @@ class SongListActivity : BaseSongActivity<SongListPresenter>(), SongListView {
         presenter.fetchSongState()
     }
 
-    override fun createPresenter(): SongListPresenter = SongListPresenter(this, scope)
+    override fun createPresenter(): SongListPresenter = SongListPresenter(this, lifecycleScope)
 
     override fun showLoading() {
         val view = View.inflate(context(), R.layout.dialog_loading, null)

@@ -6,18 +6,18 @@ import android.net.Uri
 import android.os.Environment
 import android.util.Patterns
 import android.util.SparseArray
+import androidx.lifecycle.LifecycleCoroutineScope
 import com.a1573595.musicplayer.BasePresenter
 import com.a1573595.musicplayer.R
 import com.a1573595.musicplayer.model.Song
 import com.a1573595.musicplayer.player.PlayerService
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class SongListPresenter constructor(
     private val view: SongListView,
-    private val scope: CoroutineScope
+    private val scope: LifecycleCoroutineScope
 ) :
     BasePresenter<SongListView>(view) {
     private lateinit var player: PlayerService
@@ -42,7 +42,7 @@ class SongListPresenter constructor(
 
     fun filterSong(key: String) {
         scope.launch {
-            withContext(Dispatchers.IO) {
+            withContext(Dispatchers.Default) {
                 filteredSongList.clear()
 
                 player.getSongList().forEachIndexed { index, song ->
