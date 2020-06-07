@@ -26,6 +26,7 @@ import com.a1573595.musicplayer.player.PlayerManager
 import com.a1573595.musicplayer.player.PlayerService
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.android.synthetic.main.activity_song_list.*
+import kotlinx.coroutines.launch
 import java.util.*
 
 class SongListActivity : BaseSongActivity<SongListPresenter>(), SongListView {
@@ -55,47 +56,53 @@ class SongListActivity : BaseSongActivity<SongListPresenter>(), SongListView {
         presenter.fetchSongState()
     }
 
-    override fun createPresenter(): SongListPresenter = SongListPresenter(this, lifecycleScope)
+    override fun createPresenter(): SongListPresenter = SongListPresenter(this)
 
     override fun showLoading() {
-        val view = View.inflate(context(), R.layout.dialog_loading, null)
-        val imgLoad = view.findViewById<View>(R.id.img_load)
+        lifecycleScope.launch {
+            val view = View.inflate(context(), R.layout.dialog_loading, null)
+            val imgLoad = view.findViewById<View>(R.id.img_load)
 
-        dialog = MaterialAlertDialogBuilder(context()).create()
-        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
-        dialog.setView(view)
-        dialog.setCancelable(false)
-        dialog.show()
+            dialog = MaterialAlertDialogBuilder(context()).create()
+            dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+            dialog.setView(view)
+            dialog.setCancelable(false)
+            dialog.show()
 
-        val animator = ValueAnimator.ofInt(0, 8)
-        animator.duration = 750
-        animator.interpolator = LinearInterpolator()
-        animator.repeatCount = ValueAnimator.INFINITE
+            val animator = ValueAnimator.ofInt(0, 8)
+            animator.duration = 750
+            animator.interpolator = LinearInterpolator()
+            animator.repeatCount = ValueAnimator.INFINITE
 
-        animator.addUpdateListener {
-            imgLoad.rotation = (it.animatedValue as Int).toFloat() * 45
-            imgLoad.requestLayout()
+            animator.addUpdateListener {
+                imgLoad.rotation = (it.animatedValue as Int).toFloat() * 45
+                imgLoad.requestLayout()
+            }
+
+            animator.start()
         }
-
-        animator.start()
     }
 
     override fun stopLoading() {
-        recyclerView.scheduleLayoutAnimation()
+        lifecycleScope.launch {
+            dialog.dismiss()
 
-        dialog.dismiss()
+            recyclerView.scheduleLayoutAnimation()
+        }
     }
 
     override fun updateSongState(song: Song, isPlaying: Boolean) {
-        tv_name.text = song.name
-        tv_artist.text = song.author
-        btn_play.setImageResource(if (isPlaying) R.drawable.ic_pause else R.drawable.ic_play)
+        lifecycleScope.launch {
+            tv_name.text = song.name
+            tv_artist.text = song.author
+            btn_play.setImageResource(if (isPlaying) R.drawable.ic_pause else R.drawable.ic_play)
 
-        if (isPlaying) {
-            img_disc.startAnimation(wheelAnimation)
-        } else {
-            img_disc.clearAnimation()
-        }
+            if (isPlaying) {
+                img_disc.startAnimation(wheelAnimation)
+            } else {
+                img_disc.clearAnimation()
+            }
+       }
     }
 
     override fun update(o: Observable?, any: Any?) {

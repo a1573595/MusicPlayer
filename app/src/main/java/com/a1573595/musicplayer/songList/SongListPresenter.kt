@@ -6,20 +6,18 @@ import android.net.Uri
 import android.os.Environment
 import android.util.Patterns
 import android.util.SparseArray
-import androidx.lifecycle.LifecycleCoroutineScope
 import com.a1573595.musicplayer.BasePresenter
 import com.a1573595.musicplayer.R
 import com.a1573595.musicplayer.model.Song
 import com.a1573595.musicplayer.player.PlayerService
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
 
 class SongListPresenter constructor(
-    private val view: SongListView,
-    private val scope: LifecycleCoroutineScope
+    private val view: SongListView
 ) :
     BasePresenter<SongListView>(view) {
+    private val scope: CoroutineScope = CoroutineScope(Dispatchers.IO + Job())
+
     private lateinit var player: PlayerService
 
     private lateinit var adapter: SongListAdapter
@@ -42,17 +40,16 @@ class SongListPresenter constructor(
 
     fun filterSong(key: String) {
         scope.launch {
-            withContext(Dispatchers.Default) {
-                filteredSongList.clear()
-
-                player.getSongList().forEachIndexed { index, song ->
-                    if (song.name.contains(key, true) || song.author.contains(key, true)) {
-                        filteredSongList.put(index, song)
-                    }
+            filteredSongList.clear()
+            player.getSongList().forEachIndexed { index, song ->
+                if (song.name.contains(key, true) || song.author.contains(key, true)) {
+                    filteredSongList.put(index, song)
                 }
             }
 
-            adapter.notifyDataSetChanged()
+            withContext(Dispatchers.Main) {
+                adapter.notifyDataSetChanged()
+            }
         }
     }
 
@@ -101,10 +98,11 @@ class SongListPresenter constructor(
             player.readSong()
             player.getSongList().forEachIndexed { index, song -> filteredSongList.put(index, song) }
 
-            adapter.notifyDataSetChanged()
-            view.stopLoading()
-
-            fetchSongState()
+            withContext(Dispatchers.Main) {
+                view.stopLoading()
+                adapter.notifyDataSetChanged()
+                fetchSongState()
+            }
         }
     }
 
