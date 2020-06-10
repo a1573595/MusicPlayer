@@ -14,7 +14,7 @@ Android music player example.
 ### Supported Android Versions
 - Android 5.1 Lollipop(API level 21) or higher.
 
-### 使用函示庫
+### Used libraries
 1. [Material](https://material.io/)
 2. [Coroutine](https://github.com/Kotlin/kotlinx.coroutines)
 3. [LifecycleCoroutine](https://developer.android.com/topic/libraries/architecture/coroutines)
