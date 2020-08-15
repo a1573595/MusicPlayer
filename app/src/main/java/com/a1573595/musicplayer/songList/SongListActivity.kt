@@ -108,7 +108,7 @@ class SongListActivity : BaseSongActivity<SongListPresenter>(), SongListView {
     override fun update(o: Observable?, any: Any?) {
         when (any) {
             PlayerManager.ACTION_PLAY, PlayerManager.ACTION_PAUSE -> {
-                updateState()
+                presenter.fetchSongState()
             }
             PlayerService.ACTION_FIND_NEW_SONG, PlayerService.ACTION_NOT_SONG_FOUND -> {
                 presenter.filterSong(ed_name.text.toString())

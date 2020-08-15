@@ -5,10 +5,10 @@
         android:fromAlpha="0.0"
         android:toAlpha="1.0" />
     <scale
-        android:pivotX="50%"
-        android:pivotY="50%"
         android:fromXScale="110%"
         android:fromYScale="110%"
+        android:pivotX="50%"
+        android:pivotY="50%"
         android:toXScale="100%"
         android:toYScale="100%" />
     <translate
