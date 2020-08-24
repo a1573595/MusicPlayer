@@ -14,6 +14,9 @@ Android音樂撥放器範例
 ### 支援Android版本
 - Android 5.1 Lollipop(API level 21)或更高.
 
+### 前置準備
+下載 [範例音樂](https://ccrma.stanford.edu/~jos/pasp/Sound_Examples.html)至您的裝置中.
+
 ### 使用函示庫
 1. [Material](https://material.io/)
 2. [Coroutine](https://github.com/Kotlin/kotlinx.coroutines)
