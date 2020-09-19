@@ -127,7 +127,7 @@ class SongListActivity : BaseSongActivity<SongListPresenter>(), SongListView {
     }
 
     private fun initElementAnimation() {
-        wheelAnimation = AnimationUtils.loadAnimation(this, R.anim.roation_wheel)
+        wheelAnimation = AnimationUtils.loadAnimation(this, R.anim.rotation_wheel)
         wheelAnimation.duration = 1000
         wheelAnimation.repeatCount = ValueAnimator.INFINITE
     }

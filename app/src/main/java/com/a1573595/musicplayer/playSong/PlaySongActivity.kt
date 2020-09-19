@@ -105,12 +105,14 @@ class PlaySongActivity : BaseSongActivity<PlaySongPresenter>(), PlaySongView {
     }
 
     private fun initElementAnimation() {
-        wheelAnimation = AnimationUtils.loadAnimation(this, R.anim.roation_wheel)
+        wheelAnimation = AnimationUtils.loadAnimation(this, R.anim.rotation_wheel)
         wheelAnimation.duration = 1000
         wheelAnimation.repeatCount = ValueAnimator.INFINITE
 
         scaleAnimation = AnimationUtils.loadAnimation(this, R.anim.zoom_in)
-        scaleAnimation.duration = 300
+        scaleAnimation.duration = 200
+        scaleAnimation.repeatCount = 1
+        scaleAnimation.repeatMode = Animation.REVERSE
     }
 
     private fun initSeekBarUpdateRunnable() {
