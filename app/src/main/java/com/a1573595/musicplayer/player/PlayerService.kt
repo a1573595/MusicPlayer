@@ -7,10 +7,7 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.media.MediaMetadataRetriever
 import android.net.Uri
-import android.os.Binder
-import android.os.Build
-import android.os.Handler
-import android.os.IBinder
+import android.os.*
 import android.provider.MediaStore
 import android.widget.RemoteViews
 import android.widget.Toast
@@ -72,7 +69,7 @@ class PlayerService : Service(), Observer {
 
     private val metaRetriever = MediaMetadataRetriever()
     private val uriExternal: Uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
-    private val mHandler: Handler = Handler(Handler.Callback { msg ->
+    private val mHandler: Handler = Handler(Looper.getMainLooper()) { msg ->
         val id = msg.data.getString("songID")
         val audioUri = Uri.withAppendedPath(uriExternal, id)
 
@@ -84,7 +81,7 @@ class PlayerService : Service(), Observer {
         }
 
         true
-    })
+    }
     private val audioObserver: AudioObserver = AudioObserver(mHandler)
 
     private val playerManager: PlayerManager = PlayerManager()
@@ -169,6 +166,10 @@ class PlayerService : Service(), Observer {
             metaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST)
         val author =
             metaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_AUTHOR)
+
+        if (duration.isNullOrEmpty()) {
+            return
+        }
 
         songList.add(
             Song(

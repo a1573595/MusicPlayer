@@ -12,9 +12,7 @@ import com.a1573595.musicplayer.model.Song
 import com.a1573595.musicplayer.player.PlayerService
 import kotlinx.coroutines.*
 
-class SongListPresenter constructor(
-    private val view: SongListView
-) :
+class SongListPresenter constructor(private val view: SongListView) :
     BasePresenter<SongListView>(view) {
     private val scope: CoroutineScope = CoroutineScope(Dispatchers.IO + Job())
 

@@ -3,6 +3,7 @@ package com.a1573595.musicplayer.playSong
 import android.animation.ValueAnimator
 import android.os.Bundle
 import android.os.Handler
+import android.os.Looper
 import android.transition.ChangeBounds
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
@@ -25,7 +26,7 @@ class PlaySongActivity : BaseSongActivity<PlaySongPresenter>(), PlaySongView {
     private lateinit var wheelAnimation: Animation
     private lateinit var scaleAnimation: Animation
 
-    private val handler: Handler = Handler()
+    private val handler: Handler = Handler(Looper.getMainLooper())
     private lateinit var seekBarUpdateRunnable: Runnable
 
     override fun onCreate(savedInstanceState: Bundle?) {
