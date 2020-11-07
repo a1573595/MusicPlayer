@@ -3,7 +3,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@color/gray"
     android:padding="8dp">
 
     <ImageView
@@ -13,7 +12,8 @@
         android:layout_alignTop="@+id/tv_name"
         android:layout_alignBottom="@+id/linearLayout"
         android:layout_margin="8dp"
-        android:src="@drawable/ic_music" />
+        android:src="@drawable/ic_music"
+        android:tint="@color/colorTitleBlack" />
 
     <TextView
         android:id="@+id/tv_name"
@@ -24,7 +24,7 @@
         android:ellipsize="end"
         android:singleLine="true"
         android:textAlignment="center"
-        android:textColor="@android:color/black"
+        android:textColor="@color/colorTitleBlack"
         android:textSize="@dimen/text_medium"
         tools:text="Hello" />
 
@@ -42,24 +42,27 @@
         <ImageView
             android:id="@+id/img_previous"
             android:layout_width="0dp"
-            android:layout_height="18dp"
+            android:layout_height="24dp"
             android:layout_weight="1"
             android:rotation="180"
-            android:src="@drawable/ic_next" />
+            android:src="@drawable/ic_next"
+            android:tint="@color/colorTitleBlack" />
 
         <ImageView
             android:id="@+id/img_play"
             android:layout_width="0dp"
-            android:layout_height="24dp"
+            android:layout_height="30dp"
             android:layout_weight="1"
-            android:src="@drawable/ic_play" />
+            android:src="@drawable/ic_play"
+            android:tint="@color/colorTitleBlack" />
 
         <ImageView
             android:id="@+id/img_next"
             android:layout_width="0dp"
-            android:layout_height="18dp"
+            android:layout_height="24dp"
             android:layout_weight="1"
-            android:src="@drawable/ic_next" />
+            android:src="@drawable/ic_next"
+            android:tint="@color/colorTitleBlack" />
     </LinearLayout>
 
     <ImageView
@@ -71,5 +74,6 @@
         android:layout_alignParentEnd="true"
         android:layout_marginEnd="8dp"
         android:layout_marginBottom="-8dp"
-        android:src="@drawable/ic_cross" />
+        android:src="@drawable/ic_cross"
+        android:tint="@color/colorTitleBlack" />
 </RelativeLayout>

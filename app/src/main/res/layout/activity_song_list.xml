@@ -8,7 +8,8 @@
 
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
-        android:layout_height="?android:attr/actionBarSize">
+        android:layout_height="?android:attr/actionBarSize"
+        android:backgroundTint="@color/colorPrimaryDark">
 
         <com.google.android.material.appbar.CollapsingToolbarLayout
             android:layout_width="match_parent"
@@ -29,28 +30,25 @@
                     android:drawablePadding="8dp"
                     android:hint="@string/search_song"
                     android:inputType="text"
-                    android:textColor="@android:color/white"
-                    android:textColorHint="@android:color/white"
+                    android:textColor="@color/colorTitleWhite"
+                    android:textColorHint="@color/colorTitleWhite"
                     android:textSize="@dimen/text_medium"
-                    app:layout_constraintEnd_toStartOf="@+id/img_download"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toStartOf="@+id/imgDarkMode"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintBottom_toBottomOf="parent"/>
+                    app:layout_constraintTop_toTopOf="parent" />
 
                 <ImageView
-                    android:id="@+id/img_download"
+                    android:id="@+id/imgDarkMode"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:layout_marginEnd="8dp"
-                    android:layout_marginBottom="8dp"
+                    android:layout_height="match_parent"
                     android:background="@drawable/ripple_transparent"
-                    android:visibility="gone"
+                    android:padding="8dp"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintDimensionRatio="1:1"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="@+id/ed_name"
-                    app:srcCompat="@drawable/ic_download" />
+                    app:srcCompat="@android:drawable/ic_menu_view" />
             </androidx.constraintlayout.widget.ConstraintLayout>
         </com.google.android.material.appbar.CollapsingToolbarLayout>
     </com.google.android.material.appbar.AppBarLayout>
@@ -70,6 +68,7 @@
         android:layout_width="match_parent"
         android:layout_height="?android:attr/actionBarSize"
         android:layout_gravity="bottom"
+        android:backgroundTint="@color/colorPrimaryDark"
         app:fabAlignmentMode="end"
         app:hideOnScroll="true">
 
@@ -98,7 +97,7 @@
                 android:ellipsize="marquee"
                 android:marqueeRepeatLimit="marquee_forever"
                 android:singleLine="true"
-                android:textColor="@android:color/white"
+                android:textColor="@color/colorTitleWhite"
                 android:textSize="@dimen/text_medium"
                 android:transitionName="tv_name"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -115,7 +114,7 @@
                 android:layout_marginTop="8dp"
                 android:ellipsize="end"
                 android:singleLine="true"
-                android:textColor="@android:color/white"
+                android:textColor="@color/colorTitleWhite"
                 android:textSize="@dimen/text_small"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="@+id/tv_name"
@@ -131,6 +130,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:transitionName="btn_play"
+        app:backgroundTint="@color/colorPrimary"
         app:layout_anchor="@id/bottomAppBar"
         app:rippleColor="@color/colorPrimary"
         app:srcCompat="@drawable/ic_play" />

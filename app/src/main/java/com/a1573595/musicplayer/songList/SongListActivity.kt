@@ -1,7 +1,6 @@
 package com.a1573595.musicplayer.songList
 
 import android.animation.ValueAnimator
-import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
@@ -171,23 +170,6 @@ class SongListActivity : BaseSongActivity<SongListPresenter>(), SongListView {
                 presenter.filterSong(s.toString())
             }
         })
-
-        img_download.setOnClickListener {
-            val myClipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-            val clipText = myClipboard.primaryClip?.getItemAt(0)?.text.toString()
-
-            MaterialAlertDialogBuilder(this, R.style.AnimationDialog)
-                .setTitle(getString(R.string.download_music))
-                .setMessage(clipText)
-                .setPositiveButton(getString(R.string.download)) { dialog, p1 ->
-                    dialog.dismiss()
-                    presenter.downloadSong(clipText)
-                }
-                .setNegativeButton(getString(R.string.cancel)) { dialog, p1 ->
-                    dialog.dismiss()
-                }
-                .show()
-        }
 
         btn_play.setOnClickListener {
             presenter.onSongPlay()

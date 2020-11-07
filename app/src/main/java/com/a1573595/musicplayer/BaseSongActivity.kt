@@ -1,10 +1,7 @@
 package com.a1573595.musicplayer
 
 import android.Manifest.permission.WRITE_EXTERNAL_STORAGE
-import android.content.ComponentName
-import android.content.Context
-import android.content.Intent
-import android.content.ServiceConnection
+import android.content.*
 import android.content.pm.PackageManager.PERMISSION_GRANTED
 import android.os.Bundle
 import android.os.IBinder
@@ -105,11 +102,11 @@ abstract class BaseSongActivity<P : BasePresenter<*>> : BaseActivity<P>(), Obser
         MaterialAlertDialogBuilder(this, R.style.AnimationDialog)
             .setTitle(getString(R.string.permission_requirement))
             .setMessage(getString(R.string.need_permission_to_access))
-            .setPositiveButton(getString(R.string.agree)) { dialog, p1 ->
+            .setPositiveButton(getString(R.string.agree)) { dialog, _ ->
                 dialog.dismiss()
                 checkPermission()
             }
-            .setNegativeButton(getString(R.string.disagree)) { dialog, p1 ->
+            .setNegativeButton(getString(R.string.disagree)) { dialog, _ ->
                 dialog.dismiss()
                 finish()
             }
