@@ -12,4 +12,5 @@
     <string name="search_song">搜尋音樂</string>
     <string name="unknown">\u003c未知\u003e</string>
     <string name="unsupported_format">不支援的格式</string>
+    <string name="press_again_to_exit">再按一次退出</string>
 </resources>

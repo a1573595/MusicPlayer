@@ -13,6 +13,7 @@
     <string name="search_song">Search song</string>
     <string name="unknown">\u003cunknown\u003e</string>
     <string name="unsupported_format">Unsupported format</string>
+    <string name="press_again_to_exit">Press again to exit</string>
 
     <declare-styleable name="PlayPauseState">
         <attr name="state_pause" format="boolean" />

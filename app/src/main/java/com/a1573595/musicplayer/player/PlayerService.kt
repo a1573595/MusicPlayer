@@ -311,7 +311,7 @@ class PlayerService : Service(), Observer {
     }
 
     private fun initRemoteView() {
-        remoteView = RemoteViews(packageName, R.layout.notification_song)
+        remoteView = RemoteViews(packageName, R.layout.notification_console)
 
         intentPREVIOUS = PendingIntent.getBroadcast(
             this, BROADCAST_ID_MUSIC,

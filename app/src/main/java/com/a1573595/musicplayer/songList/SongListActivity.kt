@@ -5,6 +5,8 @@ import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.View
@@ -13,6 +15,7 @@ import android.view.animation.AnimationUtils
 import android.view.animation.LayoutAnimationController
 import android.view.animation.LinearInterpolator
 import android.view.inputmethod.InputMethodManager
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityOptionsCompat
 import androidx.core.content.ContextCompat
@@ -34,6 +37,8 @@ class SongListActivity : BaseSongActivity<SongListPresenter>(), SongListView {
 
     private lateinit var wheelAnimation: Animation
 
+    private val backHandler = Handler(Looper.getMainLooper())
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_song_list)
@@ -43,6 +48,16 @@ class SongListActivity : BaseSongActivity<SongListPresenter>(), SongListView {
         initRecyclerView()
 
         tv_name.isSelected = true
+    }
+
+    override fun onBackPressed() {
+        if (backHandler.hasMessages(0)) {
+            super.onBackPressed()
+        } else {
+            Toast.makeText(this, getString(R.string.press_again_to_exit), Toast.LENGTH_SHORT).show()
+            backHandler.removeCallbacksAndMessages(null)
+            backHandler.postDelayed({}, 2000)
+        }
     }
 
     override fun playerBound(player: PlayerService) {
