@@ -7,8 +7,16 @@ Android music player example.
 
 ### Screenshots
 <div style="dispaly:flex">
-    <img src="https://user-images.githubusercontent.com/25738593/82732604-c5c96780-9d40-11ea-9c0a-92f76f704eee.jpg" width="40%">
-    <img src="https://user-images.githubusercontent.com/25738593/82732607-c7932b00-9d40-11ea-8f83-de5f4fc69f2a.jpg" width="40%">
+    <img src="https://user-images.githubusercontent.com/25738593/98453966-f8a1d380-2199-11eb-9d53-11c64c71c578.jpg" width="32%">
+    <img src="https://user-images.githubusercontent.com/25738593/98453967-f8a1d380-2199-11eb-92f0-eb8d53c1884b.jpg" width="32%">
+    <img src="https://user-images.githubusercontent.com/25738593/98453968-f93a6a00-2199-11eb-8724-ccae3180bf94.jpg" width="32%">
+</div>
+
+Dark Mode.
+<div style="dispaly:flex">
+    <img src="https://user-images.githubusercontent.com/25738593/98453963-f5a6e300-2199-11eb-8a1c-354f2e71308a.jpg" width="32%">
+    <img src="https://user-images.githubusercontent.com/25738593/98453964-f770a680-2199-11eb-918f-c84094e1c20a.jpg" width="32%">
+    <img src="https://user-images.githubusercontent.com/25738593/98453965-f8093d00-2199-11eb-8314-c74dbda4b875.jpg" width="32%">
 </div>
 
 ### Supported Android Versions
