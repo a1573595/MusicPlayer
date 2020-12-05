@@ -1,5 +1,6 @@
 package com.a1573595.musicplayer.songList
 
+import android.app.Activity
 import android.app.DownloadManager
 import android.content.Context
 import android.net.Uri
@@ -10,6 +11,7 @@ import com.a1573595.musicplayer.BasePresenter
 import com.a1573595.musicplayer.R
 import com.a1573595.musicplayer.model.Song
 import com.a1573595.musicplayer.player.PlayerService
+import com.google.android.play.core.review.ReviewManagerFactory
 import kotlinx.coroutines.*
 
 class SongListPresenter constructor(private val view: SongListView) :
@@ -86,6 +88,23 @@ class SongListPresenter constructor(private val view: SongListView) :
             downloadManager.enqueue(request)
         } else {
             view.showToast(view.context().getString(R.string.unsupported_format))
+        }
+    }
+
+    fun review(activity: Activity) {
+        val manager = ReviewManagerFactory.create(activity)
+        val request = manager.requestReviewFlow()
+        request.addOnCompleteListener { request ->
+            if (request.isSuccessful) {
+                val reviewInfo = request.result
+
+                val flow = manager.launchReviewFlow(activity, reviewInfo)
+                flow.addOnCompleteListener {
+                    // The flow has finished. The API does not indicate whether the user
+                    // reviewed or not, or even whether the review dialog was shown. Thus, no
+                    // matter the result, we continue our app flow.
+                }
+            }
         }
     }
 

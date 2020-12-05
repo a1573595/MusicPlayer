@@ -34,12 +34,12 @@
                     android:textColorHint="@color/colorTitleWhite"
                     android:textSize="@dimen/text_medium"
                     app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toStartOf="@+id/imgDarkMode"
+                    app:layout_constraintEnd_toStartOf="@+id/imgReview"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
 
                 <ImageView
-                    android:id="@+id/imgDarkMode"
+                    android:id="@+id/imgReview"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:background="@drawable/ripple_transparent"
@@ -48,7 +48,7 @@
                     app:layout_constraintDimensionRatio="1:1"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="@+id/ed_name"
-                    app:srcCompat="@android:drawable/ic_menu_view" />
+                    app:srcCompat="@android:drawable/btn_star_big_on" />
             </androidx.constraintlayout.widget.ConstraintLayout>
         </com.google.android.material.appbar.CollapsingToolbarLayout>
     </com.google.android.material.appbar.AppBarLayout>

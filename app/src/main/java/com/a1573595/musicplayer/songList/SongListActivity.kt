@@ -171,6 +171,10 @@ class SongListActivity : BaseSongActivity<SongListPresenter>(), SongListView {
             }
         })
 
+        imgReview.setOnClickListener {
+            presenter.review(this)
+        }
+
         btn_play.setOnClickListener {
             presenter.onSongPlay()
 
