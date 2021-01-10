@@ -29,3 +29,4 @@ Android音樂撥放器範例。
 1. [Material](https://material.io/)
 2. [Coroutine](https://github.com/Kotlin/kotlinx.coroutines)
 3. [LifecycleCoroutine](https://developer.android.com/topic/libraries/architecture/coroutines)
+4. [ViewBinding](https://developer.android.com/topic/libraries/view-binding)

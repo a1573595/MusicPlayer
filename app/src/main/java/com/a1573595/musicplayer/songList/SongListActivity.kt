@@ -8,6 +8,7 @@ import android.os.Handler
 import android.os.Looper
 import android.text.Editable
 import android.text.TextWatcher
+import android.view.LayoutInflater
 import android.view.View
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
@@ -23,6 +24,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.a1573595.musicplayer.*
 import com.a1573595.musicplayer.databinding.ActivitySongListBinding
+import com.a1573595.musicplayer.databinding.DialogLoadingBinding
 import com.a1573595.musicplayer.model.Song
 import com.a1573595.musicplayer.playSong.PlaySongActivity
 import com.a1573595.musicplayer.player.PlayerManager
@@ -77,12 +79,11 @@ class SongListActivity : BaseSongActivity<SongListPresenter>(), SongListView {
 
     override fun showLoading() {
         lifecycleScope.launch {
-            val view = View.inflate(context(), R.layout.dialog_loading, null)
-            val imgLoad = view.findViewById<View>(R.id.img_load)
+            val loadViewBinding = DialogLoadingBinding.inflate(LayoutInflater.from(this@SongListActivity))
 
             dialog = MaterialAlertDialogBuilder(context()).create()
             dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
-            dialog.setView(view)
+            dialog.setView(loadViewBinding.root)
             dialog.setCancelable(false)
             dialog.show()
 
@@ -92,8 +93,8 @@ class SongListActivity : BaseSongActivity<SongListPresenter>(), SongListView {
             animator.repeatCount = ValueAnimator.INFINITE
 
             animator.addUpdateListener {
-                imgLoad.rotation = (it.animatedValue as Int).toFloat() * 45
-                imgLoad.requestLayout()
+                loadViewBinding.imgLoad.rotation = (it.animatedValue as Int).toFloat() * 45
+                loadViewBinding.imgLoad.requestLayout()
             }
 
             animator.start()
