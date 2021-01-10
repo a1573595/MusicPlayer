@@ -22,16 +22,18 @@ import androidx.core.util.Pair
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.a1573595.musicplayer.*
+import com.a1573595.musicplayer.databinding.ActivitySongListBinding
 import com.a1573595.musicplayer.model.Song
 import com.a1573595.musicplayer.playSong.PlaySongActivity
 import com.a1573595.musicplayer.player.PlayerManager
 import com.a1573595.musicplayer.player.PlayerService
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import kotlinx.android.synthetic.main.activity_song_list.*
 import kotlinx.coroutines.launch
 import java.util.*
 
 class SongListActivity : BaseSongActivity<SongListPresenter>(), SongListView {
+    private lateinit var viewBinding: ActivitySongListBinding
+
     private lateinit var dialog: AlertDialog
 
     private lateinit var wheelAnimation: Animation
@@ -40,13 +42,14 @@ class SongListActivity : BaseSongActivity<SongListPresenter>(), SongListView {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_song_list)
+        viewBinding = ActivitySongListBinding.inflate(layoutInflater)
+        setContentView(viewBinding.root)
         setBackground()
 
         initElementAnimation()
         initRecyclerView()
 
-        tv_name.isSelected = true
+        viewBinding.tvName.isSelected = true
     }
 
     override fun onBackPressed() {
@@ -66,7 +69,7 @@ class SongListActivity : BaseSongActivity<SongListPresenter>(), SongListView {
     }
 
     override fun updateState() {
-        presenter.filterSong(ed_name.text.toString())
+        presenter.filterSong(viewBinding.edName.text.toString())
         presenter.fetchSongState()
     }
 
@@ -101,22 +104,22 @@ class SongListActivity : BaseSongActivity<SongListPresenter>(), SongListView {
         lifecycleScope.launch {
             dialog.dismiss()
 
-            recyclerView.scheduleLayoutAnimation()
+            viewBinding.recyclerView.scheduleLayoutAnimation()
         }
     }
 
     override fun updateSongState(song: Song, isPlaying: Boolean) {
         lifecycleScope.launch {
-            tv_name.text = song.name
-            tv_artist.text = song.author
-            btn_play.setImageResource(if (isPlaying) R.drawable.ic_pause else R.drawable.ic_play)
+            viewBinding.tvName.text = song.name
+            viewBinding.tvArtist.text = song.author
+            viewBinding.btnPlay.setImageResource(if (isPlaying) R.drawable.ic_pause else R.drawable.ic_play)
 
             if (isPlaying) {
-                img_disc.startAnimation(wheelAnimation)
+                viewBinding.imgDisc.startAnimation(wheelAnimation)
             } else {
-                img_disc.clearAnimation()
+                viewBinding.imgDisc.clearAnimation()
             }
-       }
+        }
     }
 
     override fun update(o: Observable?, any: Any?) {
@@ -125,19 +128,19 @@ class SongListActivity : BaseSongActivity<SongListPresenter>(), SongListView {
                 presenter.fetchSongState()
             }
             PlayerService.ACTION_FIND_NEW_SONG, PlayerService.ACTION_NOT_SONG_FOUND -> {
-                presenter.filterSong(ed_name.text.toString())
+                presenter.filterSong(viewBinding.edName.text.toString())
             }
         }
     }
 
     override fun onSongClick() {
         hideKeyBoard()
-        bottomAppBar.performShow()
+        viewBinding.bottomAppBar.performShow()
     }
 
     private fun setBackground() {
-        root.background = ContextCompat.getDrawable(this, R.drawable.background_music)
-        root.background.alpha = 30
+        viewBinding.root.background = ContextCompat.getDrawable(this, R.drawable.background_music)
+        viewBinding.root.background.alpha = 30
     }
 
     private fun initElementAnimation() {
@@ -147,9 +150,9 @@ class SongListActivity : BaseSongActivity<SongListPresenter>(), SongListView {
     }
 
     private fun initRecyclerView() {
-        recyclerView.layoutManager = LinearLayoutManager(this)
+        viewBinding.recyclerView.layoutManager = LinearLayoutManager(this)
         val adapter = SongListAdapter(presenter)
-        recyclerView.adapter = adapter
+        viewBinding.recyclerView.adapter = adapter
         presenter.setAdapter(adapter)
 
         val controller = LayoutAnimationController(
@@ -157,11 +160,11 @@ class SongListActivity : BaseSongActivity<SongListPresenter>(), SongListView {
         )
         controller.order = LayoutAnimationController.ORDER_NORMAL
         controller.delay = 0.3f
-        recyclerView.layoutAnimation = controller
+        viewBinding.recyclerView.layoutAnimation = controller
     }
 
     private fun setListen() {
-        ed_name.addTextChangedListener(object : TextWatcher {
+        viewBinding.edName.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
 
             override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {}
@@ -171,20 +174,20 @@ class SongListActivity : BaseSongActivity<SongListPresenter>(), SongListView {
             }
         })
 
-        imgReview.setOnClickListener {
+        viewBinding.imgReview.setOnClickListener {
             presenter.review(this)
         }
 
-        btn_play.setOnClickListener {
+        viewBinding.btnPlay.setOnClickListener {
             presenter.onSongPlay()
 
-            bottomAppBar.performShow()
+            viewBinding.bottomAppBar.performShow()
         }
 
-        bottomAppBar.setOnClickListener {
-            val p1: Pair<View, String> = Pair.create(img_disc, "img_disc")
-            val p2: Pair<View, String> = Pair.create(tv_name, "tv_name")
-            val p3: Pair<View, String> = Pair.create(btn_play, "img_play")
+        viewBinding.bottomAppBar.setOnClickListener {
+            val p1: Pair<View, String> = Pair.create(viewBinding.imgDisc, "img_disc")
+            val p2: Pair<View, String> = Pair.create(viewBinding.tvName, "tv_name")
+            val p3: Pair<View, String> = Pair.create(viewBinding.btnPlay, "img_play")
 
             val options = ActivityOptionsCompat.makeSceneTransitionAnimation(this, p1, p2, p3)
 
@@ -194,6 +197,6 @@ class SongListActivity : BaseSongActivity<SongListPresenter>(), SongListView {
 
     private fun hideKeyBoard() {
         val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-        imm.hideSoftInputFromWindow(ed_name.windowToken, 0)
+        imm.hideSoftInputFromWindow(viewBinding.edName.windowToken, 0)
     }
 }

@@ -12,16 +12,18 @@ import android.widget.SeekBar
 import androidx.core.content.ContextCompat
 import com.a1573595.musicplayer.BaseSongActivity
 import com.a1573595.musicplayer.R
+import com.a1573595.musicplayer.databinding.ActivityPlaySongBinding
 import com.a1573595.musicplayer.model.Song
 import com.a1573595.musicplayer.model.TimeUtil
 import com.a1573595.musicplayer.player.PlayerManager
 import com.a1573595.musicplayer.player.PlayerService
-import kotlinx.android.synthetic.main.activity_play_song.*
 import java.util.*
 
 class PlaySongActivity : BaseSongActivity<PlaySongPresenter>(), PlaySongView {
     private val STATE_PLAY = intArrayOf(R.attr.state_pause)
     private val STATE_PAUSE = intArrayOf(-R.attr.state_pause)
+
+    private lateinit var viewBinding: ActivityPlaySongBinding
 
     private lateinit var wheelAnimation: Animation
     private lateinit var scaleAnimation: Animation
@@ -31,10 +33,11 @@ class PlaySongActivity : BaseSongActivity<PlaySongPresenter>(), PlaySongView {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_play_song)
+        viewBinding = ActivityPlaySongBinding.inflate(layoutInflater)
+        setContentView(viewBinding.root)
         setBackground()
 
-        tv_name.isSelected = true
+        viewBinding.tvName.isSelected = true
 
         initWindowAnimations()
     }
@@ -62,27 +65,28 @@ class PlaySongActivity : BaseSongActivity<PlaySongPresenter>(), PlaySongView {
     override fun updateSongState(song: Song, isPlaying: Boolean, progress: Int) {
         handler.removeCallbacksAndMessages(null)
 
-        tv_name.text = song.name
-        tv_duration.text = TimeUtil.timeMillisToTime(song.duration)
-        seekBar.max = (song.duration / 1000).toInt()
-        seekBar.progress = progress
-        tv_progress.text = TimeUtil.timeMillisToTime((seekBar.progress * 1000).toLong())
-        img_play.setImageState(if (isPlaying) STATE_PLAY else STATE_PAUSE, false)
+        viewBinding.tvName.text = song.name
+        viewBinding.tvDuration.text = TimeUtil.timeMillisToTime(song.duration)
+        viewBinding.seekBar.max = (song.duration / 1000).toInt()
+        viewBinding.seekBar.progress = progress
+        viewBinding.tvProgress.text =
+            TimeUtil.timeMillisToTime((viewBinding.seekBar.progress * 1000).toLong())
+        viewBinding.imgPlay.setImageState(if (isPlaying) STATE_PLAY else STATE_PAUSE, false)
 
         if (isPlaying) {
-            fl_disc.startAnimation(wheelAnimation)
+            viewBinding.flDisc.startAnimation(wheelAnimation)
             handler.postDelayed(seekBarUpdateRunnable, 1000)
         } else {
-            fl_disc.clearAnimation()
+            viewBinding.flDisc.clearAnimation()
         }
     }
 
     override fun showRepeat(isRepeat: Boolean) {
-        img_repeat.imageAlpha = if (isRepeat) 255 else 80
+        viewBinding.imgRepeat.imageAlpha = if (isRepeat) 255 else 80
     }
 
     override fun showRandom(isRandom: Boolean) {
-        img_random.imageAlpha = if (isRandom) 255 else 80
+        viewBinding.imgRandom.imageAlpha = if (isRandom) 255 else 80
     }
 
     override fun update(o: Observable?, any: Any?) {
@@ -94,8 +98,8 @@ class PlaySongActivity : BaseSongActivity<PlaySongPresenter>(), PlaySongView {
     }
 
     private fun setBackground() {
-        root.background = ContextCompat.getDrawable(this, R.drawable.background_music)
-        root.background.alpha = 30
+        viewBinding.root.background = ContextCompat.getDrawable(this, R.drawable.background_music)
+        viewBinding.root.background.alpha = 30
     }
 
     private fun initWindowAnimations() {
@@ -118,31 +122,32 @@ class PlaySongActivity : BaseSongActivity<PlaySongPresenter>(), PlaySongView {
 
     private fun initSeekBarUpdateRunnable() {
         seekBarUpdateRunnable = Runnable {
-            seekBar.progress = seekBar.progress + 1
+            viewBinding.seekBar.progress = viewBinding.seekBar.progress + 1
             handler.postDelayed(seekBarUpdateRunnable, 1000)
         }
     }
 
     private fun setListen() {
-        img_back.setOnClickListener {
+        viewBinding.imgBack.setOnClickListener {
             onBackPressed()
         }
 
-        img_repeat.setOnClickListener {
-            img_repeat.imageAlpha = if (presenter.updateRepeat()) 255 else 80
+        viewBinding.imgRepeat.setOnClickListener {
+            viewBinding.imgRepeat.imageAlpha = if (presenter.updateRepeat()) 255 else 80
         }
 
-        img_random.setOnClickListener {
-            img_random.imageAlpha = if (presenter.updateRandom()) 255 else 80
+        viewBinding.imgRandom.setOnClickListener {
+            viewBinding.imgRandom.imageAlpha = if (presenter.updateRandom()) 255 else 80
         }
 
-        seekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+        viewBinding.seekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(s: SeekBar, progress: Int, fromUser: Boolean) {
                 if (fromUser) {
                     handler.removeCallbacksAndMessages(null)
                 }
 
-                tv_progress.text = TimeUtil.timeMillisToTime((seekBar.progress * 1000).toLong())
+                viewBinding.tvProgress.text =
+                    TimeUtil.timeMillisToTime((viewBinding.seekBar.progress * 1000).toLong())
             }
 
             override fun onStartTrackingTouch(s: SeekBar) {}
@@ -151,23 +156,24 @@ class PlaySongActivity : BaseSongActivity<PlaySongPresenter>(), PlaySongView {
                 handler.removeCallbacksAndMessages(null)
 
                 presenter.seekTo(s.progress)
-                tv_progress.text = TimeUtil.timeMillisToTime((seekBar.progress * 1000).toLong())
+                viewBinding.tvProgress.text =
+                    TimeUtil.timeMillisToTime((viewBinding.seekBar.progress * 1000).toLong())
 
                 handler.postDelayed(seekBarUpdateRunnable, 1000)
             }
         })
 
-        img_backward.setOnClickListener {
+        viewBinding.imgBackward.setOnClickListener {
             presenter.skipToPrevious()
 
             it.startAnimation(scaleAnimation)
         }
 
-        img_play.setOnClickListener {
+        viewBinding.imgPlay.setOnClickListener {
             presenter.onSongPlay()
         }
 
-        img_forward.setOnClickListener {
+        viewBinding.imgForward.setOnClickListener {
             presenter.skipToNext()
 
             it.startAnimation(scaleAnimation)
