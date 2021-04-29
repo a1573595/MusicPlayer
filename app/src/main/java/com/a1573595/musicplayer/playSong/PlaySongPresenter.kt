@@ -3,7 +3,7 @@ package com.a1573595.musicplayer.playSong
 import com.a1573595.musicplayer.BasePresenter
 import com.a1573595.musicplayer.player.PlayerService
 
-class PlaySongPresenter(private val view: PlaySongView) : BasePresenter<PlaySongView>(view) {
+class PlaySongPresenter(view: PlaySongView) : BasePresenter<PlaySongView>(view) {
     private lateinit var player: PlayerService
 
     fun setPlayerManager(player: PlayerService) {

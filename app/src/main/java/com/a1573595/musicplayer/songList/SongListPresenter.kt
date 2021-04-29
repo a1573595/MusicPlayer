@@ -14,8 +14,7 @@ import com.a1573595.musicplayer.player.PlayerService
 import com.google.android.play.core.review.ReviewManagerFactory
 import kotlinx.coroutines.*
 
-class SongListPresenter constructor(private val view: SongListView) :
-    BasePresenter<SongListView>(view) {
+class SongListPresenter constructor(view: SongListView) : BasePresenter<SongListView>(view) {
     private val scope: CoroutineScope = CoroutineScope(Dispatchers.IO + Job())
 
     private lateinit var player: PlayerService

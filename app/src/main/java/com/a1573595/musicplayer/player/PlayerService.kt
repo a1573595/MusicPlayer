@@ -62,6 +62,7 @@ class PlayerService : Service(), Observer {
                 NOTIFICATION_CANCEL -> {
                     pause()
                     stopForeground(true)
+                    stopSelf()
                 }
             }
         }
@@ -145,7 +146,7 @@ class PlayerService : Service(), Observer {
             }
             ACTION_STOP -> {
                 isPlaying = false
-                stopForeground(true)
+//                stopForeground(true)
             }
             ACTION_FIND_NEW_SONG -> {
                 Toast.makeText(this, getString(R.string.found_new_song), Toast.LENGTH_SHORT).show()
