@@ -93,8 +93,8 @@ class SongListPresenter constructor(view: SongListView) : BasePresenter<SongList
     fun review(activity: Activity) {
         val manager = ReviewManagerFactory.create(activity)
         val request = manager.requestReviewFlow()
-        request.addOnCompleteListener { request ->
-            if (request.isSuccessful) {
+        request.addOnCompleteListener { result ->
+            if (result.isSuccessful) {
                 val reviewInfo = request.result
 
                 val flow = manager.launchReviewFlow(activity, reviewInfo)

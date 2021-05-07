@@ -1,6 +1,6 @@
 package com.a1573595.musicplayer
 
-import android.Manifest.permission.WRITE_EXTERNAL_STORAGE
+import android.Manifest.permission.READ_EXTERNAL_STORAGE
 import android.content.*
 import android.content.pm.PackageManager.PERMISSION_GRANTED
 import android.os.Bundle
@@ -43,7 +43,7 @@ abstract class BaseSongActivity<P : BasePresenter<*>> : BaseActivity<P>(), Obser
         val intent = Intent(this, PlayerService::class.java)
         startService(intent)
 
-        if (hasPermission(WRITE_EXTERNAL_STORAGE) && !isBound) {
+        if (hasPermission(READ_EXTERNAL_STORAGE) && !isBound) {
             bindService(intent, mConnection, Context.BIND_AUTO_CREATE)
         }
     }
@@ -93,8 +93,8 @@ abstract class BaseSongActivity<P : BasePresenter<*>> : BaseActivity<P>(), Obser
     }
 
     private fun checkPermission() {
-        if (!hasPermission(WRITE_EXTERNAL_STORAGE)) {
-            requestPermission(REQUEST_WRITE_EXTERNAL_STORAGE, WRITE_EXTERNAL_STORAGE)
+        if (!hasPermission(READ_EXTERNAL_STORAGE)) {
+            requestPermission(REQUEST_WRITE_EXTERNAL_STORAGE, READ_EXTERNAL_STORAGE)
         }
     }
 
