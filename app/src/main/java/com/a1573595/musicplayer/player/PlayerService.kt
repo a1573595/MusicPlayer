@@ -23,6 +23,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.FileDescriptor
 import java.io.FileNotFoundException
+import java.lang.Exception
 import java.util.*
 
 class PlayerService : Service(), Observer {
@@ -75,10 +76,11 @@ class PlayerService : Service(), Observer {
         val audioUri = Uri.withAppendedPath(uriExternal, id)
 
         try {
-            val fd = contentResolver.openFileDescriptor(audioUri, "r")?.fileDescriptor
-            addSong(fd!!, id!!, getSongTitle(audioUri))
-            playerManager.setChangedNotify(ACTION_FIND_NEW_SONG)
-        } catch (exception: IllegalStateException) {
+            contentResolver.openFileDescriptor(audioUri, "r")?.fileDescriptor?.let {
+                addSong(it, id!!, getSongTitle(audioUri))
+                playerManager.setChangedNotify(ACTION_FIND_NEW_SONG)
+            }
+        } catch (e: Exception) {
         }
 
         true
@@ -87,7 +89,7 @@ class PlayerService : Service(), Observer {
 
     private val playerManager: PlayerManager = PlayerManager()
 
-    private val songList: ArrayList<Song> = ArrayList()
+    private val songList: MutableList<Song> = mutableListOf()
     private var playerPosition: Int = 0    // song queue position
     private var isPlaying: Boolean = false // mediaPlayer.isPlaying may take some time update status
     var isRepeat: Boolean = false
@@ -172,16 +174,18 @@ class PlayerService : Service(), Observer {
             return
         }
 
-        songList.add(
-            Song(
-                id,
-                title,
-                artist ?: author ?: getString(R.string.unknown),
-                duration.toLong()
-            )
+        val song = Song(
+            id,
+            title,
+            artist ?: author ?: getString(R.string.unknown),
+            duration.toLong()
         )
 
-        metaRetriever.release()
+        if (!songList.contains(song)) {
+            songList.add(song)
+
+            metaRetriever.release()
+        }
     }
 
     suspend fun readSong() = withContext(Dispatchers.IO) {

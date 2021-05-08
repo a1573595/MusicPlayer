@@ -10,12 +10,16 @@ class AudioObserver(private val handler: Handler) : ContentObserver(handler) {
     override fun onChange(selfChange: Boolean, uri: Uri?) {
         super.onChange(selfChange, uri)
 
-        val b = Bundle()
-        b.putString("songID", uri?.lastPathSegment)
+        if (selfChange) return
 
-        val msg = Message()
-        msg.data = b
+        uri?.lastPathSegment?.let {
+            val b = Bundle()
+            b.putString("songID", it)
 
-        handler.sendMessage(msg)
+            val msg = Message()
+            msg.data = b
+
+            handler.sendMessage(msg)
+        }
     }
 }
