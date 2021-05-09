@@ -20,7 +20,7 @@
                 android:layout_height="match_parent">
 
                 <EditText
-                    android:id="@+id/ed_name"
+                    android:id="@+id/edName"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
@@ -46,7 +46,7 @@
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintDimensionRatio="1:1"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="@+id/ed_name"
+                    app:layout_constraintTop_toTopOf="@+id/edName"
                     app:srcCompat="@android:drawable/btn_star_big_on" />
             </androidx.constraintlayout.widget.ConstraintLayout>
         </com.google.android.material.appbar.CollapsingToolbarLayout>
@@ -76,20 +76,20 @@
             android:layout_height="wrap_content">
 
             <ImageView
-                android:id="@+id/img_disc"
+                android:id="@+id/imgDisc"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
                 android:layout_marginTop="8dp"
                 android:layout_marginBottom="8dp"
-                android:transitionName="img_disc"
-                app:layout_constraintBottom_toBottomOf="@+id/tv_artist"
+                android:transitionName="imgDisc"
+                app:layout_constraintBottom_toBottomOf="@+id/tvArtist"
                 app:layout_constraintDimensionRatio="1:1"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="@+id/tv_name"
+                app:layout_constraintTop_toTopOf="@+id/tvName"
                 app:srcCompat="@drawable/ic_disc" />
 
             <TextView
-                android:id="@+id/tv_name"
+                android:id="@+id/tvName"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
@@ -98,16 +98,16 @@
                 android:singleLine="true"
                 android:textColor="@color/colorTitleWhite"
                 android:textSize="@dimen/text_medium"
-                android:transitionName="tv_name"
+                android:transitionName="tvName"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.0"
-                app:layout_constraintStart_toEndOf="@+id/img_disc"
+                app:layout_constraintStart_toEndOf="@+id/imgDisc"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintWidth_percent=".6"
                 tools:text="Hello" />
 
             <TextView
-                android:id="@+id/tv_artist"
+                android:id="@+id/tvArtist"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
@@ -116,10 +116,10 @@
                 android:textColor="@color/colorTitleWhite"
                 android:textSize="@dimen/text_small"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="@+id/tv_name"
+                app:layout_constraintEnd_toEndOf="@+id/tvName"
                 app:layout_constraintHorizontal_bias="0.0"
-                app:layout_constraintStart_toStartOf="@+id/tv_name"
-                app:layout_constraintTop_toBottomOf="@+id/tv_name"
+                app:layout_constraintStart_toStartOf="@+id/tvName"
+                app:layout_constraintTop_toBottomOf="@+id/tvName"
                 tools:text="Adele" />
         </androidx.constraintlayout.widget.ConstraintLayout>
     </com.google.android.material.bottomappbar.BottomAppBar>
@@ -128,7 +128,7 @@
         android:id="@+id/btn_play"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:transitionName="btn_play"
+        android:transitionName="btnPlay"
         app:backgroundTint="@color/colorPrimary"
         app:layout_anchor="@id/bottomAppBar"
         app:rippleColor="@color/colorPrimary"

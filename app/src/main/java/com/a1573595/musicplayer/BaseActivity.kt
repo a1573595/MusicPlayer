@@ -19,9 +19,7 @@ abstract class BaseActivity<P : BasePresenter<*>> : AppCompatActivity(), BaseVie
         presenter = createPresenter()
     }
 
-    override fun isActive(): Boolean =
-        lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED) ||
-                lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)
+    override fun isActive(): Boolean = lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)
 
     override fun context(): Context = this
 

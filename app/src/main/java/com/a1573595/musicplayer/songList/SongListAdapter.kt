@@ -12,7 +12,7 @@ class SongListAdapter(private val presenter: SongListPresenter) :
     inner class SongHolder(val viewBinding: AdapterSongListBinding) : RecyclerView.ViewHolder(viewBinding.root) {
         init {
             itemView.setOnClickListener {
-                presenter.onSongClick(adapterPosition)
+                presenter.onSongClick(absoluteAdapterPosition)
             }
         }
     }

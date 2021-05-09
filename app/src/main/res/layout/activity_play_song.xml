@@ -7,7 +7,7 @@
     tools:context=".songList.SongListActivity">
 
     <ImageView
-        android:id="@+id/img_back"
+        android:id="@+id/imgBack"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginStart="16dp"
@@ -20,7 +20,7 @@
         app:srcCompat="?attr/homeAsUpIndicator" />
 
     <ImageView
-        android:id="@+id/img_background"
+        android:id="@+id/imgBackground"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginStart="16dp"
@@ -28,68 +28,68 @@
         app:layout_constraintDimensionRatio="1:1"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/img_back"
+        app:layout_constraintTop_toBottomOf="@+id/imgBack"
         app:srcCompat="@drawable/oval_black" />
 
     <FrameLayout
-        android:id="@+id/fl_disc"
+        android:id="@+id/flDisc"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        app:layout_constraintBottom_toBottomOf="@+id/img_background"
+        app:layout_constraintBottom_toBottomOf="@+id/imgBackground"
         app:layout_constraintDimensionRatio="1:1"
-        app:layout_constraintEnd_toEndOf="@+id/img_background"
-        app:layout_constraintStart_toStartOf="@+id/img_background"
-        app:layout_constraintTop_toTopOf="@+id/img_background"
+        app:layout_constraintEnd_toEndOf="@+id/imgBackground"
+        app:layout_constraintStart_toStartOf="@+id/imgBackground"
+        app:layout_constraintTop_toTopOf="@+id/imgBackground"
         app:layout_constraintWidth_percent=".6">
 
         <ImageView
-            android:id="@+id/img_disc"
+            android:id="@+id/imgDisc"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:transitionName="img_disc"
+            android:transitionName="imgDisc"
             app:srcCompat="@drawable/ic_disc" />
     </FrameLayout>
 
     <ImageView
-        android:id="@+id/img_favorite"
+        android:id="@+id/imgFavorite"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        app:layout_constraintBottom_toBottomOf="@+id/img_background"
+        app:layout_constraintBottom_toBottomOf="@+id/imgBackground"
         app:layout_constraintDimensionRatio="1:1"
-        app:layout_constraintEnd_toEndOf="@+id/img_background"
+        app:layout_constraintEnd_toEndOf="@+id/imgBackground"
         app:layout_constraintHorizontal_bias=".91"
-        app:layout_constraintStart_toStartOf="@+id/img_background"
-        app:layout_constraintTop_toTopOf="@+id/img_background"
+        app:layout_constraintStart_toStartOf="@+id/imgBackground"
+        app:layout_constraintTop_toTopOf="@+id/imgBackground"
         app:layout_constraintVertical_bias=".91"
         app:layout_constraintWidth_percent=".15"
         app:srcCompat="@drawable/ic_love" />
 
     <ImageView
-        android:id="@+id/img_repeat"
+        android:id="@+id/imgRepeat"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:background="@drawable/ripple_transparent"
-        app:layout_constraintBottom_toTopOf="@+id/tv_progress"
+        app:layout_constraintBottom_toTopOf="@+id/tvProgress"
         app:layout_constraintDimensionRatio="1:1"
-        app:layout_constraintStart_toStartOf="@+id/img_background"
-        app:layout_constraintTop_toBottomOf="@+id/img_background"
+        app:layout_constraintStart_toStartOf="@+id/imgBackground"
+        app:layout_constraintTop_toBottomOf="@+id/imgBackground"
         app:layout_constraintWidth_percent=".12"
         app:srcCompat="@drawable/ic_repeat" />
 
     <ImageView
-        android:id="@+id/img_random"
+        android:id="@+id/imgRandom"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:background="@drawable/ripple_transparent"
-        app:layout_constraintBottom_toBottomOf="@+id/img_repeat"
+        app:layout_constraintBottom_toBottomOf="@+id/imgRepeat"
         app:layout_constraintDimensionRatio="1:1"
-        app:layout_constraintEnd_toEndOf="@+id/img_background"
-        app:layout_constraintTop_toTopOf="@+id/img_repeat"
+        app:layout_constraintEnd_toEndOf="@+id/imgBackground"
+        app:layout_constraintTop_toTopOf="@+id/imgRepeat"
         app:layout_constraintWidth_percent=".12"
         app:srcCompat="@drawable/ic_random" />
 
     <TextView
-        android:id="@+id/tv_progress"
+        android:id="@+id/tvProgress"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
@@ -104,13 +104,13 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
-        app:layout_constraintBottom_toBottomOf="@+id/tv_progress"
-        app:layout_constraintEnd_toStartOf="@+id/tv_duration"
-        app:layout_constraintStart_toEndOf="@+id/tv_progress"
-        app:layout_constraintTop_toTopOf="@+id/tv_progress">
+        app:layout_constraintBottom_toBottomOf="@+id/tvProgress"
+        app:layout_constraintEnd_toStartOf="@+id/tvDuration"
+        app:layout_constraintStart_toEndOf="@+id/tvProgress"
+        app:layout_constraintTop_toTopOf="@+id/tvProgress">
 
         <TextView
-            android:id="@+id/tv_name"
+            android:id="@+id/tvName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:ellipsize="marquee"
@@ -119,20 +119,20 @@
             android:singleLine="true"
             android:textColor="@color/colorTitleBlack"
             android:textSize="@dimen/text_large"
-            android:transitionName="tv_name"
+            android:transitionName="tvName"
             tools:text="Hello" />
     </FrameLayout>
 
     <TextView
-        android:id="@+id/tv_duration"
+        android:id="@+id/tvDuration"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="00:00"
         android:textColor="@color/colorTitleBlack"
         android:textSize="@dimen/text_medium"
-        app:layout_constraintBottom_toBottomOf="@+id/tv_progress"
+        app:layout_constraintBottom_toBottomOf="@+id/tvProgress"
         app:layout_constraintEnd_toEndOf="@+id/seekBar"
-        app:layout_constraintTop_toTopOf="@+id/tv_progress" />
+        app:layout_constraintTop_toTopOf="@+id/tvProgress" />
 
     <SeekBar
         android:id="@+id/seekBar"
@@ -140,46 +140,46 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="24dp"
         android:max="100"
-        app:layout_constraintBottom_toTopOf="@+id/img_play"
-        app:layout_constraintEnd_toEndOf="@+id/img_random"
-        app:layout_constraintStart_toStartOf="@+id/img_repeat" />
+        app:layout_constraintBottom_toTopOf="@+id/imgPlay"
+        app:layout_constraintEnd_toEndOf="@+id/imgRandom"
+        app:layout_constraintStart_toStartOf="@+id/imgRepeat" />
 
     <ImageView
-        android:id="@+id/img_backward"
+        android:id="@+id/imgBackward"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:rotation="180"
-        app:layout_constraintBottom_toBottomOf="@+id/img_play"
+        app:layout_constraintBottom_toBottomOf="@+id/imgPlay"
         app:layout_constraintDimensionRatio="1:1"
-        app:layout_constraintEnd_toStartOf="@+id/img_play"
+        app:layout_constraintEnd_toStartOf="@+id/imgPlay"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/img_play"
+        app:layout_constraintTop_toTopOf="@+id/imgPlay"
         app:layout_constraintWidth_percent=".1"
         app:srcCompat="@drawable/ic_next" />
 
     <ImageView
-        android:id="@+id/img_play"
+        android:id="@+id/imgPlay"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:transitionName="img_play"
+        android:transitionName="imgPlay"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintDimensionRatio="1:1"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/img_background"
+        app:layout_constraintTop_toBottomOf="@+id/imgBackground"
         app:layout_constraintVertical_bias="0.85"
         app:layout_constraintWidth_percent=".13"
         app:srcCompat="@drawable/selector_play_pause" />
 
     <ImageView
-        android:id="@+id/img_forward"
+        android:id="@+id/imgForward"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        app:layout_constraintBottom_toBottomOf="@+id/img_play"
+        app:layout_constraintBottom_toBottomOf="@+id/imgPlay"
         app:layout_constraintDimensionRatio="1:1"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/img_play"
-        app:layout_constraintTop_toTopOf="@+id/img_play"
+        app:layout_constraintStart_toEndOf="@+id/imgPlay"
+        app:layout_constraintTop_toTopOf="@+id/imgPlay"
         app:layout_constraintWidth_percent=".1"
         app:srcCompat="@drawable/ic_next" />
 </androidx.constraintlayout.widget.ConstraintLayout>
