@@ -1,15 +1,19 @@
 package com.a1573595.musicplayer.playSong
 
 import android.animation.ValueAnimator
+import android.graphics.Point
 import android.os.Bundle
 import android.transition.ChangeBounds
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
 import android.view.animation.DecelerateInterpolator
+import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.SeekBar
 import androidx.core.content.ContextCompat
 import com.a1573595.musicplayer.BaseSongActivity
 import com.a1573595.musicplayer.R
+import com.a1573595.musicplayer.customView.FloatingAnimationView
 import com.a1573595.musicplayer.databinding.ActivityPlaySongBinding
 import com.a1573595.musicplayer.model.Song
 import com.a1573595.musicplayer.model.TimeUtil
@@ -27,6 +31,10 @@ class PlaySongActivity : BaseSongActivity<PlaySongPresenter>(), PlaySongView {
     private lateinit var scaleAnimation: Animation
 
     private lateinit var seekBarUpdateRunnable: Runnable
+    private val seekBarUpdateDelayMillis: Long = 1000
+
+    private lateinit var favoriteAnimationRunnable: Runnable
+    private val favoriteAnimationDelayMillis: Long = 300
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,11 +49,13 @@ class PlaySongActivity : BaseSongActivity<PlaySongPresenter>(), PlaySongView {
 
     override fun onStop() {
         super.onStop()
+        viewBinding.imgFavorite.removeCallbacks(favoriteAnimationRunnable)
         viewBinding.seekBar.removeCallbacks(seekBarUpdateRunnable)
     }
 
     override fun playerBound(player: PlayerService) {
         initElementAnimation()
+        initFavoriteRunnable()
         initSeekBarUpdateRunnable()
 
         presenter.setPlayerManager(player)
@@ -60,6 +70,7 @@ class PlaySongActivity : BaseSongActivity<PlaySongPresenter>(), PlaySongView {
     override fun createPresenter(): PlaySongPresenter = PlaySongPresenter(this)
 
     override fun updateSongState(song: Song, isPlaying: Boolean, progress: Int) {
+        viewBinding.imgFavorite.removeCallbacks(favoriteAnimationRunnable)
         viewBinding.seekBar.removeCallbacks(seekBarUpdateRunnable)
 
         viewBinding.tvName.text = song.name
@@ -71,8 +82,9 @@ class PlaySongActivity : BaseSongActivity<PlaySongPresenter>(), PlaySongView {
         viewBinding.imgPlay.setImageState(if (isPlaying) STATE_PLAY else STATE_PAUSE, false)
 
         if (isPlaying) {
+            viewBinding.imgFavorite.post(favoriteAnimationRunnable)
             viewBinding.flDisc.startAnimation(wheelAnimation)
-            viewBinding.seekBar.postDelayed(seekBarUpdateRunnable, 1000)
+            viewBinding.seekBar.postDelayed(seekBarUpdateRunnable, seekBarUpdateDelayMillis)
         } else {
             viewBinding.flDisc.clearAnimation()
         }
@@ -120,7 +132,34 @@ class PlaySongActivity : BaseSongActivity<PlaySongPresenter>(), PlaySongView {
     private fun initSeekBarUpdateRunnable() {
         seekBarUpdateRunnable = Runnable {
             viewBinding.seekBar.progress = viewBinding.seekBar.progress + 1
-            viewBinding.seekBar.postDelayed(seekBarUpdateRunnable, 1000)
+            viewBinding.seekBar.postDelayed(seekBarUpdateRunnable, seekBarUpdateDelayMillis)
+        }
+    }
+
+    private fun initFavoriteRunnable() {
+        val position = IntArray(2)
+        viewBinding.imgFavorite.getLocationInWindow(position)
+        val startPoint = Point((position[0]), (position[1]))
+
+        val favoriteDrawable = viewBinding.imgFavorite.drawable
+
+        favoriteAnimationRunnable = Runnable {
+            with(FloatingAnimationView(this)) {
+                setImageDrawable(favoriteDrawable)
+                scaleType = ImageView.ScaleType.CENTER_INSIDE
+                layoutParams = LinearLayout.LayoutParams(80, 80)
+                startPosition = startPoint
+                endPosition = Point(0, 0)
+
+                viewBinding.root.addView(this)
+
+                this.startAnimation()
+            }
+
+            viewBinding.imgFavorite.postDelayed(
+                favoriteAnimationRunnable,
+                favoriteAnimationDelayMillis
+            )
         }
     }
 
@@ -156,7 +195,7 @@ class PlaySongActivity : BaseSongActivity<PlaySongPresenter>(), PlaySongView {
                 viewBinding.tvProgress.text =
                     TimeUtil.timeMillisToTime((viewBinding.seekBar.progress * 1000).toLong())
 
-                viewBinding.seekBar.postDelayed(seekBarUpdateRunnable, 1000)
+                viewBinding.seekBar.postDelayed(seekBarUpdateRunnable, seekBarUpdateDelayMillis)
             }
         })
 

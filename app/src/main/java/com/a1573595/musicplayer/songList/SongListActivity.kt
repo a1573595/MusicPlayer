@@ -186,10 +186,13 @@ class SongListActivity : BaseSongActivity<SongListPresenter>(), SongListView {
         }
 
         viewBinding.bottomAppBar.setOnClickListener {
-            if(viewBinding.tvName.text.isNotEmpty() || viewBinding.tvArtist.text.isNotEmpty()) {
-                val p1: Pair<View, String> = Pair.create(viewBinding.imgDisc, viewBinding.imgDisc.transitionName)
-                val p2: Pair<View, String> = Pair.create(viewBinding.tvName, viewBinding.tvName.transitionName)
-                val p3: Pair<View, String> = Pair.create(viewBinding.btnPlay, viewBinding.btnPlay.transitionName)
+            if (viewBinding.tvName.text.isNotEmpty() || viewBinding.tvArtist.text.isNotEmpty()) {
+                val p1: Pair<View, String> =
+                    Pair.create(viewBinding.imgDisc, viewBinding.imgDisc.transitionName)
+                val p2: Pair<View, String> =
+                    Pair.create(viewBinding.tvName, viewBinding.tvName.transitionName)
+                val p3: Pair<View, String> =
+                    Pair.create(viewBinding.btnPlay, viewBinding.btnPlay.transitionName)
 
                 val options = ActivityOptionsCompat.makeSceneTransitionAnimation(this, p1, p2, p3)
 

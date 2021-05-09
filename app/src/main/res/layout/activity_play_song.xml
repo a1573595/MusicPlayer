@@ -62,7 +62,8 @@
         app:layout_constraintTop_toTopOf="@+id/imgBackground"
         app:layout_constraintVertical_bias=".91"
         app:layout_constraintWidth_percent=".15"
-        app:srcCompat="@drawable/ic_love" />
+        app:srcCompat="@drawable/ic_love"
+        app:tint="@android:color/holo_red_dark" />
 
     <ImageView
         android:id="@+id/imgRepeat"
