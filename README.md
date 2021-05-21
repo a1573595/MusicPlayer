@@ -8,15 +8,15 @@ Android music player example.
 ### Screenshots
 <div style="dispaly:flex">
     <img src="https://user-images.githubusercontent.com/25738593/98453966-f8a1d380-2199-11eb-9d53-11c64c71c578.jpg" width="32%">
-    <img src="https://user-images.githubusercontent.com/25738593/98453967-f8a1d380-2199-11eb-92f0-eb8d53c1884b.jpg" width="32%">
-    <img src="https://user-images.githubusercontent.com/25738593/98453968-f93a6a00-2199-11eb-8724-ccae3180bf94.jpg" width="32%">
+    <img src="https://user-images.githubusercontent.com/25738593/119064716-8b0b1580-ba0e-11eb-84d4-e5d71554aaab.jpg" width="32%">
+    <img src="https://user-images.githubusercontent.com/25738593/119064721-8e060600-ba0e-11eb-9bd3-82cb0b867915.jpg" width="32%">
 </div>
 
 Dark Mode.
 <div style="dispaly:flex">
     <img src="https://user-images.githubusercontent.com/25738593/98453963-f5a6e300-2199-11eb-8a1c-354f2e71308a.jpg" width="32%">
-    <img src="https://user-images.githubusercontent.com/25738593/98453964-f770a680-2199-11eb-918f-c84094e1c20a.jpg" width="32%">
-    <img src="https://user-images.githubusercontent.com/25738593/98453965-f8093d00-2199-11eb-8314-c74dbda4b875.jpg" width="32%">
+    <img src="https://user-images.githubusercontent.com/25738593/119064728-9100f680-ba0e-11eb-85d5-a230b0619aa1.jpg" width="32%">
+    <img src="https://user-images.githubusercontent.com/25738593/119064731-92caba00-ba0e-11eb-905f-564465a43b14.jpg" width="32%">
 </div>
 
 ### Supported Android Versions
