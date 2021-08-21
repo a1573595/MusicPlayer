@@ -11,7 +11,7 @@
     <string name="no_song_found">No song found</string>
     <string name="permission_requirement">Permission requirement</string>
     <string name="search_song">Search song</string>
-    <string name="unknown">\u003cunknown\u003e</string>
+    <string name="unknown">\u003c unknown \u003e</string>
     <string name="unsupported_format">Unsupported format</string>
     <string name="press_again_to_exit">Press again to exit</string>
 
