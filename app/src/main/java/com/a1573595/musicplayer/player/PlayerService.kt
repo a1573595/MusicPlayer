@@ -160,31 +160,35 @@ class PlayerService : Service(), Observer {
     }
 
     private fun addSong(fd: FileDescriptor, id: String, title: String) {
-        val metaRetriever = MediaMetadataRetriever()
-        metaRetriever.setDataSource(fd)
+        try {
+            if (!fd.valid()) {
+                return
+            }
 
-        val duration =
-            metaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)
-        val artist =
-            metaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST)
-        val author =
-            metaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_AUTHOR)
+            metaRetriever.setDataSource(fd)
 
-        if (duration.isNullOrEmpty()) {
-            return
-        }
+            val duration =
+                metaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)
+            val artist =
+                metaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST)
+            val author =
+                metaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_AUTHOR)
 
-        val song = Song(
-            id,
-            title,
-            artist ?: author ?: getString(R.string.unknown),
-            duration.toLong()
-        )
+            if (duration.isNullOrEmpty()) {
+                return
+            }
 
-        if (!songList.contains(song)) {
-            songList.add(song)
+            val song = Song(
+                id,
+                title,
+                artist ?: author ?: getString(R.string.unknown),
+                duration.toLong()
+            )
 
-            metaRetriever.release()
+            if (!songList.contains(song)) {
+                songList.add(song)
+            }
+        } catch (e: Exception) {
         }
     }
 
@@ -248,7 +252,7 @@ class PlayerService : Service(), Observer {
         try {
             val fd = contentResolver.openFileDescriptor(audioUri, "r")?.fileDescriptor!!
             playerManager.play(fd)
-        } catch (exception: FileNotFoundException) {
+        } catch (e: FileNotFoundException) {
             songList.removeAt(playerPosition)
             playerManager.setChangedNotify(ACTION_NOT_SONG_FOUND)
 
@@ -321,25 +325,25 @@ class PlayerService : Service(), Observer {
         intentPREVIOUS = PendingIntent.getBroadcast(
             this, BROADCAST_ID_MUSIC,
             Intent(NOTIFICATION_PREVIOUS).setPackage(packageName),
-            PendingIntent.FLAG_CANCEL_CURRENT
+            PendingIntent.FLAG_CANCEL_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
         intentPlay = PendingIntent.getBroadcast(
             this, BROADCAST_ID_MUSIC,
             Intent(NOTIFICATION_PLAY).setPackage(packageName),
-            PendingIntent.FLAG_CANCEL_CURRENT
+            PendingIntent.FLAG_CANCEL_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
         intentNext = PendingIntent.getBroadcast(
             this, BROADCAST_ID_MUSIC,
             Intent(NOTIFICATION_NEXT).setPackage(packageName),
-            PendingIntent.FLAG_CANCEL_CURRENT
+            PendingIntent.FLAG_CANCEL_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
         intentCancel = PendingIntent.getBroadcast(
             this, BROADCAST_ID_MUSIC,
             Intent(NOTIFICATION_CANCEL).setPackage(packageName),
-            PendingIntent.FLAG_CANCEL_CURRENT
+            PendingIntent.FLAG_CANCEL_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
     }
 
@@ -388,7 +392,7 @@ class PlayerService : Service(), Observer {
 
         return PendingIntent.getActivity(
             this, System.currentTimeMillis().toInt(), intent,
-            PendingIntent.FLAG_UPDATE_CURRENT
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
     }
 }
