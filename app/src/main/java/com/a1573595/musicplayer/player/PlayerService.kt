@@ -76,9 +76,10 @@ class PlayerService : Service(), Observer {
         val audioUri = Uri.withAppendedPath(uriExternal, id)
 
         try {
-            contentResolver.openFileDescriptor(audioUri, "r")?.fileDescriptor?.let {
-                addSong(it, id!!, getSongTitle(audioUri))
-                playerManager.setChangedNotify(ACTION_FIND_NEW_SONG)
+            contentResolver.openFileDescriptor(audioUri, "r")?.use {
+                if (addSong(it.fileDescriptor, id!!, getSongTitle(audioUri))) {
+                    playerManager.setChangedNotify(ACTION_FIND_NEW_SONG)
+                }
             }
         } catch (e: Exception) {
         }
@@ -159,10 +160,10 @@ class PlayerService : Service(), Observer {
         }
     }
 
-    private fun addSong(fd: FileDescriptor, id: String, title: String) {
+    private fun addSong(fd: FileDescriptor, id: String, title: String): Boolean {
         try {
             if (!fd.valid()) {
-                return
+                return false
             }
 
             metaRetriever.setDataSource(fd)
@@ -175,7 +176,7 @@ class PlayerService : Service(), Observer {
                 metaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_AUTHOR)
 
             if (duration.isNullOrEmpty()) {
-                return
+                return false
             }
 
             val song = Song(
@@ -189,7 +190,9 @@ class PlayerService : Service(), Observer {
                 songList.add(song)
             }
         } catch (e: Exception) {
+            return false
         }
+        return true
     }
 
     suspend fun readSong() = withContext(Dispatchers.IO) {
@@ -206,8 +209,10 @@ class PlayerService : Service(), Observer {
                 val id = it.getString(indexID)
                 val title = it.getString(indexTitle)
                 val audioUri = Uri.withAppendedPath(uriExternal, id)
-                val fd = contentResolver.openFileDescriptor(audioUri, "r")?.fileDescriptor!!
-                addSong(fd, id, title)
+
+                contentResolver.openFileDescriptor(audioUri, "r")?.use {
+                    addSong(it.fileDescriptor, id, title)
+                }
             }
         }
     }
