@@ -1,6 +1,11 @@
 <resources>
     <string name="app_name">MusicPlayer</string>
 
+    <!-- LeakCanary
+     In version 2.7, the default behavior changed: LeakCanary will continue to detect leaks of toasts,
+     but will ignore root views created by a PopupWindow (which is what Android widgets use). -->
+    <bool name="leak_canary_watcher_watch_dismissed_dialogs">true</bool>
+
     <string name="agree">Agree</string>
     <string name="cancel">Cancel</string>
     <string name="disagree">Disagree</string>

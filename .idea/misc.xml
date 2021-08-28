@@ -5,6 +5,14 @@
       <configuration PROFILE_NAME="Debug" CONFIG_NAME="Debug" />
     </configurations>
   </component>
+  <component name="DesignSurface">
+    <option name="filePathToZoomLevelMap">
+      <map>
+        <entry key="..\:/Android/MusicPlayer/app/src/main/res/layout/dialog_loading.xml" value="0.1743659420289855" />
+        <entry key="..\:/Android/MusicPlayer/app/src/main/res/layout/notification_console.xml" value="0.1743659420289855" />
+      </map>
+    </option>
+  </component>
   <component name="ProjectRootManager" version="2" languageLevel="JDK_11" project-jdk-name="1.8" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/build/classes" />
   </component>

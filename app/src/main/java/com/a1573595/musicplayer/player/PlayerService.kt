@@ -21,6 +21,7 @@ import com.a1573595.musicplayer.player.PlayerManager.Companion.ACTION_STOP
 import com.a1573595.musicplayer.songList.SongListActivity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import timber.log.Timber
 import java.io.FileDescriptor
 import java.io.FileNotFoundException
 import java.lang.Exception
@@ -82,6 +83,7 @@ class PlayerService : Service(), Observer {
                 }
             }
         } catch (e: Exception) {
+            Timber.e(e)
         }
 
         true
@@ -190,6 +192,7 @@ class PlayerService : Service(), Observer {
                 songList.add(song)
             }
         } catch (e: Exception) {
+            Timber.e(e)
             return false
         }
         return true
@@ -258,6 +261,8 @@ class PlayerService : Service(), Observer {
             val fd = contentResolver.openFileDescriptor(audioUri, "r")?.fileDescriptor!!
             playerManager.play(fd)
         } catch (e: FileNotFoundException) {
+            Timber.e(e)
+
             songList.removeAt(playerPosition)
             playerManager.setChangedNotify(ACTION_NOT_SONG_FOUND)
 

@@ -6,8 +6,6 @@ import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.text.Editable
-import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.animation.Animation
@@ -15,11 +13,11 @@ import android.view.animation.AnimationUtils
 import android.view.animation.LayoutAnimationController
 import android.view.animation.LinearInterpolator
 import android.view.inputmethod.InputMethodManager
-import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityOptionsCompat
 import androidx.core.content.ContextCompat
 import androidx.core.util.Pair
+import androidx.core.widget.addTextChangedListener
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.a1573595.musicplayer.*
@@ -36,7 +34,7 @@ import java.util.*
 class SongListActivity : BaseSongActivity<SongListPresenter>(), SongListView {
     private lateinit var viewBinding: ActivitySongListBinding
 
-    private lateinit var dialog: AlertDialog
+    private var loadingDialog: AlertDialog? = null
 
     private lateinit var wheelAnimation: Animation
 
@@ -54,11 +52,18 @@ class SongListActivity : BaseSongActivity<SongListPresenter>(), SongListView {
         viewBinding.tvName.isSelected = true
     }
 
+    override fun onDestroy() {
+        loadingDialog?.dismiss()
+        loadingDialog = null
+
+        super.onDestroy()
+    }
+
     override fun onBackPressed() {
         if (backHandler.hasMessages(0)) {
             super.onBackPressed()
         } else {
-            Toast.makeText(this, getString(R.string.press_again_to_exit), Toast.LENGTH_SHORT).show()
+            showToast(getString(R.string.press_again_to_exit))
             backHandler.removeCallbacksAndMessages(null)
             backHandler.postDelayed({}, 2000)
         }
@@ -79,22 +84,29 @@ class SongListActivity : BaseSongActivity<SongListPresenter>(), SongListView {
 
     override fun showLoading() {
         lifecycleScope.launch {
-            val loadViewBinding = DialogLoadingBinding.inflate(LayoutInflater.from(this@SongListActivity))
+            val loadViewBinding =
+                DialogLoadingBinding.inflate(LayoutInflater.from(this@SongListActivity))
 
-            dialog = MaterialAlertDialogBuilder(context()).create()
-            dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
-            dialog.setView(loadViewBinding.root)
-            dialog.setCancelable(false)
-            dialog.show()
+            val animator = ValueAnimator.ofInt(0, 8).apply {
+                duration = 750
+                interpolator = LinearInterpolator()
+                repeatCount = ValueAnimator.INFINITE
 
-            val animator = ValueAnimator.ofInt(0, 8)
-            animator.duration = 750
-            animator.interpolator = LinearInterpolator()
-            animator.repeatCount = ValueAnimator.INFINITE
+                addUpdateListener {
+                    loadViewBinding.imgLoad.rotation = (it.animatedValue as Int).toFloat() * 45
+                    loadViewBinding.imgLoad.requestLayout()
+                }
+            }
 
-            animator.addUpdateListener {
-                loadViewBinding.imgLoad.rotation = (it.animatedValue as Int).toFloat() * 45
-                loadViewBinding.imgLoad.requestLayout()
+            loadingDialog = MaterialAlertDialogBuilder(context()).create().apply {
+                window?.setBackgroundDrawableResource(android.R.color.transparent)
+                setView(loadViewBinding.root)
+                setCancelable(false)
+                setOnDismissListener {
+                    animator.removeAllListeners()
+                    animator.cancel()
+                }
+                show()
             }
 
             animator.start()
@@ -103,7 +115,8 @@ class SongListActivity : BaseSongActivity<SongListPresenter>(), SongListView {
 
     override fun stopLoading() {
         lifecycleScope.launch {
-            dialog.dismiss()
+            loadingDialog?.dismiss()
+            loadingDialog = null
 
             viewBinding.recyclerView.scheduleLayoutAnimation()
         }
@@ -165,15 +178,9 @@ class SongListActivity : BaseSongActivity<SongListPresenter>(), SongListView {
     }
 
     private fun setListen() {
-        viewBinding.edName.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
-
-            override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {}
-
-            override fun afterTextChanged(s: Editable) {
-                presenter.filterSong(s.toString())
-            }
-        })
+        viewBinding.edName.addTextChangedListener {
+            presenter.filterSong(it.toString())
+        }
 
         viewBinding.imgReview.setOnClickListener {
             presenter.review(this)
