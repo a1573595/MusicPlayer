@@ -19,11 +19,14 @@ abstract class BaseSongActivity<P : BasePresenter<*>> : BaseActivity<P>(), Obser
     private val mConnection = object : ServiceConnection {
         override fun onServiceConnected(p0: ComponentName?, binder: IBinder) {
             val localBinder = binder as PlayerService.LocalBinder
-            player = localBinder.service
 
-            player.addPlayerObserver(this@BaseSongActivity)
-            isBound = true
-            playerBound(player)
+            localBinder.service?.let {
+                player = it
+
+                player.addPlayerObserver(this@BaseSongActivity)
+                isBound = true
+                playerBound(player)
+            }
         }
 
         override fun onServiceDisconnected(p0: ComponentName?) {

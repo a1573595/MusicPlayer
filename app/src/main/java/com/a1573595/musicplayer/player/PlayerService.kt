@@ -13,6 +13,7 @@ import android.widget.RemoteViews
 import android.widget.Toast
 import androidx.core.app.NotificationCompat
 import com.a1573595.musicplayer.R
+import com.a1573595.musicplayer.Weak
 import com.a1573595.musicplayer.model.Song
 import com.a1573595.musicplayer.player.PlayerManager.Companion.ACTION_COMPLETE
 import com.a1573595.musicplayer.player.PlayerManager.Companion.ACTION_PAUSE
@@ -100,8 +101,14 @@ class PlayerService : Service(), Observer {
 
     inner class LocalBinder : Binder() {
         // Return this instance of PlayerService so clients can call public methods
-        val service: PlayerService = this@PlayerService
+//        val service: PlayerService = this@PlayerService
+
+        var service by Weak {
+            this@PlayerService
+        }
     }
+
+    private var binder: LocalBinder? = null
 
     override fun onCreate() {
         super.onCreate()
@@ -112,10 +119,12 @@ class PlayerService : Service(), Observer {
         contentResolver.registerContentObserver(uriExternal, true, audioObserver)
         registerReceiver()
         addPlayerObserver(this)
+
+        binder = LocalBinder()
     }
 
-    override fun onBind(intent: Intent): IBinder {
-        return LocalBinder()
+    override fun onBind(intent: Intent): IBinder? {
+        return binder
     }
 
     override fun onTaskRemoved(rootIntent: Intent) {
@@ -125,7 +134,7 @@ class PlayerService : Service(), Observer {
     }
 
     override fun onDestroy() {
-        super.onDestroy()
+        binder = null
 
         contentResolver.unregisterContentObserver(audioObserver)
         unregisterReceiver(receiver)
@@ -133,6 +142,8 @@ class PlayerService : Service(), Observer {
 
         deletePlayerObserver(this)
         playerManager.stop()
+
+        super.onDestroy()
     }
 
     override fun update(o: Observable?, any: Any?) {
