@@ -44,7 +44,7 @@ class PlayerManager : Observable() {
         mediaPlayer.reset()
 
         mediaPlayer.setDataSource(fd)
-        mediaPlayer.prepare()
+        mediaPlayer.prepareAsync()
     }
 
     fun seekTo(progress: Int) {
