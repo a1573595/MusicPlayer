@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -14,7 +15,7 @@
         android:layout_alignBottom="@+id/linearLayout"
         android:layout_margin="8dp"
         android:src="@drawable/ic_music"
-        android:tint="@color/colorTitleBlack" />
+        app:tint="@color/colorTitleBlack" />
 
     <TextView
         android:id="@+id/tv_name"
@@ -47,7 +48,7 @@
             android:layout_weight="1"
             android:rotation="180"
             android:src="@drawable/ic_next"
-            android:tint="@color/colorTitleBlack" />
+            app:tint="@color/colorTitleBlack" />
 
         <ImageView
             android:id="@+id/img_play"
@@ -55,7 +56,7 @@
             android:layout_height="30dp"
             android:layout_weight="1"
             android:src="@drawable/ic_play"
-            android:tint="@color/colorTitleBlack" />
+            app:tint="@color/colorTitleBlack" />
 
         <ImageView
             android:id="@+id/img_next"
@@ -63,7 +64,7 @@
             android:layout_height="24dp"
             android:layout_weight="1"
             android:src="@drawable/ic_next"
-            android:tint="@color/colorTitleBlack" />
+            app:tint="@color/colorTitleBlack" />
     </LinearLayout>
 
     <ImageView
@@ -76,5 +77,5 @@
         android:layout_marginEnd="8dp"
         android:layout_marginBottom="-8dp"
         android:src="@drawable/ic_cross"
-        android:tint="@color/colorTitleBlack" />
+        app:tint="@color/colorTitleBlack" />
 </RelativeLayout>

@@ -13,11 +13,12 @@ class PlaySongPresenter(view: PlaySongView) : BasePresenter<PlaySongView>(view) 
     }
 
     fun fetchSongState() {
-        val song = player.getSong() ?: return
-        view.updateSongState(song, player.isPlaying(), player.getProgress())
+        player.getSong()?.let {
+            view.updateSongState(it, player.isPlaying(), player.getProgress())
 
-        view.showRepeat(player.isRepeat)
-        view.showRandom(player.isRandom)
+            view.showRepeat(player.isRepeat)
+            view.showRandom(player.isRandom)
+        }
     }
 
     fun updateRepeat(): Boolean {

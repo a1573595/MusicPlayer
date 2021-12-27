@@ -22,8 +22,10 @@ import com.a1573595.musicplayer.player.PlayerService
 import java.util.*
 
 class PlaySongActivity : BaseSongActivity<PlaySongPresenter>(), PlaySongView {
-    private val STATE_PLAY = intArrayOf(R.attr.state_pause)
-    private val STATE_PAUSE = intArrayOf(-R.attr.state_pause)
+    companion object {
+        private val STATE_PLAY = intArrayOf(R.attr.state_pause)
+        private val STATE_PAUSE = intArrayOf(-R.attr.state_pause)
+    }
 
     private lateinit var viewBinding: ActivityPlaySongBinding
 
@@ -186,7 +188,7 @@ class PlaySongActivity : BaseSongActivity<PlaySongPresenter>(), PlaySongView {
                     TimeUtil.timeMillisToTime((viewBinding.seekBar.progress * 1000).toLong())
             }
 
-            override fun onStartTrackingTouch(s: SeekBar) {}
+            override fun onStartTrackingTouch(s: SeekBar) = Unit
 
             override fun onStopTrackingTouch(s: SeekBar) {
                 viewBinding.seekBar.removeCallbacks(seekBarUpdateRunnable)

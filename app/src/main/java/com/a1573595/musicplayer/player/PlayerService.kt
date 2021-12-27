@@ -103,7 +103,7 @@ class PlayerService : Service(), Observer {
         // Return this instance of PlayerService so clients can call public methods
 //        val service: PlayerService = this@PlayerService
 
-        var service by Weak {
+        val service by Weak {
             this@PlayerService
         }
     }
@@ -320,7 +320,7 @@ class PlayerService : Service(), Observer {
             null
         )?.use {
             if (it.moveToNext()) {
-                title = it.getString(it.getColumnIndex(MediaStore.Audio.Media.TITLE))
+                title = it.getString(it.getColumnIndexOrThrow(MediaStore.Audio.Media.TITLE))
             }
         }
 

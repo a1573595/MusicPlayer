@@ -182,10 +182,6 @@ class SongListActivity : BaseSongActivity<SongListPresenter>(), SongListView {
             presenter.filterSong(it.toString())
         }
 
-        viewBinding.imgReview.setOnClickListener {
-            presenter.review(this)
-        }
-
         viewBinding.btnPlay.setOnClickListener {
             presenter.onSongPlay()
 

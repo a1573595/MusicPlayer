@@ -8,6 +8,26 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/Android/MusicPlayer/app/src/main/res/drawable/avd_pause_to_play.xml" value="0.25729166666666664" />
+        <entry key="..\:/Android/MusicPlayer/app/src/main/res/drawable/avd_play_to_pause.xml" value="0.25729166666666664" />
+        <entry key="..\:/Android/MusicPlayer/app/src/main/res/drawable/ic_cross.xml" value="0.25729166666666664" />
+        <entry key="..\:/Android/MusicPlayer/app/src/main/res/drawable/ic_disc.xml" value="0.25729166666666664" />
+        <entry key="..\:/Android/MusicPlayer/app/src/main/res/drawable/ic_download.xml" value="0.25729166666666664" />
+        <entry key="..\:/Android/MusicPlayer/app/src/main/res/drawable/ic_launcher_background.xml" value="0.25729166666666664" />
+        <entry key="..\:/Android/MusicPlayer/app/src/main/res/drawable/ic_loader.xml" value="0.25729166666666664" />
+        <entry key="..\:/Android/MusicPlayer/app/src/main/res/drawable/ic_love.xml" value="0.25729166666666664" />
+        <entry key="..\:/Android/MusicPlayer/app/src/main/res/drawable/ic_next.xml" value="0.25729166666666664" />
+        <entry key="..\:/Android/MusicPlayer/app/src/main/res/drawable/ic_pause.xml" value="0.25729166666666664" />
+        <entry key="..\:/Android/MusicPlayer/app/src/main/res/drawable/ic_play.xml" value="0.25729166666666664" />
+        <entry key="..\:/Android/MusicPlayer/app/src/main/res/drawable/ic_random.xml" value="0.25729166666666664" />
+        <entry key="..\:/Android/MusicPlayer/app/src/main/res/drawable/ic_repeat.xml" value="0.25729166666666664" />
+        <entry key="..\:/Android/MusicPlayer/app/src/main/res/drawable/ic_search.xml" value="0.25729166666666664" />
+        <entry key="..\:/Android/MusicPlayer/app/src/main/res/drawable/oval_black.xml" value="0.25729166666666664" />
+        <entry key="..\:/Android/MusicPlayer/app/src/main/res/drawable/ripple_transparent.xml" value="0.25729166666666664" />
+        <entry key="..\:/Android/MusicPlayer/app/src/main/res/drawable/selector_play_pause.xml" value="0.25729166666666664" />
+        <entry key="..\:/Android/MusicPlayer/app/src/main/res/layout/activity_play_song.xml" value="0.24114583333333334" />
+        <entry key="..\:/Android/MusicPlayer/app/src/main/res/layout/activity_song_list.xml" value="0.24114583333333334" />
+        <entry key="..\:/Android/MusicPlayer/app/src/main/res/layout/adapter_song_list.xml" value="0.24114583333333334" />
         <entry key="..\:/Android/MusicPlayer/app/src/main/res/layout/dialog_loading.xml" value="0.1743659420289855" />
         <entry key="..\:/Android/MusicPlayer/app/src/main/res/layout/notification_console.xml" value="0.1743659420289855" />
       </map>

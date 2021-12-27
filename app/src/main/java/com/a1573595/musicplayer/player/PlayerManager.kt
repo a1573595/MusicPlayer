@@ -1,6 +1,7 @@
 package com.a1573595.musicplayer.player
 
 import android.media.MediaPlayer
+import timber.log.Timber
 import java.io.FileDescriptor
 import java.util.*
 
@@ -79,6 +80,11 @@ class PlayerManager : Observable() {
 
         mediaPlayer.setOnCompletionListener {
             setChangedNotify(ACTION_COMPLETE)
+        }
+
+        mediaPlayer.setOnErrorListener { mp, what, extra ->
+            Timber.e("MediaPlayer error type:$what, code:$extra, currentPosition:${mp.currentPosition}")
+            return@setOnErrorListener false
         }
     }
 }
