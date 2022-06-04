@@ -44,7 +44,8 @@ class PlayerService : Service(), Observer {
         const val ACTION_NOT_SONG_FOUND = "action.NOT_FOUND"
     }
 
-    private lateinit var remoteView: RemoteViews
+    private lateinit var smallRemoteView: RemoteViews
+    private lateinit var largeRemoteView: RemoteViews
     private lateinit var intentPREVIOUS: PendingIntent
     private lateinit var intentPlay: PendingIntent
     private lateinit var intentNext: PendingIntent
@@ -341,7 +342,8 @@ class PlayerService : Service(), Observer {
     }
 
     private fun initRemoteView() {
-        remoteView = RemoteViews(packageName, R.layout.notification_console)
+        smallRemoteView = RemoteViews(packageName, R.layout.notification_small)
+        largeRemoteView = RemoteViews(packageName, R.layout.notification_large)
 
         intentPREVIOUS = PendingIntent.getBroadcast(
             this, BROADCAST_ID_MUSIC,
@@ -380,15 +382,22 @@ class PlayerService : Service(), Observer {
     private fun createNotification(): Notification {
         val song = getSong()
 
-        remoteView.setTextViewText(R.id.tv_name, song?.name)
-        remoteView.setImageViewResource(
+        smallRemoteView.setTextViewText(R.id.tv_name, song?.name)
+        smallRemoteView.setImageViewResource(
             R.id.img_play,
             if (isPlaying) R.drawable.ic_pause else R.drawable.ic_play
         )
-        remoteView.setOnClickPendingIntent(R.id.img_previous, intentPREVIOUS)
-        remoteView.setOnClickPendingIntent(R.id.img_play, intentPlay)
-        remoteView.setOnClickPendingIntent(R.id.img_next, intentNext)
-        remoteView.setOnClickPendingIntent(R.id.img_cancel, intentCancel)
+
+        largeRemoteView.setTextViewText(R.id.tv_name, song?.name)
+        largeRemoteView.setImageViewResource(
+            R.id.img_play,
+            if (isPlaying) R.drawable.ic_pause else R.drawable.ic_play
+        )
+        largeRemoteView.setOnClickPendingIntent(R.id.img_previous, intentPREVIOUS)
+        largeRemoteView.setOnClickPendingIntent(R.id.img_play, intentPlay)
+        largeRemoteView.setOnClickPendingIntent(R.id.img_next, intentNext)
+        largeRemoteView.setOnClickPendingIntent(R.id.img_cancel, intentCancel)
+
 
         val notificationBuilder = NotificationCompat.Builder(this, CHANNEL_ID_MUSIC)
         notificationBuilder.setSmallIcon(R.drawable.ic_music)
@@ -398,8 +407,8 @@ class PlayerService : Service(), Observer {
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
             .setOnlyAlertOnce(true)
             .setContentIntent(createContentIntent())
-            .setCustomContentView(remoteView)
-            .setCustomBigContentView(remoteView)    //show full remoteView
+            .setCustomContentView(smallRemoteView)
+            .setCustomBigContentView(largeRemoteView)    //show full remoteView
 //            .setOngoing(true) // not working when use startForeground()
 
         return notificationBuilder.build()
