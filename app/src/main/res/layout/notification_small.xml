@@ -12,7 +12,7 @@
         android:layout_width="@dimen/icon_small"
         android:layout_height="@dimen/icon_small"
         android:layout_alignTop="@+id/tv_name"
-        android:src="@drawable/ic_music"
+        android:src="@drawable/ic_disc"
         app:tint="@color/colorTitleBlack" />
 
     <TextView

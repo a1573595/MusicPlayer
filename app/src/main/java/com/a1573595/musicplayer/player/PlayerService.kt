@@ -407,6 +407,7 @@ class PlayerService : Service(), Observer {
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
             .setOnlyAlertOnce(true)
             .setContentIntent(createContentIntent())
+            .setStyle(NotificationCompat.DecoratedCustomViewStyle())
             .setCustomContentView(smallRemoteView)
             .setCustomBigContentView(largeRemoteView)    //show full remoteView
 //            .setOngoing(true) // not working when use startForeground()
