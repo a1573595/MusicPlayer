@@ -398,7 +398,6 @@ class PlayerService : Service(), Observer {
         largeRemoteView.setOnClickPendingIntent(R.id.img_next, intentNext)
         largeRemoteView.setOnClickPendingIntent(R.id.img_cancel, intentCancel)
 
-
         val notificationBuilder = NotificationCompat.Builder(this, CHANNEL_ID_MUSIC)
         notificationBuilder.setSmallIcon(R.drawable.ic_music)
 //            .setLargeIcon(BitmapFactory.decodeResource(this.resources, R.drawable.music))
