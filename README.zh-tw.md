@@ -7,16 +7,18 @@ Android音樂撥放器範例。
 
 ### 螢幕截圖
 <div style="dispaly:flex">
-    <img src="https://user-images.githubusercontent.com/25738593/98453966-f8a1d380-2199-11eb-9d53-11c64c71c578.jpg" width="32%">
-    <img src="https://user-images.githubusercontent.com/25738593/119064716-8b0b1580-ba0e-11eb-84d4-e5d71554aaab.jpg" width="32%">
-    <img src="https://user-images.githubusercontent.com/25738593/119064721-8e060600-ba0e-11eb-9bd3-82cb0b867915.jpg" width="32%">
+    <img src="https://user-images.githubusercontent.com/25738593/171998333-94ab4c37-8747-4bad-a856-5b0faa45a918.jpg" width="24%">
+    <img src="https://user-images.githubusercontent.com/25738593/171998337-959f343d-5fbd-465b-82ec-3b40b83373d9.jpg" width="24%">
+    <img src="https://user-images.githubusercontent.com/25738593/171998342-61b342e0-e3b6-4d54-9b22-d71521be042c.jpg" width="24%">
+    <img src="https://user-images.githubusercontent.com/25738593/171998362-0220679d-d87a-4261-a7c5-b7732dba64c0.jpg" width="24%">
 </div>
 
 暗黑模式。
 <div style="dispaly:flex">
-    <img src="https://user-images.githubusercontent.com/25738593/98453963-f5a6e300-2199-11eb-8a1c-354f2e71308a.jpg" width="32%">
-    <img src="https://user-images.githubusercontent.com/25738593/119064728-9100f680-ba0e-11eb-85d5-a230b0619aa1.jpg" width="32%">
-    <img src="https://user-images.githubusercontent.com/25738593/119064731-92caba00-ba0e-11eb-905f-564465a43b14.jpg" width="32%">
+    <img src="https://user-images.githubusercontent.com/25738593/171998449-fdda845f-e543-40fd-8b55-422eb1c8c036.jpg" width="24%">
+    <img src="https://user-images.githubusercontent.com/25738593/171998453-e6c20810-53c6-489c-9ed3-c34837f1a5bc.jpg" width="24%">
+    <img src="https://user-images.githubusercontent.com/25738593/171998455-cff859b9-c65f-4767-886b-1e3f858502f2.jpg" width="24%">
+    <img src="https://user-images.githubusercontent.com/25738593/171998458-d3f07941-96d6-4eb9-9458-d73e216aa8d9.jpg" width="24%">
 </div>
 
 ### 支援Android版本
