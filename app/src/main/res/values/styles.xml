@@ -13,6 +13,7 @@
     <style name="NoActionBarTheme" parent="AppTheme">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
+        <item name="android:windowLayoutInDisplayCutoutMode" tools:targetApi="o_mr1">shortEdges</item>
     </style>
 
     <style name="AnimationDialog" parent="ThemeOverlay.AppCompat.Dialog.Alert">

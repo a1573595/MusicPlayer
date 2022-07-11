@@ -36,6 +36,8 @@
         <entry key="app/src/main/res/drawable/ic_next.xml" value="0.273" />
         <entry key="app/src/main/res/drawable/ic_pause.xml" value="0.209" />
         <entry key="app/src/main/res/drawable/ic_play.xml" value="0.273" />
+        <entry key="app/src/main/res/layout/activity_play_song.xml" value="0.375" />
+        <entry key="app/src/main/res/layout/activity_song_list.xml" value="0.375" />
         <entry key="app/src/main/res/layout/notification_console.xml" value="0.55" />
         <entry key="app/src/main/res/layout/notification_large.xml" value="0.19701086956521738" />
         <entry key="app/src/main/res/layout/notification_small.xml" value="0.19701086956521738" />

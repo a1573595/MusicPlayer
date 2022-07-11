@@ -4,13 +4,19 @@ import android.animation.ValueAnimator
 import android.graphics.Point
 import android.os.Bundle
 import android.transition.ChangeBounds
+import android.view.View
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
 import android.view.animation.DecelerateInterpolator
+import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.SeekBar
 import androidx.core.content.ContextCompat
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
 import com.a1573595.musicplayer.BaseSongActivity
 import com.a1573595.musicplayer.R
 import com.a1573595.musicplayer.customView.FloatingAnimationView
@@ -40,7 +46,10 @@ class PlaySongActivity : BaseSongActivity<PlaySongPresenter>(), PlaySongView {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        hideStatusBar()
+
         viewBinding = ActivityPlaySongBinding.inflate(layoutInflater)
+        setScreenHigh()
         setContentView(viewBinding.root)
         setBackground()
 
@@ -108,9 +117,45 @@ class PlaySongActivity : BaseSongActivity<PlaySongPresenter>(), PlaySongView {
         }
     }
 
+    private fun hideStatusBar() {
+//        window.decorView.systemUiVisibility = (View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+//                or View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+//                or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+//                or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+//                or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+//                or View.SYSTEM_UI_FLAG_FULLSCREEN
+//                or View.SYSTEM_UI_FLAG_LOW_PROFILE)
+
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+
+        WindowInsetsControllerCompat(window, window.decorView).apply {
+            // Hide the status bar
+            hide(WindowInsetsCompat.Type.statusBars())
+            // Allow showing the status bar with swiping from top to bottom
+            systemBarsBehavior =
+                WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+        }
+    }
+
     private fun setBackground() {
         viewBinding.root.background = ContextCompat.getDrawable(this, R.drawable.background_music)
         viewBinding.root.background.alpha = 30
+    }
+
+    private fun setScreenHigh() {
+        ViewCompat.setOnApplyWindowInsetsListener(
+            viewBinding.root
+        ) { view: View, windowInsets: WindowInsetsCompat ->
+            val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
+            view.layoutParams = (view.layoutParams as FrameLayout.LayoutParams).apply {
+                // draw on top of the bottom navigation bar
+                bottomMargin = insets.bottom
+            }
+
+            // Return CONSUMED if you don't want the window insets to keep being
+            // passed down to descendant views.
+            WindowInsetsCompat.CONSUMED
+        }
     }
 
     private fun initWindowAnimations() {
