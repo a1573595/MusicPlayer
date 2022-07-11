@@ -3,6 +3,7 @@ package com.a1573595.musicplayer.songList
 import android.animation.ValueAnimator
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -13,6 +14,7 @@ import android.view.animation.AnimationUtils
 import android.view.animation.LayoutAnimationController
 import android.view.animation.LinearInterpolator
 import android.view.inputmethod.InputMethodManager
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityOptionsCompat
 import androidx.core.content.ContextCompat
@@ -182,6 +184,10 @@ class SongListActivity : BaseSongActivity<SongListPresenter>(), SongListView {
             presenter.filterSong(it.toString())
         }
 
+        viewBinding.imgInfo.setOnClickListener {
+            openGithub()
+        }
+
         viewBinding.btnPlay.setOnClickListener {
             presenter.onSongPlay()
 
@@ -201,6 +207,21 @@ class SongListActivity : BaseSongActivity<SongListPresenter>(), SongListView {
 
                 startActivity(Intent(this, PlaySongActivity::class.java), options.toBundle())
             }
+        }
+    }
+
+    private fun openGithub() {
+        val intent =
+            Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/a1573595/MusicPlayer"))
+
+        if (intent.resolveActivity(packageManager) != null) {
+            startActivity(intent)
+        } else {
+            Toast.makeText(
+                this,
+                getString(R.string.cant_open_browser),
+                Toast.LENGTH_SHORT
+            ).show()
         }
     }
 

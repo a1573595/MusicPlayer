@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">MusicPlayer</string>
+    <string name="app_name" translatable="false">MusicPlayer</string>
 
     <!-- LeakCanary
      In version 2.7, the default behavior changed: LeakCanary will continue to detect leaks of toasts,
@@ -19,6 +19,7 @@
     <string name="unknown">\u003c unknown \u003e</string>
     <string name="unsupported_format">Unsupported format</string>
     <string name="press_again_to_exit">Press again to exit</string>
+    <string name="cant_open_browser">Can\'t open browser.</string>
 
     <declare-styleable name="PlayPauseState">
         <attr name="state_pause" format="boolean" />

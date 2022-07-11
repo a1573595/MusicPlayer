@@ -32,10 +32,13 @@
         <entry key="..\:/Android/MusicPlayer/app/src/main/res/layout/notification_console.xml" value="0.1743659420289855" />
         <entry key="app/src/main/res/drawable/ic_cross.xml" value="0.273" />
         <entry key="app/src/main/res/drawable/ic_disc.xml" value="0.209" />
+        <entry key="app/src/main/res/drawable/ic_info_svgrepo_com.xml" value="0.2615" />
+        <entry key="app/src/main/res/drawable/ic_loader.xml" value="0.2615" />
         <entry key="app/src/main/res/drawable/ic_music.xml" value="0.273" />
         <entry key="app/src/main/res/drawable/ic_next.xml" value="0.273" />
         <entry key="app/src/main/res/drawable/ic_pause.xml" value="0.209" />
         <entry key="app/src/main/res/drawable/ic_play.xml" value="0.273" />
+        <entry key="app/src/main/res/drawable/ic_search.xml" value="0.2615" />
         <entry key="app/src/main/res/layout/activity_play_song.xml" value="0.375" />
         <entry key="app/src/main/res/layout/activity_song_list.xml" value="0.375" />
         <entry key="app/src/main/res/layout/notification_console.xml" value="0.55" />
