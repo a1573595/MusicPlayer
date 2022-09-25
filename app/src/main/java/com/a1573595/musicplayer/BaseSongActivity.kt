@@ -88,10 +88,10 @@ abstract class BaseSongActivity<P : BasePresenter<*>> : BaseActivity<P>(), Prope
         grantResults: IntArray
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+
+        if (grantResults.isEmpty()) return
         when (requestCode) {
-            REQUEST_WRITE_EXTERNAL_STORAGE, REQUEST_READ_MEDIA_AUDIO -> if (grantResults.isNotEmpty() &&
-                grantResults[0] == PERMISSION_GRANTED
-            ) {
+            REQUEST_WRITE_EXTERNAL_STORAGE, REQUEST_READ_MEDIA_AUDIO -> if (grantResults[0] == PERMISSION_GRANTED) {
                 val intent = Intent(this, PlayerService::class.java)
                 bindService(intent, mConnection, Context.BIND_AUTO_CREATE)
             } else {
