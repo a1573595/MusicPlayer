@@ -31,7 +31,7 @@ import com.a1573595.musicplayer.player.PlayerManager
 import com.a1573595.musicplayer.player.PlayerService
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.launch
-import java.util.*
+import java.beans.PropertyChangeEvent
 
 class SongListActivity : BaseSongActivity<SongListPresenter>(), SongListView {
     private lateinit var viewBinding: ActivitySongListBinding
@@ -138,8 +138,8 @@ class SongListActivity : BaseSongActivity<SongListPresenter>(), SongListView {
         }
     }
 
-    override fun update(o: Observable?, any: Any?) {
-        when (any) {
+    override fun propertyChange(event: PropertyChangeEvent) {
+        when (event.propertyName) {
             PlayerManager.ACTION_PLAY, PlayerManager.ACTION_PAUSE -> {
                 presenter.fetchSongState()
             }

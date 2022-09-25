@@ -25,7 +25,7 @@ import com.a1573595.musicplayer.model.Song
 import com.a1573595.musicplayer.model.TimeUtil
 import com.a1573595.musicplayer.player.PlayerManager
 import com.a1573595.musicplayer.player.PlayerService
-import java.util.*
+import java.beans.PropertyChangeEvent
 
 class PlaySongActivity : BaseSongActivity<PlaySongPresenter>(), PlaySongView {
     companion object {
@@ -109,8 +109,8 @@ class PlaySongActivity : BaseSongActivity<PlaySongPresenter>(), PlaySongView {
         viewBinding.imgRandom.imageAlpha = if (isRandom) 255 else 80
     }
 
-    override fun update(o: Observable?, any: Any?) {
-        when (any) {
+    override fun propertyChange(event: PropertyChangeEvent) {
+        when (event.propertyName) {
             PlayerManager.ACTION_PLAY, PlayerManager.ACTION_PAUSE -> {
                 updateState()
             }

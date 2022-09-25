@@ -11,9 +11,9 @@ import android.os.IBinder
 import android.provider.Settings
 import com.a1573595.musicplayer.player.PlayerService
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import java.util.*
+import java.beans.PropertyChangeListener
 
-abstract class BaseSongActivity<P : BasePresenter<*>> : BaseActivity<P>(), Observer {
+abstract class BaseSongActivity<P : BasePresenter<*>> : BaseActivity<P>(), PropertyChangeListener {
     private val REQUEST_WRITE_EXTERNAL_STORAGE: Int = 10
     private val REQUEST_READ_MEDIA_AUDIO: Int = 11
 

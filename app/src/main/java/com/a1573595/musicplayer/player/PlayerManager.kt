@@ -2,10 +2,10 @@ package com.a1573595.musicplayer.player
 
 import android.media.MediaPlayer
 import timber.log.Timber
+import java.beans.PropertyChangeSupport
 import java.io.FileDescriptor
-import java.util.*
 
-class PlayerManager : Observable() {
+class PlayerManager : PropertyChangeSupport(this) {
     companion object {
         const val ACTION_COMPLETE = "action.COMPLETE"
         const val ACTION_PLAY = "action.PLAY"
@@ -21,9 +21,9 @@ class PlayerManager : Observable() {
         setListen()
     }
 
-    fun setChangedNotify(res: Any) {
-        setChanged()
-        notifyObservers(res)
+    fun setChangedNotify(event: String) {
+        Timber.i("setChangedNotify  $event")
+        firePropertyChange(event, null, event)
     }
 
     fun setPlayerProgress(progress: Int) {

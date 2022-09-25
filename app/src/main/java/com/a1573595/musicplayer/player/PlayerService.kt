@@ -23,11 +23,12 @@ import com.a1573595.musicplayer.songList.SongListActivity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import timber.log.Timber
+import java.beans.PropertyChangeEvent
+import java.beans.PropertyChangeListener
 import java.io.FileDescriptor
 import java.lang.Exception
-import java.util.*
 
-class PlayerService : Service(), Observer {
+class PlayerService : Service(), PropertyChangeListener {
     companion object {
         const val CHANNEL_ID_MUSIC = "app.MUSIC"
         const val CHANNEL_NAME_MUSIC = "Music"
@@ -151,8 +152,8 @@ class PlayerService : Service(), Observer {
         super.onDestroy()
     }
 
-    override fun update(o: Observable?, any: Any?) {
-        when (any) {
+    override fun propertyChange(event: PropertyChangeEvent) {
+        when (event.propertyName) {
             ACTION_COMPLETE -> {
                 playerManager.setPlayerProgress(0)
 
@@ -235,9 +236,11 @@ class PlayerService : Service(), Observer {
         }
     }
 
-    fun addPlayerObserver(o: Observer) = playerManager.addObserver(o)
+    fun addPlayerObserver(listener: PropertyChangeListener) =
+        playerManager.addPropertyChangeListener(listener)
 
-    fun deletePlayerObserver(o: Observer) = playerManager.deleteObserver(o)
+    fun deletePlayerObserver(listener: PropertyChangeListener) =
+        playerManager.removePropertyChangeListener(listener)
 
     fun isPlaying(): Boolean = isPlaying
 
