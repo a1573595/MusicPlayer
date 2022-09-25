@@ -1,16 +1,21 @@
 package com.a1573595.musicplayer
 
 import android.Manifest.permission.READ_EXTERNAL_STORAGE
+import android.Manifest.permission.READ_MEDIA_AUDIO
 import android.content.*
 import android.content.pm.PackageManager.PERMISSION_GRANTED
+import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
+import android.provider.Settings
 import com.a1573595.musicplayer.player.PlayerService
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import java.util.*
 
 abstract class BaseSongActivity<P : BasePresenter<*>> : BaseActivity<P>(), Observer {
     private val REQUEST_WRITE_EXTERNAL_STORAGE: Int = 10
+    private val REQUEST_READ_MEDIA_AUDIO: Int = 11
 
     private lateinit var player: PlayerService
 
@@ -46,7 +51,7 @@ abstract class BaseSongActivity<P : BasePresenter<*>> : BaseActivity<P>(), Obser
         val intent = Intent(this, PlayerService::class.java)
         startService(intent)
 
-        if (hasPermission(READ_EXTERNAL_STORAGE) && !isBound) {
+        if ((hasPermission(READ_MEDIA_AUDIO) || hasPermission(READ_EXTERNAL_STORAGE)) && !isBound) {
             bindService(intent, mConnection, Context.BIND_AUTO_CREATE)
         }
     }
@@ -84,7 +89,7 @@ abstract class BaseSongActivity<P : BasePresenter<*>> : BaseActivity<P>(), Obser
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         when (requestCode) {
-            REQUEST_WRITE_EXTERNAL_STORAGE -> if (grantResults.isNotEmpty() &&
+            REQUEST_WRITE_EXTERNAL_STORAGE, REQUEST_READ_MEDIA_AUDIO -> if (grantResults.isNotEmpty() &&
                 grantResults[0] == PERMISSION_GRANTED
             ) {
                 val intent = Intent(this, PlayerService::class.java)
@@ -96,7 +101,11 @@ abstract class BaseSongActivity<P : BasePresenter<*>> : BaseActivity<P>(), Obser
     }
 
     private fun checkPermission() {
-        if (!hasPermission(READ_EXTERNAL_STORAGE)) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (!hasPermission(READ_MEDIA_AUDIO)) {
+                requestPermission(REQUEST_READ_MEDIA_AUDIO, READ_MEDIA_AUDIO)
+            }
+        } else if (!hasPermission(READ_EXTERNAL_STORAGE)) {
             requestPermission(REQUEST_WRITE_EXTERNAL_STORAGE, READ_EXTERNAL_STORAGE)
         }
     }
@@ -107,13 +116,21 @@ abstract class BaseSongActivity<P : BasePresenter<*>> : BaseActivity<P>(), Obser
             .setMessage(getString(R.string.need_permission_to_access))
             .setPositiveButton(getString(R.string.agree)) { dialog, _ ->
                 dialog.dismiss()
-                checkPermission()
+                openAPPSettings()
             }
             .setNegativeButton(getString(R.string.disagree)) { dialog, _ ->
                 dialog.dismiss()
                 finish()
             }
             .show()
+    }
+
+    private fun openAPPSettings() {
+        val intent = Intent(
+            Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+            Uri.fromParts("package", packageName, null)
+        )
+        startActivity(intent)
     }
 
     abstract fun playerBound(player: PlayerService)

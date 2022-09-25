@@ -24,7 +24,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import timber.log.Timber
 import java.io.FileDescriptor
-import java.io.FileNotFoundException
 import java.lang.Exception
 import java.util.*
 
@@ -65,7 +64,12 @@ class PlayerService : Service(), Observer {
                 NOTIFICATION_NEXT -> skipToNext()
                 NOTIFICATION_CANCEL -> {
                     pause()
+
                     stopForeground(true)
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                        stopForeground(STOP_FOREGROUND_DETACH)
+                    }
+
                     stopSelf()
                 }
             }
@@ -163,7 +167,6 @@ class PlayerService : Service(), Observer {
             }
             ACTION_STOP -> {
                 isPlaying = false
-//                stopForeground(true)
             }
             ACTION_FIND_NEW_SONG -> {
                 Toast.makeText(this, getString(R.string.found_new_song), Toast.LENGTH_SHORT).show()
@@ -269,12 +272,9 @@ class PlayerService : Service(), Observer {
 
         val audioUri = Uri.withAppendedPath(uriExternal, songList[playerPosition].id)
 
-        try {
-            val fd = contentResolver.openFileDescriptor(audioUri, "r")?.fileDescriptor!!
-            playerManager.play(fd)
-        } catch (e: FileNotFoundException) {
-            Timber.e(e)
-
+        contentResolver.openFileDescriptor(audioUri, "r")?.use {
+            playerManager.play(it.fileDescriptor)
+        } ?: kotlin.run {
             songList.removeAt(playerPosition)
             playerManager.setChangedNotify(ACTION_NOT_SONG_FOUND)
 
