@@ -39,14 +39,17 @@ class SongListPresenter constructor(view: SongListView) : BasePresenter<SongList
     fun filterSong(key: String) {
         scope.launch {
             filteredSongList.clear()
+
+            val list = mutableListOf<Song>()
             player.getSongList().forEachIndexed { index, song ->
                 if (song.name.contains(key, true) || song.author.contains(key, true)) {
                     filteredSongList.put(index, song)
+                    list.add(song)
                 }
             }
 
             withContext(Dispatchers.Main) {
-                adapter.notifyDataSetChanged()
+                adapter.submitList(list)
             }
         }
     }
@@ -58,10 +61,6 @@ class SongListPresenter constructor(view: SongListView) : BasePresenter<SongList
             player.pause()
         }
     }
-
-    fun getItemCount() = filteredSongList.size()
-
-    fun getItem(position: Int): Song = filteredSongList.valueAt(position)
 
     fun onSongClick(index: Int) {
         view.onSongClick()
@@ -98,7 +97,7 @@ class SongListPresenter constructor(view: SongListView) : BasePresenter<SongList
 
             withContext(Dispatchers.Main) {
                 view.stopLoading()
-                adapter.notifyDataSetChanged()
+                adapter.submitList(player.getSongList())
                 fetchSongState()
             }
         }
