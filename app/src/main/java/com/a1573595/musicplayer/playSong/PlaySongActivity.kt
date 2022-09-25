@@ -212,7 +212,7 @@ class PlaySongActivity : BaseSongActivity<PlaySongPresenter>(), PlaySongView {
 
     private fun setListen() {
         viewBinding.imgBack.setOnClickListener {
-            onBackPressed()
+            onBackPressedDispatcher.onBackPressed()
         }
 
         viewBinding.imgRepeat.setOnClickListener {

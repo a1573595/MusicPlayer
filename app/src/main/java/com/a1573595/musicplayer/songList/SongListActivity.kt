@@ -15,6 +15,7 @@ import android.view.animation.LayoutAnimationController
 import android.view.animation.LinearInterpolator
 import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityOptionsCompat
 import androidx.core.content.ContextCompat
@@ -51,7 +52,18 @@ class SongListActivity : BaseSongActivity<SongListPresenter>(), SongListView {
         initElementAnimation()
         initRecyclerView()
 
-        viewBinding.tvName.isSelected = true
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+
+                if (backHandler.hasMessages(0)) {
+                    finish()
+                } else {
+                    showToast(getString(R.string.press_again_to_exit))
+                    backHandler.removeCallbacksAndMessages(null)
+                    backHandler.postDelayed({}, 2000)
+                }
+            }
+        })
     }
 
     override fun onDestroy() {
@@ -59,16 +71,6 @@ class SongListActivity : BaseSongActivity<SongListPresenter>(), SongListView {
         loadingDialog = null
 
         super.onDestroy()
-    }
-
-    override fun onBackPressed() {
-        if (backHandler.hasMessages(0)) {
-            super.onBackPressed()
-        } else {
-            showToast(getString(R.string.press_again_to_exit))
-            backHandler.removeCallbacksAndMessages(null)
-            backHandler.postDelayed({}, 2000)
-        }
     }
 
     override fun playerBound(player: PlayerService) {
