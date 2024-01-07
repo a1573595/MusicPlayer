@@ -5,6 +5,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK
 import android.media.MediaMetadataRetriever
 import android.net.Uri
 import android.os.*
@@ -164,7 +165,11 @@ class PlayerService : Service(), PropertyChangeListener {
                 }
             }
             ACTION_PLAY, ACTION_PAUSE -> {
-                startForeground(NOTIFICATION_ID_MUSIC, createNotification())
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    startForeground(NOTIFICATION_ID_MUSIC, createNotification(), FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK)
+                } else {
+                    startForeground(NOTIFICATION_ID_MUSIC, createNotification())
+                }
             }
             ACTION_STOP -> {
                 isPlaying = false
