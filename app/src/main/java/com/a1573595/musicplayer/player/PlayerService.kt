@@ -66,11 +66,11 @@ class PlayerService : Service(), PropertyChangeListener {
                 NOTIFICATION_CANCEL -> {
                     pause()
 
-                    stopForeground(true)
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                         stopForeground(STOP_FOREGROUND_DETACH)
+                    } else {
+                        stopForeground(true)
                     }
-
                     stopSelf()
                 }
             }
@@ -188,20 +188,15 @@ class PlayerService : Service(), PropertyChangeListener {
 
             val duration =
                 metaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)
-            val artist =
-                metaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST)
-            val author =
-                metaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_AUTHOR)
+            val artist = metaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST)
+            val author = metaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_AUTHOR)
 
             if (duration.isNullOrEmpty()) {
                 return false
             }
 
             val song = Song(
-                id,
-                title,
-                artist ?: author ?: getString(R.string.unknown),
-                duration.toLong()
+                id, title, artist ?: author ?: getString(R.string.unknown), duration.toLong()
             )
 
             if (!songList.contains(song)) {
@@ -218,15 +213,14 @@ class PlayerService : Service(), PropertyChangeListener {
         if (songList.isNotEmpty()) return@withContext
 
         contentResolver.query(
-            uriExternal, null, null, null,
-            null
-        )?.use {
-            val indexID: Int = it.getColumnIndexOrThrow(MediaStore.Audio.Media._ID)
-            val indexTitle: Int = it.getColumnIndexOrThrow(MediaStore.Audio.Media.TITLE)
+            uriExternal, null, null, null, null
+        )?.use { cursor ->
+            val indexID: Int = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media._ID)
+            val indexTitle: Int = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.TITLE)
 
-            while (it.moveToNext()) {
-                val id = it.getString(indexID)
-                val title = it.getString(indexTitle)
+            while (cursor.moveToNext()) {
+                val id = cursor.getString(indexID)
+                val title = cursor.getString(indexTitle)
                 val audioUri = Uri.withAppendedPath(uriExternal, id)
 
                 contentResolver.openFileDescriptor(audioUri, "r")?.use {
@@ -246,13 +240,7 @@ class PlayerService : Service(), PropertyChangeListener {
 
     fun getSongList() = songList.toList()
 
-    fun getSong(): Song? {
-        return if (songList.size > 0) {
-            songList[playerPosition]
-        } else {
-            null
-        }
-    }
+    fun getSong(): Song? = songList.getOrNull(playerPosition)
 
     fun getProgress(): Int = playerManager.getPlayerProgress()
 
@@ -320,8 +308,7 @@ class PlayerService : Service(), PropertyChangeListener {
         var title: String? = uri.lastPathSegment
 
         contentResolver.query(
-            uri, null, null, null,
-            null
+            uri, null, null, null, null
         )?.use {
             if (it.moveToNext()) {
                 title = it.getString(it.getColumnIndexOrThrow(MediaStore.Audio.Media.TITLE))
@@ -336,8 +323,7 @@ class PlayerService : Service(), PropertyChangeListener {
             val nm = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
             val status = NotificationChannel(
-                CHANNEL_ID_MUSIC,
-                CHANNEL_NAME_MUSIC, NotificationManager.IMPORTANCE_LOW
+                CHANNEL_ID_MUSIC, CHANNEL_NAME_MUSIC, NotificationManager.IMPORTANCE_LOW
             )
             status.description = "Music player"
             nm.createNotificationChannel(status)
@@ -349,25 +335,29 @@ class PlayerService : Service(), PropertyChangeListener {
         largeRemoteView = RemoteViews(packageName, R.layout.notification_large)
 
         intentPREVIOUS = PendingIntent.getBroadcast(
-            this, BROADCAST_ID_MUSIC,
+            this,
+            BROADCAST_ID_MUSIC,
             Intent(NOTIFICATION_PREVIOUS).setPackage(packageName),
             PendingIntent.FLAG_CANCEL_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
         intentPlay = PendingIntent.getBroadcast(
-            this, BROADCAST_ID_MUSIC,
+            this,
+            BROADCAST_ID_MUSIC,
             Intent(NOTIFICATION_PLAY).setPackage(packageName),
             PendingIntent.FLAG_CANCEL_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
         intentNext = PendingIntent.getBroadcast(
-            this, BROADCAST_ID_MUSIC,
+            this,
+            BROADCAST_ID_MUSIC,
             Intent(NOTIFICATION_NEXT).setPackage(packageName),
             PendingIntent.FLAG_CANCEL_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
         intentCancel = PendingIntent.getBroadcast(
-            this, BROADCAST_ID_MUSIC,
+            this,
+            BROADCAST_ID_MUSIC,
             Intent(NOTIFICATION_CANCEL).setPackage(packageName),
             PendingIntent.FLAG_CANCEL_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
@@ -379,7 +369,12 @@ class PlayerService : Service(), PropertyChangeListener {
         intentFilter.addAction(NOTIFICATION_PLAY)
         intentFilter.addAction(NOTIFICATION_NEXT)
         intentFilter.addAction(NOTIFICATION_CANCEL)
-        registerReceiver(receiver, intentFilter)
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            registerReceiver(receiver, intentFilter, RECEIVER_EXPORTED)
+        } else {
+            registerReceiver(receiver, intentFilter)
+        }
     }
 
     private fun createNotification(): Notification {
@@ -387,14 +382,12 @@ class PlayerService : Service(), PropertyChangeListener {
 
         smallRemoteView.setTextViewText(R.id.tv_name, song?.name)
         smallRemoteView.setImageViewResource(
-            R.id.img_play,
-            if (isPlaying) R.drawable.ic_pause else R.drawable.ic_play
+            R.id.img_play, if (isPlaying) R.drawable.ic_pause else R.drawable.ic_play
         )
 
         largeRemoteView.setTextViewText(R.id.tv_name, song?.name)
         largeRemoteView.setImageViewResource(
-            R.id.img_play,
-            if (isPlaying) R.drawable.ic_pause else R.drawable.ic_play
+            R.id.img_play, if (isPlaying) R.drawable.ic_pause else R.drawable.ic_play
         )
         largeRemoteView.setOnClickPendingIntent(R.id.img_previous, intentPREVIOUS)
         largeRemoteView.setOnClickPendingIntent(R.id.img_play, intentPlay)
@@ -404,10 +397,8 @@ class PlayerService : Service(), PropertyChangeListener {
         val notificationBuilder = NotificationCompat.Builder(this, CHANNEL_ID_MUSIC)
         notificationBuilder.setSmallIcon(R.drawable.ic_music)
 //            .setLargeIcon(BitmapFactory.decodeResource(this.resources, R.drawable.music))
-            .setContentTitle(song?.name)
-            .setContentText(song?.author)
-            .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-            .setOnlyAlertOnce(true)
+            .setContentTitle(song?.name).setContentText(song?.author)
+            .setVisibility(NotificationCompat.VISIBILITY_PUBLIC).setOnlyAlertOnce(true)
             .setContentIntent(createContentIntent())
             .setStyle(NotificationCompat.DecoratedCustomViewStyle())
             .setCustomContentView(smallRemoteView)
@@ -424,7 +415,9 @@ class PlayerService : Service(), PropertyChangeListener {
         intent.addCategory(Intent.CATEGORY_LAUNCHER)
 
         return PendingIntent.getActivity(
-            this, System.currentTimeMillis().toInt(), intent,
+            this,
+            System.currentTimeMillis().toInt(),
+            intent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
     }
