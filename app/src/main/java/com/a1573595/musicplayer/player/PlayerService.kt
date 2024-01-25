@@ -156,7 +156,7 @@ class PlayerService : Service(), PropertyChangeListener {
     override fun propertyChange(event: PropertyChangeEvent) {
         when (event.propertyName) {
             ACTION_COMPLETE -> {
-                playerManager.setPlayerProgress(0)
+                playerManager.playerProgress = 0
 
                 when {
                     isRepeat -> play()
@@ -247,13 +247,14 @@ class PlayerService : Service(), PropertyChangeListener {
 
     fun getSong(): Song? = songList.getOrNull(playerPosition)
 
-    fun getProgress(): Int = playerManager.getPlayerProgress()
+    fun getProgress(): Int = playerManager.playerProgress
 
     fun play(position: Int = playerPosition) {
         isPlaying = true
 
-        if (position != playerPosition) {   // Is different song
-            playerManager.setPlayerProgress(0)
+        // Is different song
+        if (position != playerPosition) {
+            playerManager.playerProgress = 0
         }
 
         playerPosition = when {
@@ -288,7 +289,7 @@ class PlayerService : Service(), PropertyChangeListener {
         if (isPlaying) {
             playerManager.seekTo(progress)
         } else {
-            playerManager.setPlayerProgress(progress)
+            playerManager.playerProgress = progress
             play()
         }
     }

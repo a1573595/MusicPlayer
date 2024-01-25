@@ -15,7 +15,7 @@ import android.view.animation.LayoutAnimationController
 import android.view.animation.LinearInterpolator
 import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
-import androidx.activity.OnBackPressedCallback
+import androidx.activity.addCallback
 import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityOptionsCompat
 import androidx.core.content.ContextCompat
@@ -45,25 +45,15 @@ class SongListActivity : BaseSongActivity<SongListPresenter>(), SongListView {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        registerOnBackPress()
+
         viewBinding = ActivitySongListBinding.inflate(layoutInflater)
         setContentView(viewBinding.root)
         setBackground()
 
         initElementAnimation()
         initRecyclerView()
-
-        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
-            override fun handleOnBackPressed() {
-
-                if (backHandler.hasMessages(0)) {
-                    finish()
-                } else {
-                    showToast(getString(R.string.press_again_to_exit))
-                    backHandler.removeCallbacksAndMessages(null)
-                    backHandler.postDelayed({}, 2000)
-                }
-            }
-        })
     }
 
     override fun onDestroy() {
@@ -156,6 +146,17 @@ class SongListActivity : BaseSongActivity<SongListPresenter>(), SongListView {
         viewBinding.bottomAppBar.performShow()
     }
 
+    private fun registerOnBackPress() {
+        onBackPressedDispatcher.addCallback {
+            if (backHandler.hasMessages(0)) {
+                finish()
+            } else {
+                showToast(getString(R.string.press_again_to_exit))
+                backHandler.removeCallbacksAndMessages(null)
+                backHandler.postDelayed({}, 2000)
+            }
+        }
+    }
     private fun setBackground() {
         viewBinding.root.background = ContextCompat.getDrawable(this, R.drawable.background_music)
         viewBinding.root.background.alpha = 30

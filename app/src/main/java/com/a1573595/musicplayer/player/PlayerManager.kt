@@ -15,7 +15,17 @@ class PlayerManager : PropertyChangeSupport(this) {
 
     private val mediaPlayer: MediaPlayer = MediaPlayer()
 
-    private var playerProgress: Int = 0    // player progress
+    var playerProgress: Int = 0
+        get() {
+            return if (mediaPlayer.isPlaying) {
+                mediaPlayer.currentPosition / 1000
+            } else {
+                field / 1000
+            }
+        }
+        set(value) {
+            field = value * 1000
+        }
 
     init {
         setListen()
@@ -24,18 +34,6 @@ class PlayerManager : PropertyChangeSupport(this) {
     fun setChangedNotify(event: String) {
         Timber.i("setChangedNotify  $event")
         firePropertyChange(event, null, event)
-    }
-
-    fun setPlayerProgress(progress: Int) {
-        playerProgress = progress * 1000
-    }
-
-    fun getPlayerProgress(): Int {
-        return if (mediaPlayer.isPlaying) {
-            mediaPlayer.currentPosition / 1000
-        } else {
-            playerProgress / 1000
-        }
     }
 
     fun play(fd: FileDescriptor) {
