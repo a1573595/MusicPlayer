@@ -1,6 +1,6 @@
 package com.a1573595.musicplayer.domain.player
 
-import com.a1573595.musicplayer.model.Song
+import com.a1573595.musicplayer.domain.song.Song
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 

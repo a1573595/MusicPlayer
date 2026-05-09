@@ -35,7 +35,7 @@
         android:theme="@style/NoActionBarTheme">
 
         <activity
-            android:name=".songList.SongListActivity"
+            android:name=".ui.songlist.SongListActivity"
             android:exported="true"
             android:launchMode="singleTask"
             android:windowSoftInputMode="stateAlwaysHidden|adjustPan">
@@ -45,10 +45,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".playSong.PlaySongActivity" />
+        <activity android:name=".ui.playsong.PlaySongActivity" />
 
         <service
-            android:name=".player.PlayerService"
+            android:name=".data.player.PlayerService"
             android:enabled="true"
             android:exported="false"
             android:foregroundServiceType="mediaPlayback" />

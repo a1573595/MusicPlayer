@@ -1,7 +1,7 @@
 package com.a1573595.musicplayer
 
 import com.a1573595.musicplayer.domain.player.PlaybackController
-import com.a1573595.musicplayer.model.Song
+import com.a1573595.musicplayer.domain.song.Song
 
 class FakePlaybackController(
     private val songs: List<Song> = emptyList(),

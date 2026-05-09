@@ -6,7 +6,7 @@ import android.net.Uri
 import android.provider.MediaStore
 import com.a1573595.musicplayer.R
 import com.a1573595.musicplayer.domain.song.SongRepository
-import com.a1573595.musicplayer.model.Song
+import com.a1573595.musicplayer.domain.song.Song
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext

@@ -8,7 +8,7 @@ import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.rule.GrantPermissionRule
-import com.a1573595.musicplayer.playSong.PlaySongActivity
+import com.a1573595.musicplayer.ui.playsong.PlaySongActivity
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith

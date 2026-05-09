@@ -1,7 +1,5 @@
 package com.a1573595.musicplayer.domain.song
 
-import com.a1573595.musicplayer.model.Song
-
 data class FilteredSongs(
     val songs: List<Song>,
     val originalPositions: List<Int>
