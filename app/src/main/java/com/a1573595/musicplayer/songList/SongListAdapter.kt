@@ -6,10 +6,9 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.a1573595.musicplayer.databinding.AdapterSongListBinding
 import com.a1573595.musicplayer.model.Song
-import com.a1573595.musicplayer.model.SongItemCallback
 import com.a1573595.musicplayer.model.TimeUtil
 
-class SongListAdapter(private val presenter: SongListPresenter) :
+class SongListAdapter(private val onSongClick: (Int) -> Unit) :
     ListAdapter<Song, SongListAdapter.SongHolder>(SongItemCallback()) {
     inner class SongHolder(val viewBinding: AdapterSongListBinding) :
         RecyclerView.ViewHolder(viewBinding.root) {
@@ -17,7 +16,7 @@ class SongListAdapter(private val presenter: SongListPresenter) :
             itemView.setOnClickListener {
                 val position = bindingAdapterPosition
                 if (position != RecyclerView.NO_POSITION) {
-                    presenter.onSongClick(position)
+                    onSongClick(position)
                 }
             }
         }

@@ -1,12 +1,12 @@
 package com.a1573595.musicplayer.playSong
 
 import com.a1573595.musicplayer.BasePresenter
-import com.a1573595.musicplayer.player.PlayerService
+import com.a1573595.musicplayer.domain.player.PlaybackController
 
 class PlaySongPresenter(view: PlaySongView) : BasePresenter<PlaySongView>(view) {
-    private lateinit var player: PlayerService
+    private lateinit var player: PlaybackController
 
-    fun setPlayerManager(player: PlayerService) {
+    fun setPlayerManager(player: PlaybackController) {
         this.player = player
 
         fetchSongState()

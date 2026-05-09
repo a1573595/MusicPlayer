@@ -4,30 +4,29 @@ import android.app.DownloadManager
 import android.content.Context
 import android.os.Environment
 import android.util.Patterns
-import android.util.SparseArray
 import androidx.core.net.toUri
 import com.a1573595.musicplayer.BasePresenter
 import com.a1573595.musicplayer.R
-import com.a1573595.musicplayer.model.Song
-import com.a1573595.musicplayer.player.PlayerService
+import com.a1573595.musicplayer.domain.player.PlaybackController
+import com.a1573595.musicplayer.domain.song.FilterSongsUseCase
+import com.a1573595.musicplayer.domain.song.FilteredSongs
 import kotlinx.coroutines.*
 
-class SongListPresenter constructor(view: SongListView) : BasePresenter<SongListView>(view) {
-    private val scope: CoroutineScope = CoroutineScope(Dispatchers.IO + Job())
+class SongListPresenter constructor(
+    view: SongListView,
+    private val filterSongs: FilterSongsUseCase = FilterSongsUseCase(),
+    private val scope: CoroutineScope = CoroutineScope(Dispatchers.IO + Job()),
+    private val mainDispatcher: CoroutineDispatcher = Dispatchers.Main
+) : BasePresenter<SongListView>(view) {
 
-    private lateinit var player: PlayerService
+    private lateinit var player: PlaybackController
 
-    private lateinit var adapter: SongListAdapter
-    private val filteredSongList: SparseArray<Song> = SparseArray()
+    private var filteredSongs: FilteredSongs = FilteredSongs(emptyList(), emptyList())
 
-    fun setPlayerManager(player: PlayerService) {
+    fun setPlayerManager(player: PlaybackController) {
         this.player = player
 
         loadSongList()
-    }
-
-    fun setAdapter(adapter: SongListAdapter) {
-        this.adapter = adapter
     }
 
     fun fetchSongState() {
@@ -38,18 +37,11 @@ class SongListPresenter constructor(view: SongListView) : BasePresenter<SongList
 
     fun filterSong(key: String) {
         scope.launch {
-            filteredSongList.clear()
+            val result = filterSongs(player.getSongList(), key)
+            filteredSongs = result
 
-            val list = mutableListOf<Song>()
-            player.getSongList().forEachIndexed { index, song ->
-                if (song.name.contains(key, true) || song.author.contains(key, true)) {
-                    filteredSongList.put(index, song)
-                    list.add(song)
-                }
-            }
-
-            withContext(Dispatchers.Main) {
-                adapter.submitList(list)
+            withContext(mainDispatcher) {
+                view.renderSongs(result.songs)
             }
         }
     }
@@ -63,9 +55,9 @@ class SongListPresenter constructor(view: SongListView) : BasePresenter<SongList
     }
 
     fun onSongClick(index: Int) {
-        view.onSongClick()
+        val position = filteredSongs.originalPositionAt(index) ?: return
 
-        val position = filteredSongList.keyAt(index)
+        view.onSongClick()
         playSong(position)
     }
 
@@ -90,14 +82,16 @@ class SongListPresenter constructor(view: SongListView) : BasePresenter<SongList
 
     private fun loadSongList() {
         scope.launch {
-            view.showLoading()
+            withContext(mainDispatcher) {
+                view.showLoading()
+            }
 
             player.readSong()
-            player.getSongList().forEachIndexed { index, song -> filteredSongList.put(index, song) }
+            filteredSongs = filterSongs(player.getSongList(), "")
 
-            withContext(Dispatchers.Main) {
+            withContext(mainDispatcher) {
                 view.stopLoading()
-                adapter.submitList(player.getSongList())
+                view.renderSongs(filteredSongs.songs)
                 fetchSongState()
             }
         }
@@ -110,5 +104,9 @@ class SongListPresenter constructor(view: SongListView) : BasePresenter<SongList
     private fun isSupport(extension: String): Boolean {
         return extension.endsWith("mp3") || extension.endsWith("wav")
                 || extension.endsWith("ogg") || extension.endsWith("flac")
+    }
+
+    fun clear() {
+        scope.cancel()
     }
 }

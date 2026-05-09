@@ -35,6 +35,7 @@ import com.a1573595.musicplayer.databinding.DialogLoadingBinding
 import com.a1573595.musicplayer.model.Song
 import com.a1573595.musicplayer.playSong.PlaySongActivity
 import com.a1573595.musicplayer.player.PlayerManager
+import com.a1573595.musicplayer.player.PlayerServicePlaybackController
 import com.a1573595.musicplayer.player.PlayerService
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.launch
@@ -67,12 +68,13 @@ class SongListActivity : BaseSongActivity<SongListPresenter>(), SongListView {
     override fun onDestroy() {
         loadingDialog?.dismiss()
         loadingDialog = null
+        presenter.clear()
 
         super.onDestroy()
     }
 
     override fun playerBound(player: PlayerService) {
-        presenter.setPlayerManager(player)
+        presenter.setPlayerManager(PlayerServicePlaybackController(player))
 
         setListen()
     }
@@ -122,6 +124,10 @@ class SongListActivity : BaseSongActivity<SongListPresenter>(), SongListView {
 
             viewBinding.recyclerView.scheduleLayoutAnimation()
         }
+    }
+
+    override fun renderSongs(songs: List<Song>) {
+        (viewBinding.recyclerView.adapter as? SongListAdapter)?.submitList(songs)
     }
 
     override fun updateSongState(song: Song, isPlaying: Boolean) {
@@ -180,9 +186,8 @@ class SongListActivity : BaseSongActivity<SongListPresenter>(), SongListView {
 
     private fun initRecyclerView() {
         viewBinding.recyclerView.layoutManager = LinearLayoutManager(this)
-        val adapter = SongListAdapter(presenter)
+        val adapter = SongListAdapter(presenter::onSongClick)
         viewBinding.recyclerView.adapter = adapter
-        presenter.setAdapter(adapter)
 
         val controller = LayoutAnimationController(
             AnimationUtils.loadAnimation(this, R.anim.fade_in_from_bottom)

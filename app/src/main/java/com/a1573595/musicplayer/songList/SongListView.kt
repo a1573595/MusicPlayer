@@ -8,6 +8,8 @@ interface SongListView : BaseView {
 
     fun stopLoading()
 
+    fun renderSongs(songs: List<Song>)
+
     fun updateSongState(song: Song, isPlaying: Boolean)
 
     fun onSongClick()

@@ -25,6 +25,7 @@ import com.a1573595.musicplayer.model.Song
 import com.a1573595.musicplayer.model.TimeUtil
 import com.a1573595.musicplayer.player.PlayerManager
 import com.a1573595.musicplayer.player.PlayerService
+import com.a1573595.musicplayer.player.PlayerServicePlaybackController
 import java.beans.PropertyChangeEvent
 
 class PlaySongActivity : BaseSongActivity<PlaySongPresenter>(), PlaySongView {
@@ -38,10 +39,10 @@ class PlaySongActivity : BaseSongActivity<PlaySongPresenter>(), PlaySongView {
     private lateinit var wheelAnimation: Animation
     private lateinit var scaleAnimation: Animation
 
-    private lateinit var seekBarUpdateRunnable: Runnable
+    private var seekBarUpdateRunnable: Runnable = Runnable {}
     private val seekBarUpdateDelayMillis: Long = 1000
 
-    private lateinit var favoriteAnimationRunnable: Runnable
+    private var favoriteAnimationRunnable: Runnable = Runnable {}
     private val favoriteAnimationDelayMillis: Long = 300
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -69,7 +70,7 @@ class PlaySongActivity : BaseSongActivity<PlaySongPresenter>(), PlaySongView {
         initFavoriteRunnable()
         initSeekBarUpdateRunnable()
 
-        presenter.setPlayerManager(player)
+        presenter.setPlayerManager(PlayerServicePlaybackController(player))
 
         setListen()
     }
