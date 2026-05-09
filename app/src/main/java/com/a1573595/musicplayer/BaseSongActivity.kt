@@ -126,7 +126,7 @@ abstract class BaseSongActivity<P : BasePresenter<*>> : BaseActivity<P>(), Prope
             bindService(
                 Intent(this, PlayerService::class.java),
                 mConnection,
-                Context.BIND_AUTO_CREATE
+                BIND_AUTO_CREATE
             )
         }
     }

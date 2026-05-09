@@ -3,7 +3,6 @@ package com.a1573595.musicplayer.songList
 import android.animation.ValueAnimator
 import android.content.Context
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -20,6 +19,7 @@ import androidx.activity.addCallback
 import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityOptionsCompat
 import androidx.core.content.ContextCompat
+import androidx.core.net.toUri
 import androidx.core.util.Pair
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
@@ -262,7 +262,7 @@ class SongListActivity : BaseSongActivity<SongListPresenter>(), SongListView {
 
     private fun openGithub() {
         val intent =
-            Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/a1573595/MusicPlayer"))
+            Intent(Intent.ACTION_VIEW, "https://github.com/a1573595/MusicPlayer".toUri())
 
         if (intent.resolveActivity(packageManager) != null) {
             startActivity(intent)
@@ -276,7 +276,7 @@ class SongListActivity : BaseSongActivity<SongListPresenter>(), SongListView {
     }
 
     private fun hideKeyBoard() {
-        val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        val imm = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
         imm.hideSoftInputFromWindow(viewBinding.edName.windowToken, 0)
     }
 }

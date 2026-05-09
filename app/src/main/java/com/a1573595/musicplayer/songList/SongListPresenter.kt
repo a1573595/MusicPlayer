@@ -2,10 +2,10 @@ package com.a1573595.musicplayer.songList
 
 import android.app.DownloadManager
 import android.content.Context
-import android.net.Uri
 import android.os.Environment
 import android.util.Patterns
 import android.util.SparseArray
+import androidx.core.net.toUri
 import com.a1573595.musicplayer.BasePresenter
 import com.a1573595.musicplayer.R
 import com.a1573595.musicplayer.model.Song
@@ -71,7 +71,7 @@ class SongListPresenter constructor(view: SongListView) : BasePresenter<SongList
 
     fun downloadSong(url: String) {
         if (Patterns.WEB_URL.matcher(url).matches() && isSupport(url)) {
-            val uri: Uri = Uri.parse(url)
+            val uri = url.toUri()
 
             val downloadManager: DownloadManager =
                 view.context().getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager

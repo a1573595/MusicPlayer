@@ -32,6 +32,7 @@
                     android:drawableStart="@drawable/ic_search"
                     android:drawablePadding="8dp"
                     android:hint="@string/search_song"
+                    android:importantForAutofill="no"
                     android:inputType="text"
                     android:textColor="@color/colorTitleWhite"
                     android:textColorHint="@color/colorTitleWhite"
