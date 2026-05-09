@@ -4,9 +4,9 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.a1573595.musicplayer.common.format.TimeFormatter
 import com.a1573595.musicplayer.databinding.AdapterSongListBinding
 import com.a1573595.musicplayer.model.Song
-import com.a1573595.musicplayer.model.TimeUtil
 
 class SongListAdapter(private val onSongClick: (Int) -> Unit) :
     ListAdapter<Song, SongListAdapter.SongHolder>(SongItemCallback()) {
@@ -33,6 +33,6 @@ class SongListAdapter(private val onSongClick: (Int) -> Unit) :
 
         holder.viewBinding.tvName.text = song.name
         holder.viewBinding.tvArtist.text = song.author
-        holder.viewBinding.tvDuration.text = TimeUtil.timeMillisToTime(song.duration)
+        holder.viewBinding.tvDuration.text = TimeFormatter.timeMillisToTime(song.duration)
     }
 }

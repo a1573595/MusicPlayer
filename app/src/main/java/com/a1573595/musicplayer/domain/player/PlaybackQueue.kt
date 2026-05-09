@@ -9,14 +9,44 @@ class PlaybackQueue(
     var isRandom: Boolean = false,
     private val randomIndex: (IntRange) -> Int = { it.random() }
 ) {
-    private var songs: List<Song> = songs.toList()
+    private var items: List<Song> = songs.toList()
     var currentIndex: Int = normalizeIndex(currentIndex)
         private set
 
-    fun currentSong(): Song? = songs.getOrNull(currentIndex)
+    fun songs(): List<Song> = items
+
+    fun currentSong(): Song? = items.getOrNull(currentIndex)
+
+    fun replaceSongs(songs: List<Song>) {
+        items = songs.toList()
+        currentIndex = normalizeIndex(currentIndex)
+    }
+
+    fun addIfAbsent(song: Song): Boolean {
+        if (items.contains(song)) {
+            return false
+        }
+
+        items = items + song
+        currentIndex = normalizeIndex(currentIndex)
+        return true
+    }
+
+    fun removeCurrent(): Song? {
+        if (items.isEmpty()) {
+            currentIndex = 0
+            return null
+        }
+
+        items = items.toMutableList().apply {
+            removeAt(currentIndex)
+        }
+        currentIndex = normalizeIndex(currentIndex)
+        return currentSong()
+    }
 
     fun play(position: Int = currentIndex): Song? {
-        if (songs.isEmpty()) {
+        if (items.isEmpty()) {
             currentIndex = 0
             return null
         }
@@ -26,25 +56,25 @@ class PlaybackQueue(
     }
 
     fun next(): Song? {
-        if (songs.isEmpty()) return null
-        return play(if (isRandom) randomIndex(songs.indices) else currentIndex + 1)
+        if (items.isEmpty()) return null
+        return play(if (isRandom) randomIndex(items.indices) else currentIndex + 1)
     }
 
     fun previous(): Song? {
-        if (songs.isEmpty()) return null
-        return play(if (isRandom) randomIndex(songs.indices) else currentIndex - 1)
+        if (items.isEmpty()) return null
+        return play(if (isRandom) randomIndex(items.indices) else currentIndex - 1)
     }
 
     fun complete(): Song? {
-        if (songs.isEmpty()) return null
+        if (items.isEmpty()) return null
         return if (isRepeat) play(currentIndex) else next()
     }
 
     private fun normalizeIndex(index: Int): Int {
-        if (songs.isEmpty()) return 0
+        if (items.isEmpty()) return 0
         return when {
-            index >= songs.size -> 0
-            index < 0 -> songs.lastIndex
+            index >= items.size -> 0
+            index < 0 -> items.lastIndex
             else -> index
         }
     }

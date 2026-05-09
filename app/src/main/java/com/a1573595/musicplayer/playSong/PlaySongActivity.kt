@@ -19,11 +19,11 @@ import androidx.core.view.WindowInsetsControllerCompat
 import androidx.core.view.updateLayoutParams
 import com.a1573595.musicplayer.BaseSongActivity
 import com.a1573595.musicplayer.R
+import com.a1573595.musicplayer.common.format.TimeFormatter
 import com.a1573595.musicplayer.customView.FloatingAnimationView
 import com.a1573595.musicplayer.databinding.ActivityPlaySongBinding
+import com.a1573595.musicplayer.domain.player.PlaybackEngine
 import com.a1573595.musicplayer.model.Song
-import com.a1573595.musicplayer.model.TimeUtil
-import com.a1573595.musicplayer.player.PlayerManager
 import com.a1573595.musicplayer.player.PlayerService
 import com.a1573595.musicplayer.player.PlayerServicePlaybackController
 import java.beans.PropertyChangeEvent
@@ -86,11 +86,11 @@ class PlaySongActivity : BaseSongActivity<PlaySongPresenter>(), PlaySongView {
         viewBinding.seekBar.removeCallbacks(seekBarUpdateRunnable)
 
         viewBinding.tvName.text = song.name
-        viewBinding.tvDuration.text = TimeUtil.timeMillisToTime(song.duration)
+        viewBinding.tvDuration.text = TimeFormatter.timeMillisToTime(song.duration)
         viewBinding.seekBar.max = (song.duration / 1000).toInt()
         viewBinding.seekBar.progress = progress
         viewBinding.tvProgress.text =
-            TimeUtil.timeMillisToTime((viewBinding.seekBar.progress * 1000).toLong())
+            TimeFormatter.timeMillisToTime((viewBinding.seekBar.progress * 1000).toLong())
         viewBinding.imgPlay.setImageState(if (isPlaying) STATE_PLAY else STATE_PAUSE, false)
 
         if (isPlaying) {
@@ -112,7 +112,7 @@ class PlaySongActivity : BaseSongActivity<PlaySongPresenter>(), PlaySongView {
 
     override fun propertyChange(event: PropertyChangeEvent) {
         when (event.propertyName) {
-            PlayerManager.ACTION_PLAY, PlayerManager.ACTION_PAUSE -> {
+            PlaybackEngine.ACTION_PLAY, PlaybackEngine.ACTION_PAUSE -> {
                 updateState()
             }
         }
@@ -239,7 +239,7 @@ class PlaySongActivity : BaseSongActivity<PlaySongPresenter>(), PlaySongView {
                 }
 
                 viewBinding.tvProgress.text =
-                    TimeUtil.timeMillisToTime((viewBinding.seekBar.progress * 1000).toLong())
+                    TimeFormatter.timeMillisToTime((viewBinding.seekBar.progress * 1000).toLong())
             }
 
             override fun onStartTrackingTouch(s: SeekBar) = Unit
@@ -249,7 +249,7 @@ class PlaySongActivity : BaseSongActivity<PlaySongPresenter>(), PlaySongView {
 
                 presenter.seekTo(s.progress)
                 viewBinding.tvProgress.text =
-                    TimeUtil.timeMillisToTime((viewBinding.seekBar.progress * 1000).toLong())
+                    TimeFormatter.timeMillisToTime((viewBinding.seekBar.progress * 1000).toLong())
 
                 viewBinding.seekBar.postDelayed(seekBarUpdateRunnable, seekBarUpdateDelayMillis)
             }

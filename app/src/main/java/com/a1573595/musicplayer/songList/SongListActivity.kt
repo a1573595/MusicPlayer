@@ -32,9 +32,9 @@ import com.a1573595.musicplayer.BaseSongActivity
 import com.a1573595.musicplayer.R
 import com.a1573595.musicplayer.databinding.ActivitySongListBinding
 import com.a1573595.musicplayer.databinding.DialogLoadingBinding
+import com.a1573595.musicplayer.domain.player.PlaybackEngine
 import com.a1573595.musicplayer.model.Song
 import com.a1573595.musicplayer.playSong.PlaySongActivity
-import com.a1573595.musicplayer.player.PlayerManager
 import com.a1573595.musicplayer.player.PlayerService
 import com.a1573595.musicplayer.player.PlayerServicePlaybackController
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -146,7 +146,7 @@ class SongListActivity : BaseSongActivity<SongListPresenter>(), SongListView {
 
     override fun propertyChange(event: PropertyChangeEvent) {
         when (event.propertyName) {
-            PlayerManager.ACTION_PLAY, PlayerManager.ACTION_PAUSE -> {
+            PlaybackEngine.ACTION_PLAY, PlaybackEngine.ACTION_PAUSE -> {
                 presenter.fetchSongState()
             }
 

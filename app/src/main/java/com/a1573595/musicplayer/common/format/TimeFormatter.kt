@@ -1,8 +1,8 @@
-package com.a1573595.musicplayer.model
+package com.a1573595.musicplayer.common.format
 
 import java.util.Locale
 
-object TimeUtil {
+object TimeFormatter {
     fun timeMillisToTime(duration: Long): String {
         val minutes = duration / 60000
         val seconds = duration % 60000 / 1000

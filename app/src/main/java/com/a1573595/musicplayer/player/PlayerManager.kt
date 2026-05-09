@@ -1,18 +1,17 @@
 package com.a1573595.musicplayer.player
 
 import android.media.MediaPlayer
+import com.a1573595.musicplayer.domain.player.PlaybackEngine
+import com.a1573595.musicplayer.domain.player.PlaybackEngine.Companion.ACTION_COMPLETE
+import com.a1573595.musicplayer.domain.player.PlaybackEngine.Companion.ACTION_PAUSE
+import com.a1573595.musicplayer.domain.player.PlaybackEngine.Companion.ACTION_PLAY
+import com.a1573595.musicplayer.domain.player.PlaybackEngine.Companion.ACTION_STOP
 import timber.log.Timber
+import java.beans.PropertyChangeListener
 import java.beans.PropertyChangeSupport
 import java.io.FileDescriptor
 
-class PlayerManager : PropertyChangeSupport(this) {
-    companion object {
-        const val ACTION_COMPLETE = "action.COMPLETE"
-        const val ACTION_PLAY = "action.PLAY"
-        const val ACTION_PAUSE = "action.PAUSE"
-        const val ACTION_STOP = "action.STOP"
-    }
-
+class PlayerManager : PlaybackEngine {
     private enum class State {
         IDLE,
         PREPARING,
@@ -22,10 +21,11 @@ class PlayerManager : PropertyChangeSupport(this) {
     }
 
     private val mediaPlayer: MediaPlayer = MediaPlayer()
+    private val changeSupport = PropertyChangeSupport(this)
     private var state: State = State.IDLE
     private var resumePositionMs: Int = 0
 
-    var playerProgress: Int
+    override var progress: Int
         get() {
             return if (state == State.PLAYING && mediaPlayer.isPlaying) {
                 mediaPlayer.currentPosition / 1000
@@ -41,12 +41,20 @@ class PlayerManager : PropertyChangeSupport(this) {
         setListen()
     }
 
-    fun setChangedNotify(event: String) {
-        Timber.i("setChangedNotify  $event")
-        firePropertyChange(event, null, event)
+    override fun addObserver(listener: PropertyChangeListener) {
+        changeSupport.addPropertyChangeListener(listener)
     }
 
-    fun play(fd: FileDescriptor): Boolean {
+    override fun removeObserver(listener: PropertyChangeListener) {
+        changeSupport.removePropertyChangeListener(listener)
+    }
+
+    override fun notifyChanged(event: String) {
+        Timber.i("notifyChanged  $event")
+        changeSupport.firePropertyChange(event, null, event)
+    }
+
+    override fun play(fd: FileDescriptor): Boolean {
         if (state == State.RELEASED) {
             return false
         }
@@ -64,13 +72,13 @@ class PlayerManager : PropertyChangeSupport(this) {
             Timber.e(e)
             state = State.IDLE
             resumePositionMs = 0
-            setChangedNotify(ACTION_STOP)
+            notifyChanged(ACTION_STOP)
             false
         }
     }
 
-    fun seekTo(progress: Int) {
-        playerProgress = progress
+    override fun seekTo(progress: Int) {
+        this.progress = progress
 
         if (state == State.PLAYING || state == State.PAUSED) {
             try {
@@ -79,12 +87,12 @@ class PlayerManager : PropertyChangeSupport(this) {
                 Timber.e(e)
                 state = State.IDLE
                 resumePositionMs = 0
-                setChangedNotify(ACTION_STOP)
+                notifyChanged(ACTION_STOP)
             }
         }
     }
 
-    fun pause() {
+    override fun pause() {
         if (state == State.PLAYING) {
             resumePositionMs = mediaPlayer.currentPosition
 
@@ -93,14 +101,14 @@ class PlayerManager : PropertyChangeSupport(this) {
             }
 
             state = State.PAUSED
-            setChangedNotify(ACTION_PAUSE)
+            notifyChanged(ACTION_PAUSE)
         } else if (state == State.PREPARING) {
             state = State.PAUSED
-            setChangedNotify(ACTION_PAUSE)
+            notifyChanged(ACTION_PAUSE)
         }
     }
 
-    fun release() {
+    override fun release() {
         if (state == State.RELEASED) {
             return
         }
@@ -126,13 +134,13 @@ class PlayerManager : PropertyChangeSupport(this) {
             mediaPlayer.seekTo(resumePositionMs)
             mediaPlayer.start()
             state = State.PLAYING
-            setChangedNotify(ACTION_PLAY)
+            notifyChanged(ACTION_PLAY)
         }
 
         mediaPlayer.setOnCompletionListener {
             state = State.IDLE
             resumePositionMs = 0
-            setChangedNotify(ACTION_COMPLETE)
+            notifyChanged(ACTION_COMPLETE)
         }
 
         mediaPlayer.setOnErrorListener { mp, what, extra ->
@@ -140,7 +148,7 @@ class PlayerManager : PropertyChangeSupport(this) {
             Timber.e("MediaPlayer error type:$what, code:$extra, currentPosition:$currentPosition")
             state = State.IDLE
             resumePositionMs = 0
-            setChangedNotify(ACTION_STOP)
+            notifyChanged(ACTION_STOP)
             return@setOnErrorListener true
         }
     }

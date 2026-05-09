@@ -1,35 +1,40 @@
 package com.a1573595.musicplayer.player
 
-import android.app.*
+import android.app.Service
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.ServiceInfo
-import android.media.MediaMetadataRetriever
 import android.net.Uri
-import android.os.*
+import android.os.Binder
+import android.os.Build
+import android.os.Handler
+import android.os.IBinder
+import android.os.Looper
 import android.provider.MediaStore
-import android.widget.RemoteViews
 import android.widget.Toast
-import androidx.core.app.NotificationCompat
 import androidx.core.app.ServiceCompat
 import androidx.core.content.ContextCompat
 import com.a1573595.musicplayer.R
 import com.a1573595.musicplayer.Weak
+import com.a1573595.musicplayer.data.song.MediaStoreSongRepository
+import com.a1573595.musicplayer.domain.player.PlaybackEngine
+import com.a1573595.musicplayer.domain.player.PlaybackEngine.Companion.ACTION_COMPLETE
+import com.a1573595.musicplayer.domain.player.PlaybackEngine.Companion.ACTION_PAUSE
+import com.a1573595.musicplayer.domain.player.PlaybackEngine.Companion.ACTION_PLAY
+import com.a1573595.musicplayer.domain.player.PlaybackEngine.Companion.ACTION_STOP
+import com.a1573595.musicplayer.domain.player.PlaybackQueue
+import com.a1573595.musicplayer.domain.song.SongRepository
 import com.a1573595.musicplayer.model.Song
-import com.a1573595.musicplayer.player.PlayerManager.Companion.ACTION_COMPLETE
-import com.a1573595.musicplayer.player.PlayerManager.Companion.ACTION_PAUSE
-import com.a1573595.musicplayer.player.PlayerManager.Companion.ACTION_PLAY
-import com.a1573595.musicplayer.player.PlayerManager.Companion.ACTION_STOP
-import com.a1573595.musicplayer.songList.SongListActivity
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.beans.PropertyChangeEvent
 import java.beans.PropertyChangeListener
-import java.io.FileDescriptor
-import java.lang.Exception
 
 class PlayerService : Service(), PropertyChangeListener {
     companion object {
@@ -47,13 +52,7 @@ class PlayerService : Service(), PropertyChangeListener {
         const val ACTION_NOT_SONG_FOUND = "action.NOT_FOUND"
     }
 
-    private lateinit var smallRemoteView: RemoteViews
-    private lateinit var largeRemoteView: RemoteViews
-    private lateinit var intentPREVIOUS: PendingIntent
-    private lateinit var intentPlay: PendingIntent
-    private lateinit var intentNext: PendingIntent
-    private lateinit var intentCancel: PendingIntent
-
+    private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
     private val receiver = object : BroadcastReceiver() {
         override fun onReceive(p0: Context?, intent: Intent?) {
             when (intent?.action) {
@@ -79,33 +78,38 @@ class PlayerService : Service(), PropertyChangeListener {
         }
     }
 
-    private val metaRetriever = MediaMetadataRetriever()
     private val uriExternal: Uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
     private val mHandler: Handler = Handler(Looper.getMainLooper()) { msg ->
-        val id = msg.data.getString("songID")
-        val audioUri = Uri.withAppendedPath(uriExternal, id)
+        val id = msg.data.getString("songID") ?: return@Handler true
 
-        try {
-            contentResolver.openFileDescriptor(audioUri, "r")?.use {
-                if (addSong(it.fileDescriptor, id!!, getSongTitle(audioUri))) {
-                    playerManager.setChangedNotify(ACTION_FIND_NEW_SONG)
+        serviceScope.launch {
+            songRepository.findSong(id)?.let { song ->
+                if (playbackQueue.addIfAbsent(song)) {
+                    playbackEngine.notifyChanged(ACTION_FIND_NEW_SONG)
                 }
             }
-        } catch (e: Exception) {
-            Timber.e(e)
         }
 
         true
     }
     private val audioObserver: AudioObserver = AudioObserver(mHandler)
 
-    private val playerManager: PlayerManager = PlayerManager()
+    private val playbackEngine: PlaybackEngine = PlayerManager()
+    private val playbackQueue: PlaybackQueue = PlaybackQueue()
 
-    private val songList: MutableList<Song> = mutableListOf()
-    private var playerPosition: Int = 0    // song queue position
+    private lateinit var songRepository: SongRepository
+    private lateinit var notificationFactory: PlaybackNotificationFactory
     private var isPlaying: Boolean = false // mediaPlayer.isPlaying may take some time update status
-    var isRepeat: Boolean = false
-    var isRandom: Boolean = false
+    var isRepeat: Boolean
+        get() = playbackQueue.isRepeat
+        set(value) {
+            playbackQueue.isRepeat = value
+        }
+    var isRandom: Boolean
+        get() = playbackQueue.isRandom
+        set(value) {
+            playbackQueue.isRandom = value
+        }
 
     inner class LocalBinder : Binder() {
         val service by Weak {
@@ -118,8 +122,9 @@ class PlayerService : Service(), PropertyChangeListener {
     override fun onCreate() {
         super.onCreate()
 
-        createNotificationChannel()
-        initRemoteView()
+        songRepository = MediaStoreSongRepository(this)
+        notificationFactory = PlaybackNotificationFactory(this)
+        notificationFactory.createNotificationChannel()
 
         contentResolver.registerContentObserver(uriExternal, true, audioObserver)
         registerReceiver()
@@ -149,10 +154,10 @@ class PlayerService : Service(), PropertyChangeListener {
 
         contentResolver.unregisterContentObserver(audioObserver)
         unregisterReceiver(receiver)
-        metaRetriever.release()
+        serviceScope.cancel()
 
         deletePlayerObserver(this)
-        playerManager.release()
+        playbackEngine.release()
 
         super.onDestroy()
     }
@@ -160,7 +165,7 @@ class PlayerService : Service(), PropertyChangeListener {
     override fun propertyChange(event: PropertyChangeEvent) {
         when (event.propertyName) {
             ACTION_COMPLETE -> {
-                playerManager.playerProgress = 0
+                playbackEngine.progress = 0
                 isPlaying = false
 
                 when {
@@ -193,99 +198,58 @@ class PlayerService : Service(), PropertyChangeListener {
         }
     }
 
-    private fun addSong(fd: FileDescriptor, id: String, title: String): Boolean {
-        try {
-            if (!fd.valid()) {
-                return false
-            }
+    suspend fun readSong() {
+        if (playbackQueue.songs().isNotEmpty()) return
 
-            metaRetriever.setDataSource(fd)
-
-            val duration =
-                metaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)
-            val artist = metaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST)
-            val author = metaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_AUTHOR)
-
-            if (duration.isNullOrEmpty()) {
-                return false
-            }
-
-            val song = Song(
-                id, title, artist ?: author ?: getString(R.string.unknown), duration.toLong()
-            )
-
-            if (!songList.contains(song)) {
-                songList.add(song)
-            }
-        } catch (e: Exception) {
-            Timber.e(e)
-            return false
-        }
-        return true
-    }
-
-    suspend fun readSong() = withContext(Dispatchers.IO) {
-        if (songList.isNotEmpty()) return@withContext
-
-        contentResolver.query(
-            uriExternal, null, null, null, null
-        )?.use { cursor ->
-            val indexID: Int = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media._ID)
-            val indexTitle: Int = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.TITLE)
-
-            while (cursor.moveToNext()) {
-                val id = cursor.getString(indexID)
-                val title = cursor.getString(indexTitle)
-                val audioUri = Uri.withAppendedPath(uriExternal, id)
-
-                contentResolver.openFileDescriptor(audioUri, "r")?.use {
-                    addSong(it.fileDescriptor, id, title)
-                }
-            }
-        }
+        playbackQueue.replaceSongs(songRepository.loadSongs())
     }
 
     fun addPlayerObserver(listener: PropertyChangeListener) =
-        playerManager.addPropertyChangeListener(listener)
+        playbackEngine.addObserver(listener)
 
     fun deletePlayerObserver(listener: PropertyChangeListener) =
-        playerManager.removePropertyChangeListener(listener)
+        playbackEngine.removeObserver(listener)
 
     fun isPlaying(): Boolean = isPlaying
 
-    fun getSongList() = songList.toList()
+    fun getSongList() = playbackQueue.songs()
 
-    fun getSong(): Song? = songList.getOrNull(playerPosition)
+    fun getSong(): Song? = playbackQueue.currentSong()
 
-    fun getProgress(): Int = playerManager.playerProgress
+    fun getProgress(): Int = playbackEngine.progress
 
-    fun play(position: Int = playerPosition) {
-        if (songList.isEmpty()) {
+    fun play(position: Int = playbackQueue.currentIndex) {
+        val previousIndex = playbackQueue.currentIndex
+        val song = playbackQueue.play(position)
+        if (song == null) {
             notifyNoSongFound()
             return
         }
 
-        // Is different song
-        if (position != playerPosition) {
-            playerManager.playerProgress = 0
+        if (position != previousIndex) {
+            playbackEngine.progress = 0
         }
 
-        playerPosition = when {
-            position >= songList.size -> 0
-            position < 0 -> songList.lastIndex
-            else -> position
+        playCurrentSong(song)
+    }
+
+    private fun playCurrentSong(song: Song) {
+        val audioUri = Uri.withAppendedPath(uriExternal, song.id)
+        val descriptor = try {
+            contentResolver.openFileDescriptor(audioUri, "r")
+        } catch (e: Exception) {
+            Timber.e(e)
+            null
         }
 
-        val audioUri = Uri.withAppendedPath(uriExternal, songList[playerPosition].id)
-
-        contentResolver.openFileDescriptor(audioUri, "r")?.use {
+        descriptor?.use {
             startPlaybackService()
 
-            if (!playerManager.play(it.fileDescriptor)) {
+            if (!playbackEngine.play(it.fileDescriptor)) {
                 notifyNoSongFound()
             }
-        } ?: kotlin.run {
-            songList.removeAt(playerPosition)
+        } ?: run {
+            playbackQueue.removeCurrent()
 
             play()
         }
@@ -294,67 +258,51 @@ class PlayerService : Service(), PropertyChangeListener {
     fun pause() {
         isPlaying = false
 
-        playerManager.pause()
+        playbackEngine.pause()
     }
 
     fun seekTo(progress: Int) {
         if (isPlaying) {
-            playerManager.seekTo(progress)
+            playbackEngine.seekTo(progress)
         } else {
-            playerManager.playerProgress = progress
+            playbackEngine.progress = progress
             play()
         }
     }
 
     fun skipToNext() {
-        if (songList.isEmpty()) {
+        val previousIndex = playbackQueue.currentIndex
+        val song = playbackQueue.next()
+        if (song == null) {
             notifyNoSongFound()
             return
         }
 
-        play(if (isRandom) songList.indices.random() else playerPosition + 1)
+        if (playbackQueue.currentIndex != previousIndex) {
+            playbackEngine.progress = 0
+        }
+        playCurrentSong(song)
     }
 
     fun skipToPrevious() {
-        if (songList.isEmpty()) {
+        val previousIndex = playbackQueue.currentIndex
+        val song = playbackQueue.previous()
+        if (song == null) {
             notifyNoSongFound()
             return
         }
 
-        play(if (isRandom) songList.indices.random() else playerPosition - 1)
+        if (playbackQueue.currentIndex != previousIndex) {
+            playbackEngine.progress = 0
+        }
+        playCurrentSong(song)
     }
 
     private fun notifyNoSongFound() {
         isPlaying = false
-        playerManager.playerProgress = 0
+        playbackEngine.progress = 0
         ServiceCompat.stopForeground(this, ServiceCompat.STOP_FOREGROUND_REMOVE)
-        playerManager.setChangedNotify(ACTION_NOT_SONG_FOUND)
-    }
-
-    private fun getSongTitle(uri: Uri): String {
-        var title: String? = uri.lastPathSegment
-
-        contentResolver.query(
-            uri, null, null, null, null
-        )?.use {
-            if (it.moveToNext()) {
-                title = it.getString(it.getColumnIndexOrThrow(MediaStore.Audio.Media.TITLE))
-            }
-        }
-
-        return title ?: ""
-    }
-
-    private fun createNotificationChannel() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val nm = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
-
-            val status = NotificationChannel(
-                CHANNEL_ID_MUSIC, CHANNEL_NAME_MUSIC, NotificationManager.IMPORTANCE_LOW
-            )
-            status.description = "Music player"
-            nm.createNotificationChannel(status)
-        }
+        playbackEngine.notifyChanged(ACTION_NOT_SONG_FOUND)
     }
 
     private fun getMediaPlaybackForegroundServiceType(): Int {
@@ -374,41 +322,8 @@ class PlayerService : Service(), PropertyChangeListener {
         ServiceCompat.startForeground(
             this,
             NOTIFICATION_ID_MUSIC,
-            createNotification(),
+            notificationFactory.create(getSong(), isPlaying),
             getMediaPlaybackForegroundServiceType()
-        )
-    }
-
-    private fun initRemoteView() {
-        smallRemoteView = RemoteViews(packageName, R.layout.notification_small)
-        largeRemoteView = RemoteViews(packageName, R.layout.notification_large)
-
-        intentPREVIOUS = PendingIntent.getBroadcast(
-            this,
-            BROADCAST_ID_MUSIC,
-            Intent(NOTIFICATION_PREVIOUS).setPackage(packageName),
-            PendingIntent.FLAG_CANCEL_CURRENT or PendingIntent.FLAG_IMMUTABLE
-        )
-
-        intentPlay = PendingIntent.getBroadcast(
-            this,
-            BROADCAST_ID_MUSIC,
-            Intent(NOTIFICATION_PLAY).setPackage(packageName),
-            PendingIntent.FLAG_CANCEL_CURRENT or PendingIntent.FLAG_IMMUTABLE
-        )
-
-        intentNext = PendingIntent.getBroadcast(
-            this,
-            BROADCAST_ID_MUSIC,
-            Intent(NOTIFICATION_NEXT).setPackage(packageName),
-            PendingIntent.FLAG_CANCEL_CURRENT or PendingIntent.FLAG_IMMUTABLE
-        )
-
-        intentCancel = PendingIntent.getBroadcast(
-            this,
-            BROADCAST_ID_MUSIC,
-            Intent(NOTIFICATION_CANCEL).setPackage(packageName),
-            PendingIntent.FLAG_CANCEL_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
     }
 
@@ -427,45 +342,4 @@ class PlayerService : Service(), PropertyChangeListener {
         )
     }
 
-    private fun createNotification(): Notification {
-        val song = getSong()
-
-        smallRemoteView.setTextViewText(R.id.tv_name, song?.name)
-
-        largeRemoteView.setTextViewText(R.id.tv_name, song?.name)
-        largeRemoteView.setImageViewResource(
-            R.id.img_play, if (isPlaying) R.drawable.ic_pause else R.drawable.ic_play
-        )
-        largeRemoteView.setOnClickPendingIntent(R.id.img_previous, intentPREVIOUS)
-        largeRemoteView.setOnClickPendingIntent(R.id.img_play, intentPlay)
-        largeRemoteView.setOnClickPendingIntent(R.id.img_next, intentNext)
-        largeRemoteView.setOnClickPendingIntent(R.id.img_cancel, intentCancel)
-
-        val notificationBuilder = NotificationCompat.Builder(this, CHANNEL_ID_MUSIC)
-        notificationBuilder.setSmallIcon(R.drawable.ic_music)
-//            .setLargeIcon(BitmapFactory.decodeResource(this.resources, R.drawable.music))
-            .setContentTitle(song?.name).setContentText(song?.author)
-            .setVisibility(NotificationCompat.VISIBILITY_PUBLIC).setOnlyAlertOnce(true)
-            .setContentIntent(createContentIntent())
-            .setStyle(NotificationCompat.DecoratedCustomViewStyle())
-            .setCustomContentView(smallRemoteView)
-            .setCustomBigContentView(largeRemoteView)    //show full remoteView
-//            .setOngoing(true) // not working when use startForeground()
-
-        return notificationBuilder.build()
-    }
-
-    private fun createContentIntent(): PendingIntent {
-        val intent = Intent(this, SongListActivity::class.java)
-        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-        intent.action = Intent.ACTION_MAIN
-        intent.addCategory(Intent.CATEGORY_LAUNCHER)
-
-        return PendingIntent.getActivity(
-            this,
-            System.currentTimeMillis().toInt(),
-            intent,
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-        )
-    }
 }
