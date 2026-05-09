@@ -135,7 +135,13 @@ class PlayerService : Service(), PropertyChangeListener {
     override fun onTaskRemoved(rootIntent: Intent) {
         super.onTaskRemoved(rootIntent)
 
-        stopSelf()
+        if (!isPlaying) {
+            stopSelf()
+        }
+    }
+
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        return START_NOT_STICKY
     }
 
     override fun onDestroy() {
@@ -165,22 +171,12 @@ class PlayerService : Service(), PropertyChangeListener {
 
             ACTION_PLAY -> {
                 isPlaying = true
-                ServiceCompat.startForeground(
-                    this,
-                    NOTIFICATION_ID_MUSIC,
-                    createNotification(),
-                    getMediaPlaybackForegroundServiceType()
-                )
+                startForegroundNotification()
             }
 
             ACTION_PAUSE -> {
                 isPlaying = false
-                ServiceCompat.startForeground(
-                    this,
-                    NOTIFICATION_ID_MUSIC,
-                    createNotification(),
-                    getMediaPlaybackForegroundServiceType()
-                )
+                startForegroundNotification()
             }
 
             ACTION_STOP -> {
@@ -283,6 +279,8 @@ class PlayerService : Service(), PropertyChangeListener {
         val audioUri = Uri.withAppendedPath(uriExternal, songList[playerPosition].id)
 
         contentResolver.openFileDescriptor(audioUri, "r")?.use {
+            startPlaybackService()
+
             if (!playerManager.play(it.fileDescriptor)) {
                 notifyNoSongFound()
             }
@@ -329,6 +327,7 @@ class PlayerService : Service(), PropertyChangeListener {
     private fun notifyNoSongFound() {
         isPlaying = false
         playerManager.playerProgress = 0
+        ServiceCompat.stopForeground(this, ServiceCompat.STOP_FOREGROUND_REMOVE)
         playerManager.setChangedNotify(ACTION_NOT_SONG_FOUND)
     }
 
@@ -364,6 +363,20 @@ class PlayerService : Service(), PropertyChangeListener {
         } else {
             0
         }
+    }
+
+    private fun startPlaybackService() {
+        ContextCompat.startForegroundService(this, Intent(this, PlayerService::class.java))
+        startForegroundNotification()
+    }
+
+    private fun startForegroundNotification() {
+        ServiceCompat.startForeground(
+            this,
+            NOTIFICATION_ID_MUSIC,
+            createNotification(),
+            getMediaPlaybackForegroundServiceType()
+        )
     }
 
     private fun initRemoteView() {

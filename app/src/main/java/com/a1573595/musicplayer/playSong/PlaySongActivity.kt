@@ -4,11 +4,10 @@ import android.animation.ValueAnimator
 import android.graphics.Point
 import android.os.Bundle
 import android.transition.ChangeBounds
-import android.view.View
+import android.view.ViewGroup
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
 import android.view.animation.DecelerateInterpolator
-import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.SeekBar
@@ -17,6 +16,7 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
+import androidx.core.view.updateLayoutParams
 import com.a1573595.musicplayer.BaseSongActivity
 import com.a1573595.musicplayer.R
 import com.a1573595.musicplayer.customView.FloatingAnimationView
@@ -49,9 +49,9 @@ class PlaySongActivity : BaseSongActivity<PlaySongPresenter>(), PlaySongView {
         hideStatusBar()
 
         viewBinding = ActivityPlaySongBinding.inflate(layoutInflater)
-        setScreenHigh()
         setContentView(viewBinding.root)
         setBackground()
+        applyEdgeToEdgeInsets()
 
         viewBinding.tvName.isSelected = true
 
@@ -142,20 +142,28 @@ class PlaySongActivity : BaseSongActivity<PlaySongPresenter>(), PlaySongView {
         viewBinding.root.background.alpha = 30
     }
 
-    private fun setScreenHigh() {
-        ViewCompat.setOnApplyWindowInsetsListener(
-            viewBinding.root
-        ) { view: View, windowInsets: WindowInsetsCompat ->
-            val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
-            view.layoutParams = (view.layoutParams as FrameLayout.LayoutParams).apply {
-                // draw on top of the bottom navigation bar
-                bottomMargin = insets.bottom
+    private fun applyEdgeToEdgeInsets() {
+        val backTopMargin =
+            (viewBinding.imgBack.layoutParams as ViewGroup.MarginLayoutParams).topMargin
+        val playBottomMargin =
+            (viewBinding.imgPlay.layoutParams as ViewGroup.MarginLayoutParams).bottomMargin
+
+        ViewCompat.setOnApplyWindowInsetsListener(viewBinding.root) { _, windowInsets ->
+            val insets = windowInsets.getInsetsIgnoringVisibility(
+                WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.displayCutout()
+            )
+
+            viewBinding.imgBack.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                topMargin = backTopMargin + insets.top
+            }
+            viewBinding.imgPlay.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                bottomMargin = playBottomMargin + insets.bottom
             }
 
-            // Return CONSUMED if you don't want the window insets to keep being
-            // passed down to descendant views.
-            WindowInsetsCompat.CONSUMED
+            windowInsets
         }
+
+        ViewCompat.requestApplyInsets(viewBinding.root)
     }
 
     private fun initWindowAnimations() {

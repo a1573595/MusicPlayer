@@ -9,6 +9,7 @@ import android.os.Handler
 import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
 import android.view.animation.LayoutAnimationController
@@ -20,6 +21,11 @@ import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityOptionsCompat
 import androidx.core.content.ContextCompat
 import androidx.core.util.Pair
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updateLayoutParams
+import androidx.core.view.updatePadding
 import androidx.core.widget.addTextChangedListener
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -47,10 +53,12 @@ class SongListActivity : BaseSongActivity<SongListPresenter>(), SongListView {
         super.onCreate(savedInstanceState)
 
         registerOnBackPress()
+        WindowCompat.setDecorFitsSystemWindows(window, false)
 
         viewBinding = ActivitySongListBinding.inflate(layoutInflater)
         setContentView(viewBinding.root)
         setBackground()
+        applyEdgeToEdgeInsets()
 
         initElementAnimation()
         initRecyclerView()
@@ -182,6 +190,43 @@ class SongListActivity : BaseSongActivity<SongListPresenter>(), SongListView {
         controller.order = LayoutAnimationController.ORDER_NORMAL
         controller.delay = 0.3f
         viewBinding.recyclerView.layoutAnimation = controller
+    }
+
+    private fun applyEdgeToEdgeInsets() {
+        val actionBarHeight = getActionBarHeight()
+
+        ViewCompat.setOnApplyWindowInsetsListener(viewBinding.root) { _, windowInsets ->
+            val insets = windowInsets.getInsets(
+                WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.displayCutout()
+            )
+            val bottomBarHeight =
+                viewBinding.bottomAppBar.height.takeIf { it > 0 } ?: actionBarHeight
+
+            viewBinding.appBar.updateLayoutParams<ViewGroup.LayoutParams> {
+                height = actionBarHeight + insets.top
+            }
+            viewBinding.appBar.updatePadding(top = insets.top)
+            viewBinding.bottomAppBar.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                bottomMargin = insets.bottom
+            }
+            viewBinding.recyclerView.updatePadding(
+                bottom = bottomBarHeight + insets.bottom
+            )
+
+            windowInsets
+        }
+
+        ViewCompat.requestApplyInsets(viewBinding.root)
+    }
+
+    private fun getActionBarHeight(): Int {
+        val attrs = intArrayOf(android.R.attr.actionBarSize)
+        val typedArray = obtainStyledAttributes(attrs)
+        return try {
+            typedArray.getDimensionPixelSize(0, 0)
+        } finally {
+            typedArray.recycle()
+        }
     }
 
     private fun setListen() {

@@ -2,6 +2,7 @@ package com.a1573595.musicplayer
 
 import android.Manifest.permission.READ_EXTERNAL_STORAGE
 import android.Manifest.permission.READ_MEDIA_AUDIO
+import android.Manifest.permission.POST_NOTIFICATIONS
 import android.content.*
 import android.content.pm.PackageManager.PERMISSION_GRANTED
 import android.net.Uri
@@ -16,6 +17,7 @@ import java.beans.PropertyChangeListener
 abstract class BaseSongActivity<P : BasePresenter<*>> : BaseActivity<P>(), PropertyChangeListener {
     private val REQUEST_WRITE_EXTERNAL_STORAGE: Int = 10
     private val REQUEST_READ_MEDIA_AUDIO: Int = 11
+    private val REQUEST_POST_NOTIFICATIONS: Int = 12
 
     private lateinit var player: PlayerService
 
@@ -48,11 +50,8 @@ abstract class BaseSongActivity<P : BasePresenter<*>> : BaseActivity<P>(), Prope
     override fun onStart() {
         super.onStart()
 
-        val intent = Intent(this, PlayerService::class.java)
-        startService(intent)
-
-        if ((hasPermission(READ_MEDIA_AUDIO) || hasPermission(READ_EXTERNAL_STORAGE)) && !isBound) {
-            bindService(intent, mConnection, Context.BIND_AUTO_CREATE)
+        if (hasAudioPermission() && !isBound) {
+            bindPlayerService()
         }
     }
 
@@ -92,11 +91,13 @@ abstract class BaseSongActivity<P : BasePresenter<*>> : BaseActivity<P>(), Prope
         if (grantResults.isEmpty()) return
         when (requestCode) {
             REQUEST_WRITE_EXTERNAL_STORAGE, REQUEST_READ_MEDIA_AUDIO -> if (grantResults[0] == PERMISSION_GRANTED) {
-                val intent = Intent(this, PlayerService::class.java)
-                bindService(intent, mConnection, Context.BIND_AUTO_CREATE)
+                bindPlayerService()
+                requestNotificationPermissionIfNeeded()
             } else {
                 showNeedPermissionDialog()
             }
+
+            REQUEST_POST_NOTIFICATIONS -> Unit
         }
     }
 
@@ -104,9 +105,37 @@ abstract class BaseSongActivity<P : BasePresenter<*>> : BaseActivity<P>(), Prope
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (!hasPermission(READ_MEDIA_AUDIO)) {
                 requestPermission(REQUEST_READ_MEDIA_AUDIO, READ_MEDIA_AUDIO)
+            } else {
+                requestNotificationPermissionIfNeeded()
             }
         } else if (!hasPermission(READ_EXTERNAL_STORAGE)) {
             requestPermission(REQUEST_WRITE_EXTERNAL_STORAGE, READ_EXTERNAL_STORAGE)
+        }
+    }
+
+    private fun hasAudioPermission(): Boolean {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            hasPermission(READ_MEDIA_AUDIO)
+        } else {
+            hasPermission(READ_EXTERNAL_STORAGE)
+        }
+    }
+
+    private fun bindPlayerService() {
+        if (!isBound) {
+            bindService(
+                Intent(this, PlayerService::class.java),
+                mConnection,
+                Context.BIND_AUTO_CREATE
+            )
+        }
+    }
+
+    private fun requestNotificationPermissionIfNeeded() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+            !hasPermission(POST_NOTIFICATIONS)
+        ) {
+            requestPermission(REQUEST_POST_NOTIFICATIONS, POST_NOTIFICATIONS)
         }
     }
 
