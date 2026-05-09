@@ -5,7 +5,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK
+import android.content.pm.ServiceInfo
 import android.media.MediaMetadataRetriever
 import android.net.Uri
 import android.os.*
@@ -108,9 +108,6 @@ class PlayerService : Service(), PropertyChangeListener {
     var isRandom: Boolean = false
 
     inner class LocalBinder : Binder() {
-        // Return this instance of PlayerService so clients can call public methods
-//        val service: PlayerService = this@PlayerService
-
         val service by Weak {
             this@PlayerService
         }
@@ -149,7 +146,7 @@ class PlayerService : Service(), PropertyChangeListener {
         metaRetriever.release()
 
         deletePlayerObserver(this)
-        playerManager.stop()
+        playerManager.release()
 
         super.onDestroy()
     }
@@ -158,20 +155,31 @@ class PlayerService : Service(), PropertyChangeListener {
         when (event.propertyName) {
             ACTION_COMPLETE -> {
                 playerManager.playerProgress = 0
+                isPlaying = false
 
                 when {
                     isRepeat -> play()
-                    isRandom -> play((0 until songList.size).random())
                     else -> skipToNext()
                 }
             }
 
-            ACTION_PLAY, ACTION_PAUSE -> {
+            ACTION_PLAY -> {
+                isPlaying = true
                 ServiceCompat.startForeground(
                     this,
                     NOTIFICATION_ID_MUSIC,
                     createNotification(),
-                    FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK
+                    getMediaPlaybackForegroundServiceType()
+                )
+            }
+
+            ACTION_PAUSE -> {
+                isPlaying = false
+                ServiceCompat.startForeground(
+                    this,
+                    NOTIFICATION_ID_MUSIC,
+                    createNotification(),
+                    getMediaPlaybackForegroundServiceType()
                 )
             }
 
@@ -256,7 +264,10 @@ class PlayerService : Service(), PropertyChangeListener {
     fun getProgress(): Int = playerManager.playerProgress
 
     fun play(position: Int = playerPosition) {
-        isPlaying = true
+        if (songList.isEmpty()) {
+            notifyNoSongFound()
+            return
+        }
 
         // Is different song
         if (position != playerPosition) {
@@ -264,11 +275,6 @@ class PlayerService : Service(), PropertyChangeListener {
         }
 
         playerPosition = when {
-            songList.size < 1 -> {
-                playerManager.setChangedNotify(ACTION_NOT_SONG_FOUND)
-                return
-            }
-
             position >= songList.size -> 0
             position < 0 -> songList.lastIndex
             else -> position
@@ -277,10 +283,11 @@ class PlayerService : Service(), PropertyChangeListener {
         val audioUri = Uri.withAppendedPath(uriExternal, songList[playerPosition].id)
 
         contentResolver.openFileDescriptor(audioUri, "r")?.use {
-            playerManager.play(it.fileDescriptor)
+            if (!playerManager.play(it.fileDescriptor)) {
+                notifyNoSongFound()
+            }
         } ?: kotlin.run {
             songList.removeAt(playerPosition)
-            playerManager.setChangedNotify(ACTION_NOT_SONG_FOUND)
 
             play()
         }
@@ -302,19 +309,27 @@ class PlayerService : Service(), PropertyChangeListener {
     }
 
     fun skipToNext() {
-        if (!isRandom) {
-            play(playerPosition + 1)
-        } else {
-            play((0 until songList.size).random())
+        if (songList.isEmpty()) {
+            notifyNoSongFound()
+            return
         }
+
+        play(if (isRandom) songList.indices.random() else playerPosition + 1)
     }
 
     fun skipToPrevious() {
-        if (!isRandom) {
-            play(playerPosition - 1)
-        } else {
-            play((0 until songList.size).random())
+        if (songList.isEmpty()) {
+            notifyNoSongFound()
+            return
         }
+
+        play(if (isRandom) songList.indices.random() else playerPosition - 1)
+    }
+
+    private fun notifyNoSongFound() {
+        isPlaying = false
+        playerManager.playerProgress = 0
+        playerManager.setChangedNotify(ACTION_NOT_SONG_FOUND)
     }
 
     private fun getSongTitle(uri: Uri): String {
@@ -340,6 +355,14 @@ class PlayerService : Service(), PropertyChangeListener {
             )
             status.description = "Music player"
             nm.createNotificationChannel(status)
+        }
+    }
+
+    private fun getMediaPlaybackForegroundServiceType(): Int {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK
+        } else {
+            0
         }
     }
 
@@ -395,9 +418,6 @@ class PlayerService : Service(), PropertyChangeListener {
         val song = getSong()
 
         smallRemoteView.setTextViewText(R.id.tv_name, song?.name)
-        smallRemoteView.setImageViewResource(
-            R.id.img_play, if (isPlaying) R.drawable.ic_pause else R.drawable.ic_play
-        )
 
         largeRemoteView.setTextViewText(R.id.tv_name, song?.name)
         largeRemoteView.setImageViewResource(

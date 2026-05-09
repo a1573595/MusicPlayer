@@ -13,18 +13,28 @@ class PlayerManager : PropertyChangeSupport(this) {
         const val ACTION_STOP = "action.STOP"
     }
 
-    private val mediaPlayer: MediaPlayer = MediaPlayer()
+    private enum class State {
+        IDLE,
+        PREPARING,
+        PLAYING,
+        PAUSED,
+        RELEASED
+    }
 
-    var playerProgress: Int = 0
+    private val mediaPlayer: MediaPlayer = MediaPlayer()
+    private var state: State = State.IDLE
+    private var resumePositionMs: Int = 0
+
+    var playerProgress: Int
         get() {
-            return if (mediaPlayer.isPlaying) {
+            return if (state == State.PLAYING && mediaPlayer.isPlaying) {
                 mediaPlayer.currentPosition / 1000
             } else {
-                field / 1000
+                resumePositionMs / 1000
             }
         }
         set(value) {
-            field = value * 1000
+            resumePositionMs = value * 1000
         }
 
     init {
@@ -36,53 +46,102 @@ class PlayerManager : PropertyChangeSupport(this) {
         firePropertyChange(event, null, event)
     }
 
-    fun play(fd: FileDescriptor) {
-        if (mediaPlayer.isPlaying) {
-            mediaPlayer.stop()
+    fun play(fd: FileDescriptor): Boolean {
+        if (state == State.RELEASED) {
+            return false
         }
-        mediaPlayer.reset()
 
-        mediaPlayer.setDataSource(fd)
-        mediaPlayer.prepareAsync()
+        return try {
+            if (state == State.PLAYING || state == State.PAUSED) {
+                mediaPlayer.stop()
+            }
+            mediaPlayer.reset()
+            mediaPlayer.setDataSource(fd)
+            state = State.PREPARING
+            mediaPlayer.prepareAsync()
+            true
+        } catch (e: Exception) {
+            Timber.e(e)
+            state = State.IDLE
+            resumePositionMs = 0
+            setChangedNotify(ACTION_STOP)
+            false
+        }
     }
 
     fun seekTo(progress: Int) {
-        playerProgress = progress * 1000
-        mediaPlayer.seekTo(playerProgress)
+        playerProgress = progress
+
+        if (state == State.PLAYING || state == State.PAUSED) {
+            try {
+                mediaPlayer.seekTo(resumePositionMs)
+            } catch (e: IllegalStateException) {
+                Timber.e(e)
+                state = State.IDLE
+                resumePositionMs = 0
+                setChangedNotify(ACTION_STOP)
+            }
+        }
     }
 
     fun pause() {
-        playerProgress = mediaPlayer.currentPosition
+        if (state == State.PLAYING) {
+            resumePositionMs = mediaPlayer.currentPosition
 
-        if (mediaPlayer.isPlaying) {
-            mediaPlayer.pause()
+            if (mediaPlayer.isPlaying) {
+                mediaPlayer.pause()
+            }
+
+            state = State.PAUSED
+            setChangedNotify(ACTION_PAUSE)
+        } else if (state == State.PREPARING) {
+            state = State.PAUSED
+            setChangedNotify(ACTION_PAUSE)
         }
-
-        setChangedNotify(ACTION_PAUSE)
     }
 
-    fun stop() {
-        if (mediaPlayer.isPlaying) {
-            mediaPlayer.stop()
-            mediaPlayer.release()
+    fun release() {
+        if (state == State.RELEASED) {
+            return
         }
+
+        mediaPlayer.setOnPreparedListener(null)
+        mediaPlayer.setOnCompletionListener(null)
+        mediaPlayer.setOnErrorListener(null)
+        mediaPlayer.release()
+        state = State.RELEASED
     }
 
     private fun setListen() {
         mediaPlayer.setOnPreparedListener {
-            mediaPlayer.seekTo(playerProgress)
-            mediaPlayer.start()
+            if (state == State.PAUSED) {
+                mediaPlayer.seekTo(resumePositionMs)
+                return@setOnPreparedListener
+            }
 
+            if (state != State.PREPARING) {
+                return@setOnPreparedListener
+            }
+
+            mediaPlayer.seekTo(resumePositionMs)
+            mediaPlayer.start()
+            state = State.PLAYING
             setChangedNotify(ACTION_PLAY)
         }
 
         mediaPlayer.setOnCompletionListener {
+            state = State.IDLE
+            resumePositionMs = 0
             setChangedNotify(ACTION_COMPLETE)
         }
 
         mediaPlayer.setOnErrorListener { mp, what, extra ->
-            Timber.e("MediaPlayer error type:$what, code:$extra, currentPosition:${mp.currentPosition}")
-            return@setOnErrorListener false
+            val currentPosition = runCatching { mp.currentPosition }.getOrDefault(-1)
+            Timber.e("MediaPlayer error type:$what, code:$extra, currentPosition:$currentPosition")
+            state = State.IDLE
+            resumePositionMs = 0
+            setChangedNotify(ACTION_STOP)
+            return@setOnErrorListener true
         }
     }
 }
