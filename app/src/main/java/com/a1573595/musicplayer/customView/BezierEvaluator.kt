@@ -3,7 +3,8 @@ package com.a1573595.musicplayer.customView
 import android.animation.TypeEvaluator
 import android.graphics.Point
 
-class BezierEvaluator(private val controlPoint1: Point, private val controlPoint2: Point) : TypeEvaluator<Point> {
+class BezierEvaluator(private val controlPoint1: Point, private val controlPoint2: Point) :
+    TypeEvaluator<Point> {
     override fun evaluate(t: Float, startValue: Point, endValue: Point): Point {
         val x = startValue.x * (1 - t) * (1 - t) * (1 - t) + (3f
                 * controlPoint1.x * t * (1 - t) * (1 - t)) + (3f

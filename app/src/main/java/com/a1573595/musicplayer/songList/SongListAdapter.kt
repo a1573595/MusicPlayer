@@ -15,7 +15,10 @@ class SongListAdapter(private val presenter: SongListPresenter) :
         RecyclerView.ViewHolder(viewBinding.root) {
         init {
             itemView.setOnClickListener {
-                presenter.onSongClick(adapterPosition)
+                val position = bindingAdapterPosition
+                if (position != RecyclerView.NO_POSITION) {
+                    presenter.onSongClick(position)
+                }
             }
         }
     }

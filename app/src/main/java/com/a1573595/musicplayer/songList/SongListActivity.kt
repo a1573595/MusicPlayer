@@ -135,6 +135,7 @@ class SongListActivity : BaseSongActivity<SongListPresenter>(), SongListView {
             PlayerManager.ACTION_PLAY, PlayerManager.ACTION_PAUSE -> {
                 presenter.fetchSongState()
             }
+
             PlayerService.ACTION_FIND_NEW_SONG, PlayerService.ACTION_NOT_SONG_FOUND -> {
                 presenter.filterSong(viewBinding.edName.text.toString())
             }
@@ -157,6 +158,7 @@ class SongListActivity : BaseSongActivity<SongListPresenter>(), SongListView {
             }
         }
     }
+
     private fun setBackground() {
         viewBinding.root.background = ContextCompat.getDrawable(this, R.drawable.background_music)
         viewBinding.root.background.alpha = 30

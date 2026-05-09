@@ -3,7 +3,7 @@ package com.a1573595.musicplayer
 import android.app.Application
 import timber.log.Timber
 
-class PlayerApplication: Application() {
+class PlayerApplication : Application() {
     override fun onCreate() {
         super.onCreate()
 

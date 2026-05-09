@@ -13,6 +13,8 @@ import android.provider.MediaStore
 import android.widget.RemoteViews
 import android.widget.Toast
 import androidx.core.app.NotificationCompat
+import androidx.core.app.ServiceCompat
+import androidx.core.content.ContextCompat
 import com.a1573595.musicplayer.R
 import com.a1573595.musicplayer.Weak
 import com.a1573595.musicplayer.model.Song
@@ -63,15 +65,14 @@ class PlayerService : Service(), PropertyChangeListener {
                         play()
                     }
                 }
+
                 NOTIFICATION_NEXT -> skipToNext()
                 NOTIFICATION_CANCEL -> {
                     pause()
-
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                        stopForeground(STOP_FOREGROUND_DETACH)
-                    } else {
-                        stopForeground(true)
-                    }
+                    ServiceCompat.stopForeground(
+                        this@PlayerService,
+                        ServiceCompat.STOP_FOREGROUND_REMOVE
+                    )
                     stopSelf()
                 }
             }
@@ -164,19 +165,24 @@ class PlayerService : Service(), PropertyChangeListener {
                     else -> skipToNext()
                 }
             }
+
             ACTION_PLAY, ACTION_PAUSE -> {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                    startForeground(NOTIFICATION_ID_MUSIC, createNotification(), FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK)
-                } else {
-                    startForeground(NOTIFICATION_ID_MUSIC, createNotification())
-                }
+                ServiceCompat.startForeground(
+                    this,
+                    NOTIFICATION_ID_MUSIC,
+                    createNotification(),
+                    FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK
+                )
             }
+
             ACTION_STOP -> {
                 isPlaying = false
             }
+
             ACTION_FIND_NEW_SONG -> {
                 Toast.makeText(this, getString(R.string.found_new_song), Toast.LENGTH_SHORT).show()
             }
+
             ACTION_NOT_SONG_FOUND -> {
                 Toast.makeText(this, getString(R.string.no_song_found), Toast.LENGTH_SHORT).show()
             }
@@ -262,6 +268,7 @@ class PlayerService : Service(), PropertyChangeListener {
                 playerManager.setChangedNotify(ACTION_NOT_SONG_FOUND)
                 return
             }
+
             position >= songList.size -> 0
             position < 0 -> songList.lastIndex
             else -> position
@@ -376,11 +383,12 @@ class PlayerService : Service(), PropertyChangeListener {
         intentFilter.addAction(NOTIFICATION_NEXT)
         intentFilter.addAction(NOTIFICATION_CANCEL)
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            registerReceiver(receiver, intentFilter, RECEIVER_EXPORTED)
-        } else {
-            registerReceiver(receiver, intentFilter)
-        }
+        ContextCompat.registerReceiver(
+            this,
+            receiver,
+            intentFilter,
+            ContextCompat.RECEIVER_NOT_EXPORTED
+        )
     }
 
     private fun createNotification(): Notification {
