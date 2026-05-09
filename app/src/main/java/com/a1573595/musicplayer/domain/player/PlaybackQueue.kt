@@ -13,11 +13,6 @@ class PlaybackQueue(
     var currentIndex: Int = normalizeIndex(currentIndex)
         private set
 
-    fun setSongs(songs: List<Song>, currentIndex: Int = 0) {
-        this.songs = songs.toList()
-        this.currentIndex = normalizeIndex(currentIndex)
-    }
-
     fun currentSong(): Song? = songs.getOrNull(currentIndex)
 
     fun play(position: Int = currentIndex): Song? {

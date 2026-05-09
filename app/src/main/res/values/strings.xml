@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name" translatable="false">MusicPlayer</string>
 
@@ -12,8 +13,4 @@
     <string name="unsupported_format">Unsupported format</string>
     <string name="press_again_to_exit">Press again to exit</string>
     <string name="cant_open_browser">Can\'t open browser.</string>
-
-    <declare-styleable name="PlayPauseState">
-        <attr name="state_pause" format="boolean" />
-    </declare-styleable>
 </resources>

@@ -5,9 +5,7 @@ plugins {
 android {
     namespace = "com.a1573595.musicplayer"
     compileSdk {
-        version = release(36) {
-            minorApiLevel = 1
-        }
+        version = release(37)
     }
 
     defaultConfig {

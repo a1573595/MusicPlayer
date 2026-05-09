@@ -1,18 +1,12 @@
 package com.a1573595.musicplayer.songList
 
-import android.app.DownloadManager
-import android.content.Context
-import android.os.Environment
-import android.util.Patterns
-import androidx.core.net.toUri
 import com.a1573595.musicplayer.BasePresenter
-import com.a1573595.musicplayer.R
 import com.a1573595.musicplayer.domain.player.PlaybackController
 import com.a1573595.musicplayer.domain.song.FilterSongsUseCase
 import com.a1573595.musicplayer.domain.song.FilteredSongs
 import kotlinx.coroutines.*
 
-class SongListPresenter constructor(
+class SongListPresenter(
     view: SongListView,
     private val filterSongs: FilterSongsUseCase = FilterSongsUseCase(),
     private val scope: CoroutineScope = CoroutineScope(Dispatchers.IO + Job()),
@@ -61,25 +55,6 @@ class SongListPresenter constructor(
         playSong(position)
     }
 
-    fun downloadSong(url: String) {
-        if (Patterns.WEB_URL.matcher(url).matches() && isSupport(url)) {
-            val uri = url.toUri()
-
-            val downloadManager: DownloadManager =
-                view.context().getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
-
-            val request: DownloadManager.Request = DownloadManager.Request(uri)
-            request.setDestinationInExternalPublicDir(
-                Environment.DIRECTORY_MUSIC,
-                uri.lastPathSegment
-            )
-            request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
-            downloadManager.enqueue(request)
-        } else {
-            view.showToast(view.context().getString(R.string.unsupported_format))
-        }
-    }
-
     private fun loadSongList() {
         scope.launch {
             withContext(mainDispatcher) {
@@ -99,11 +74,6 @@ class SongListPresenter constructor(
 
     private fun playSong(position: Int) {
         player.play(position)
-    }
-
-    private fun isSupport(extension: String): Boolean {
-        return extension.endsWith("mp3") || extension.endsWith("wav")
-                || extension.endsWith("ogg") || extension.endsWith("flac")
     }
 
     fun clear() {
