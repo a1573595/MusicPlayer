@@ -15,7 +15,7 @@ import com.a1573595.musicplayer.data.player.PlayerService
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import java.beans.PropertyChangeListener
 
-abstract class BaseSongActivity<P : BasePresenter<*>> : BaseActivity<P>(), PropertyChangeListener {
+abstract class PlayerBoundActivity<P : BasePresenter<*>> : BaseActivity<P>(), PropertyChangeListener {
     private val REQUEST_WRITE_EXTERNAL_STORAGE: Int = 10
     private val REQUEST_READ_MEDIA_AUDIO: Int = 11
     private val REQUEST_POST_NOTIFICATIONS: Int = 12
@@ -31,7 +31,7 @@ abstract class BaseSongActivity<P : BasePresenter<*>> : BaseActivity<P>(), Prope
             localBinder.service?.let {
                 player = it
 
-                player.addPlayerObserver(this@BaseSongActivity)
+                player.addPlayerObserver(this@PlayerBoundActivity)
                 isBound = true
                 playerBound(player)
             }

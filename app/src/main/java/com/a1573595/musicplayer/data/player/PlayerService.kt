@@ -17,21 +17,18 @@ import android.widget.Toast
 import androidx.core.app.ServiceCompat
 import androidx.core.content.ContextCompat
 import com.a1573595.musicplayer.R
+import com.a1573595.musicplayer.common.delegate.WeakReferenceDelegate
 import com.a1573595.musicplayer.data.song.MediaStoreSongRepository
-import com.a1573595.musicplayer.common.delegate.Weak
-import com.a1573595.musicplayer.domain.player.PlaybackAudio
-import com.a1573595.musicplayer.domain.player.PlaybackAudioSource
 import com.a1573595.musicplayer.domain.player.PlaybackCoordinator
 import com.a1573595.musicplayer.domain.player.PlaybackEngine
 import com.a1573595.musicplayer.domain.player.PlaybackQueue
-import com.a1573595.musicplayer.domain.song.SongRepository
 import com.a1573595.musicplayer.domain.song.Song
+import com.a1573595.musicplayer.domain.song.SongRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
-import timber.log.Timber
 import java.beans.PropertyChangeEvent
 import java.beans.PropertyChangeListener
 
@@ -91,9 +88,9 @@ class PlayerService : Service(), PropertyChangeListener {
 
         true
     }
-    private val audioObserver: AudioObserver = AudioObserver(mHandler)
+    private val audioObserver: MediaStoreAudioObserver = MediaStoreAudioObserver(mHandler)
 
-    private val playbackEngine: PlaybackEngine = PlayerManager()
+    private val playbackEngine: PlaybackEngine = MediaPlayerPlaybackEngine()
     private val playbackQueue: PlaybackQueue = PlaybackQueue()
 
     private lateinit var songRepository: SongRepository
@@ -112,7 +109,7 @@ class PlayerService : Service(), PropertyChangeListener {
         }
 
     inner class LocalBinder : Binder() {
-        val service by Weak {
+        val service by WeakReferenceDelegate {
             this@PlayerService
         }
     }
@@ -128,9 +125,7 @@ class PlayerService : Service(), PropertyChangeListener {
         playbackCoordinator = PlaybackCoordinator(
             queue = playbackQueue,
             engine = playbackEngine,
-            audioSource = object : PlaybackAudioSource {
-                override fun open(song: Song): PlaybackAudio? = openPlaybackAudio(song)
-            },
+            audioSource = MediaStorePlaybackAudioSource(contentResolver, uriExternal),
             onPlaybackStart = ::startPlaybackService,
             onPlaybackStateChanged = ::startForegroundNotification,
             onPlaybackUnavailable = ::notifyNoSongFound
@@ -209,22 +204,6 @@ class PlayerService : Service(), PropertyChangeListener {
     fun getProgress(): Int = playbackCoordinator.progress()
 
     fun play(position: Int = playbackQueue.currentIndex) = playbackCoordinator.play(position)
-
-    private fun openPlaybackAudio(song: Song): PlaybackAudio? {
-        val audioUri = Uri.withAppendedPath(uriExternal, song.id)
-        val descriptor = try {
-            contentResolver.openFileDescriptor(audioUri, "r")
-        } catch (e: Exception) {
-            Timber.e(e)
-            null
-        }
-
-        return descriptor?.let { parcelFileDescriptor ->
-            PlaybackAudio(parcelFileDescriptor.fileDescriptor) {
-                parcelFileDescriptor.close()
-            }
-        }
-    }
 
     fun pause() = playbackCoordinator.pause()
 

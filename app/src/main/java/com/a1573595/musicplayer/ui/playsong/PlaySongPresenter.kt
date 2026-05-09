@@ -6,7 +6,7 @@ import com.a1573595.musicplayer.domain.player.PlaybackController
 class PlaySongPresenter(view: PlaySongView) : BasePresenter<PlaySongView>(view) {
     private lateinit var player: PlaybackController
 
-    fun setPlayerManager(player: PlaybackController) {
+    fun setPlaybackController(player: PlaybackController) {
         this.player = player
 
         fetchSongState()

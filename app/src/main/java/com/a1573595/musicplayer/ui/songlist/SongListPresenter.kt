@@ -17,7 +17,7 @@ class SongListPresenter(
 
     private var filteredSongs: FilteredSongs = FilteredSongs(emptyList(), emptyList())
 
-    fun setPlayerManager(player: PlaybackController) {
+    fun setPlaybackController(player: PlaybackController) {
         this.player = player
 
         loadSongList()

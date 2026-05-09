@@ -21,7 +21,7 @@ class SongListPresenterTest {
     )
 
     @Test
-    fun setPlayerManager_loadsSongsAndRendersList() = runTest {
+    fun setPlaybackController_loadsSongsAndRendersList() = runTest {
         val dispatcher = StandardTestDispatcher(testScheduler)
         val view = RecordingSongListView()
         val player = FakePlaybackController(songs = songs)
@@ -31,7 +31,7 @@ class SongListPresenterTest {
             mainDispatcher = dispatcher
         )
 
-        presenter.setPlayerManager(player)
+        presenter.setPlaybackController(player)
         advanceUntilIdle()
 
         assertThat(player.readSongCalls).isEqualTo(1)
@@ -50,7 +50,7 @@ class SongListPresenterTest {
             scope = TestScope(dispatcher),
             mainDispatcher = dispatcher
         )
-        presenter.setPlayerManager(player)
+        presenter.setPlaybackController(player)
         advanceUntilIdle()
 
         presenter.filterSong("metal")
@@ -72,7 +72,7 @@ class SongListPresenterTest {
             scope = TestScope(dispatcher),
             mainDispatcher = dispatcher
         )
-        presenter.setPlayerManager(player)
+        presenter.setPlaybackController(player)
         advanceUntilIdle()
 
         presenter.onSongPlay()

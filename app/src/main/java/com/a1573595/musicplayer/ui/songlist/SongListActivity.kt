@@ -28,7 +28,7 @@ import androidx.core.view.updatePadding
 import androidx.core.widget.addTextChangedListener
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.a1573595.musicplayer.ui.base.BaseSongActivity
+import com.a1573595.musicplayer.ui.base.PlayerBoundActivity
 import com.a1573595.musicplayer.R
 import com.a1573595.musicplayer.databinding.ActivitySongListBinding
 import com.a1573595.musicplayer.databinding.DialogLoadingBinding
@@ -41,7 +41,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.launch
 import java.beans.PropertyChangeEvent
 
-class SongListActivity : BaseSongActivity<SongListPresenter>(), SongListView {
+class SongListActivity : PlayerBoundActivity<SongListPresenter>(), SongListView {
     private lateinit var viewBinding: ActivitySongListBinding
 
     private var loadingDialog: AlertDialog? = null
@@ -74,7 +74,7 @@ class SongListActivity : BaseSongActivity<SongListPresenter>(), SongListView {
     }
 
     override fun playerBound(player: PlayerService) {
-        presenter.setPlayerManager(PlayerServicePlaybackController(player))
+        presenter.setPlaybackController(PlayerServicePlaybackController(player))
 
         setListen()
     }

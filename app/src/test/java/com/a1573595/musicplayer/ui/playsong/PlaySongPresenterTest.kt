@@ -11,7 +11,7 @@ class PlaySongPresenterTest {
     private val song = Song(id = "1", name = "Hello", author = "Adele", duration = 1000)
 
     @Test
-    fun setPlayerManager_fetchesCurrentSongState() {
+    fun setPlaybackController_fetchesCurrentSongState() {
         val view = RecordingPlaySongView()
         val player = FakePlaybackController(
             songs = listOf(song),
@@ -20,7 +20,7 @@ class PlaySongPresenterTest {
             progress = 7
         )
 
-        PlaySongPresenter(view).setPlayerManager(player)
+        PlaySongPresenter(view).setPlaybackController(player)
 
         assertThat(view.updatedSongState).isEqualTo(Triple(song, true, 7))
         assertThat(view.repeatStates).containsExactly(false)
@@ -32,7 +32,7 @@ class PlaySongPresenterTest {
         val view = RecordingPlaySongView()
         val player = FakePlaybackController(songs = listOf(song), currentSong = song)
         val presenter = PlaySongPresenter(view)
-        presenter.setPlayerManager(player)
+        presenter.setPlaybackController(player)
 
         assertThat(presenter.updateRepeat()).isTrue()
         assertThat(player.isRepeat).isTrue()
@@ -45,7 +45,7 @@ class PlaySongPresenterTest {
         val view = RecordingPlaySongView()
         val player = FakePlaybackController(songs = listOf(song), currentSong = song)
         val presenter = PlaySongPresenter(view)
-        presenter.setPlayerManager(player)
+        presenter.setPlaybackController(player)
 
         presenter.onSongPlay()
         presenter.onSongPlay()

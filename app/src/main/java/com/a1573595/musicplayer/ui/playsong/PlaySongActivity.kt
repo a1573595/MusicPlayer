@@ -17,7 +17,7 @@ import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.core.view.updateLayoutParams
-import com.a1573595.musicplayer.ui.base.BaseSongActivity
+import com.a1573595.musicplayer.ui.base.PlayerBoundActivity
 import com.a1573595.musicplayer.R
 import com.a1573595.musicplayer.common.format.TimeFormatter
 import com.a1573595.musicplayer.ui.view.FloatingAnimationView
@@ -28,7 +28,7 @@ import com.a1573595.musicplayer.data.player.PlayerService
 import com.a1573595.musicplayer.data.player.PlayerServicePlaybackController
 import java.beans.PropertyChangeEvent
 
-class PlaySongActivity : BaseSongActivity<PlaySongPresenter>(), PlaySongView {
+class PlaySongActivity : PlayerBoundActivity<PlaySongPresenter>(), PlaySongView {
     companion object {
         private val STATE_PLAY = intArrayOf(R.attr.state_pause)
         private val STATE_PAUSE = intArrayOf(-R.attr.state_pause)
@@ -70,7 +70,7 @@ class PlaySongActivity : BaseSongActivity<PlaySongPresenter>(), PlaySongView {
         initFavoriteRunnable()
         initSeekBarUpdateRunnable()
 
-        presenter.setPlayerManager(PlayerServicePlaybackController(player))
+        presenter.setPlaybackController(PlayerServicePlaybackController(player))
 
         setListen()
     }

@@ -11,7 +11,7 @@ import java.beans.PropertyChangeListener
 import java.beans.PropertyChangeSupport
 import java.io.FileDescriptor
 
-class PlayerManager : PlaybackEngine {
+class MediaPlayerPlaybackEngine : PlaybackEngine {
     private enum class State {
         IDLE,
         PREPARING,
