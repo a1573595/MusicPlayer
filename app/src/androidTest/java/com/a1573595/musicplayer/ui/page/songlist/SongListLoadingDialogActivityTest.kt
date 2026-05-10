@@ -1,48 +1,78 @@
 package com.a1573595.musicplayer.ui.page.songlist
 
-import androidx.compose.ui.test.assertIsDisplayed
-import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
-import androidx.compose.ui.test.onAllNodesWithTag
-import androidx.compose.ui.test.onNodeWithTag
+import android.app.Dialog
+import android.view.View
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.GrantPermissionRule
+import com.a1573595.musicplayer.R
 import com.a1573595.musicplayer.e2ePermissions
+import com.a1573595.musicplayer.launchActivity
+import com.a1573595.musicplayer.ui.base.BasePlayerBoundActivity.Companion.EXTRA_SKIP_PLAYER_BINDING_FOR_TESTS
+import com.a1573595.musicplayer.waitUntil
 import org.junit.Rule
 import org.junit.Test
-import org.junit.rules.RuleChain
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 class SongListLoadingDialogActivityTest {
-    private val composeRule = createAndroidComposeRule<SongListActivity>()
-
     @get:Rule
-    val ruleChain: RuleChain =
-        RuleChain
-            .outerRule(GrantPermissionRule.grant(*e2ePermissions()))
-            .around(composeRule)
+    val permissions: GrantPermissionRule = GrantPermissionRule.grant(*e2ePermissions())
 
     @Test
-    fun showLoading_rendersLoadingDialogContent() {
+    fun showLoading_togglesLoadingDialogVisibility() {
+        val instrumentation = InstrumentationRegistry.getInstrumentation()
+        val activity = instrumentation.launchActivity(
+            activityClass = SongListActivity::class.java,
+            description = "SongListActivity to launch",
+            configureIntent = {
+                putExtra(EXTRA_SKIP_PLAYER_BINDING_FOR_TESTS, true)
+            }
+        )
+
         try {
-            composeRule.runOnUiThread {
-                composeRule.activity.showLoading()
+            activity.waitUntil(
+                instrumentation = instrumentation,
+                description = "SongListActivity to become visible"
+            ) {
+                it.findViewById<View>(R.id.bottomAppBar).isShown && !it.isLoadingDialogShowing()
             }
 
-            composeRule.waitUntil(timeoutMillis = 5_000L) {
-                composeRule
-                    .onAllNodesWithTag(LoadingDialogContentTestTag)
-                    .fetchSemanticsNodes()
-                    .isNotEmpty()
+            instrumentation.runOnMainSync {
+                activity.showLoading()
             }
 
-            composeRule
-                .onNodeWithTag(LoadingDialogContentTestTag)
-                .assertIsDisplayed()
+            activity.waitUntil(
+                instrumentation = instrumentation,
+                description = "loading dialog to show"
+            ) {
+                it.isLoadingDialogShowing()
+            }
+
+            instrumentation.runOnMainSync {
+                activity.stopLoading()
+            }
+
+            activity.waitUntil(
+                instrumentation = instrumentation,
+                description = "loading dialog to dismiss"
+            ) {
+                !it.isLoadingDialogShowing()
+            }
         } finally {
-            composeRule.runOnUiThread {
-                composeRule.activity.stopLoading()
+            instrumentation.runOnMainSync {
+                activity.stopLoading()
+                activity.finish()
             }
         }
+    }
+
+    private fun SongListActivity.isLoadingDialogShowing(): Boolean {
+        val loadingDialogField =
+            SongListActivityBase::class.java.getDeclaredField("loadingDialog").apply {
+                isAccessible = true
+            }
+
+        return (loadingDialogField.get(this) as? Dialog)?.isShowing == true
     }
 }

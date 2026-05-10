@@ -47,6 +47,17 @@
         </activity>
         <activity android:name=".ui.page.playsong.PlaySongActivity" />
 
+<!--        <activity-alias-->
+<!--            android:name=".ui.songlist.SongListActivity"-->
+<!--            android:enabled="true"-->
+<!--            android:exported="true"-->
+<!--            android:targetActivity=".ui.page.songlist.SongListActivity" />-->
+<!--        <activity-alias-->
+<!--            android:name=".ui.playsong.PlaySongActivity"-->
+<!--            android:enabled="true"-->
+<!--            android:exported="false"-->
+<!--            android:targetActivity=".ui.page.playsong.PlaySongActivity" />-->
+
         <service
             android:name=".data.player.PlayerService"
             android:enabled="true"

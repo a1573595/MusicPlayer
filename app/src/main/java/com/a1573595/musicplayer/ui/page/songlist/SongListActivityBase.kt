@@ -29,8 +29,8 @@ import androidx.core.view.updatePadding
 import androidx.core.widget.addTextChangedListener
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.a1573595.musicplayer.ui.base.BasePlayerBoundActivity
 import com.a1573595.musicplayer.R
+import com.a1573595.musicplayer.ui.base.BasePlayerBoundActivity
 import com.a1573595.musicplayer.databinding.ActivitySongListBinding
 import com.a1573595.musicplayer.domain.player.PlaybackEngine
 import com.a1573595.musicplayer.domain.song.Song
@@ -287,4 +287,5 @@ abstract class SongListActivityBase : BasePlayerBoundActivity<SongListPresenter>
         val imm = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
         imm.hideSoftInputFromWindow(viewBinding.edName.windowToken, 0)
     }
+
 }

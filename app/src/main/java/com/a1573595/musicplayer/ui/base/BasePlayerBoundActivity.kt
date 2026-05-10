@@ -10,12 +10,18 @@ import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
 import android.provider.Settings
+import com.a1573595.musicplayer.BuildConfig
 import com.a1573595.musicplayer.R
 import com.a1573595.musicplayer.data.player.PlayerService
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import java.beans.PropertyChangeListener
 
 abstract class BasePlayerBoundActivity<P : BasePresenter<*>> : BaseActivity<P>(), PropertyChangeListener {
+    companion object {
+        const val EXTRA_SKIP_PLAYER_BINDING_FOR_TESTS =
+            "com.a1573595.musicplayer.extra.SKIP_PLAYER_BINDING_FOR_TESTS"
+    }
+
     private val requestWriteExternalStorage: Int = 10
     private val requestReadMediaAudio: Int = 11
     private val requestPostNotifications: Int = 12
@@ -51,7 +57,7 @@ abstract class BasePlayerBoundActivity<P : BasePresenter<*>> : BaseActivity<P>()
     override fun onStart() {
         super.onStart()
 
-        if (hasAudioPermission() && !isBound) {
+        if (shouldBindPlayerService() && hasAudioPermission() && !isBound) {
             bindPlayerService()
         }
     }
@@ -92,7 +98,9 @@ abstract class BasePlayerBoundActivity<P : BasePresenter<*>> : BaseActivity<P>()
         if (grantResults.isEmpty()) return
         when (requestCode) {
             requestWriteExternalStorage, requestReadMediaAudio -> if (grantResults[0] == PERMISSION_GRANTED) {
-                bindPlayerService()
+                if (shouldBindPlayerService()) {
+                    bindPlayerService()
+                }
                 requestNotificationPermissionIfNeeded()
             } else {
                 showNeedPermissionDialog()
@@ -130,6 +138,11 @@ abstract class BasePlayerBoundActivity<P : BasePresenter<*>> : BaseActivity<P>()
                 BIND_AUTO_CREATE
             )
         }
+    }
+
+    private fun shouldBindPlayerService(): Boolean {
+        return !BuildConfig.DEBUG ||
+            !intent.getBooleanExtra(EXTRA_SKIP_PLAYER_BINDING_FOR_TESTS, false)
     }
 
     private fun requestNotificationPermissionIfNeeded() {

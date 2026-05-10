@@ -1,17 +1,13 @@
 package com.a1573595.musicplayer
 
-import android.os.SystemClock
 import android.view.View
-import androidx.test.core.app.ActivityScenario
-import androidx.test.platform.app.InstrumentationRegistry
-import androidx.test.espresso.Espresso.onView
-import androidx.test.espresso.assertion.ViewAssertions.matches
-import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
-import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.GrantPermissionRule
 import com.a1573595.musicplayer.domain.song.Song
+import com.a1573595.musicplayer.ui.page.playsong.PlaySongActivity
 import com.a1573595.musicplayer.ui.page.songlist.SongListActivity
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -31,44 +27,53 @@ class PlaySongNavigationE2ETest {
 
     @Test
     fun tappingBottomPlayerWithCurrentSong_opensPlaySong() {
-        ActivityScenario.launch(SongListActivity::class.java).use { scenario ->
-            scenario.waitUntil(timeoutMillis = 10_000L) { activity ->
-                activity.findViewById<View>(R.id.bottomAppBar).hasOnClickListeners()
+        val instrumentation = InstrumentationRegistry.getInstrumentation()
+        val songListActivity = instrumentation.launchActivity(
+            activityClass = SongListActivity::class.java,
+            description = "SongListActivity to launch"
+        )
+
+        try {
+            songListActivity.waitUntil(
+                instrumentation = instrumentation,
+                description = "SongListActivity to bind player service"
+            ) {
+                it.findViewById<View>(R.id.bottomAppBar).hasOnClickListeners()
             }
 
-            scenario.onActivity { activity ->
-                activity.updateSongState(song, isPlaying = false)
+            instrumentation.runOnMainSync {
+                songListActivity.updateSongState(song, isPlaying = false)
+
+                assertTrue(songListActivity.findViewById<View>(R.id.bottomAppBar).isShown)
+                assertTrue(songListActivity.findViewById<View>(R.id.tvName).isShown)
             }
-            InstrumentationRegistry.getInstrumentation().waitForIdleSync()
 
-            onView(withId(R.id.bottomAppBar)).check(matches(isDisplayed()))
-            onView(withId(R.id.tvName)).check(matches(isDisplayed()))
+            val playSongActivity =
+                instrumentation.waitForActivity(
+                    activityClass = PlaySongActivity::class.java,
+                    description = "PlaySongActivity to launch"
+                ) {
+                    instrumentation.runOnMainSync {
+                        songListActivity.findViewById<View>(R.id.bottomAppBar).performClick()
+                    }
+                }
 
-            scenario.onActivity { activity ->
-                activity.findViewById<View>(R.id.bottomAppBar).performClick()
+            try {
+                playSongActivity.waitUntil(
+                    instrumentation = instrumentation,
+                    description = "PlaySongActivity seekBar to be visible"
+                ) { activity ->
+                    activity.findViewById<View>(R.id.seekBar).isShown
+                }
+            } finally {
+                instrumentation.runOnMainSync {
+                    playSongActivity.finish()
+                }
             }
-            InstrumentationRegistry.getInstrumentation().waitForIdleSync()
-
-            onView(withId(R.id.seekBar)).check(matches(isDisplayed()))
+        } finally {
+            instrumentation.runOnMainSync {
+                songListActivity.finish()
+            }
         }
-    }
-
-    private fun ActivityScenario<SongListActivity>.waitUntil(
-        timeoutMillis: Long,
-        condition: (SongListActivity) -> Boolean
-    ) {
-        val deadline = System.currentTimeMillis() + timeoutMillis
-
-        do {
-            var matches = false
-            onActivity { activity ->
-                matches = condition(activity)
-            }
-
-            if (matches) return
-            SystemClock.sleep(50L)
-        } while (System.currentTimeMillis() < deadline)
-
-        error("Timed out waiting for SongListActivity condition")
     }
 }
