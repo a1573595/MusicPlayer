@@ -16,9 +16,15 @@ class SongListPresenter(
     private lateinit var player: PlaybackController
 
     private var filteredSongs: FilteredSongs = FilteredSongs(emptyList(), emptyList())
+    @Volatile
+    private var currentFilterKey: String = ""
 
-    fun setPlaybackController(player: PlaybackController) {
+    fun setPlaybackController(
+        player: PlaybackController,
+        initialFilterKey: String = ""
+    ) {
         this.player = player
+        currentFilterKey = initialFilterKey
 
         loadSongList()
     }
@@ -30,12 +36,16 @@ class SongListPresenter(
     }
 
     fun filterSong(key: String) {
+        currentFilterKey = key
+
         scope.launch {
             val result = filterSongs(player.getSongList(), key)
-            filteredSongs = result
 
             withContext(mainDispatcher) {
-                view.renderSongs(result.songs)
+                if (key == currentFilterKey) {
+                    filteredSongs = result
+                    view.renderSongs(result.songs)
+                }
             }
         }
     }
@@ -62,11 +72,16 @@ class SongListPresenter(
             }
 
             player.readSong()
-            filteredSongs = filterSongs(player.getSongList(), "")
+            val filterKey = currentFilterKey
+            val result = filterSongs(player.getSongList(), filterKey)
 
             withContext(mainDispatcher) {
                 view.stopLoading()
-                view.renderSongs(filteredSongs.songs)
+
+                if (filterKey == currentFilterKey) {
+                    filteredSongs = result
+                    view.renderSongs(result.songs)
+                }
                 fetchSongState()
             }
         }

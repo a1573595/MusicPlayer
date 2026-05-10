@@ -78,17 +78,10 @@
         app:layout_constraintStart_toEndOf="@+id/guideContent"
         app:layout_constraintTop_toTopOf="@+id/imgBackground">
 
-        <TextView
+        <androidx.compose.ui.platform.ComposeView
             android:id="@+id/tvName"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:ellipsize="marquee"
-            android:gravity="center"
-            android:marqueeRepeatLimit="marquee_forever"
-            android:singleLine="true"
-            android:textColor="@color/colorTitleBlack"
-            android:textSize="@dimen/text_large"
-            tools:text="Hello" />
+            android:layout_height="32dp" />
     </FrameLayout>
 
     <androidx.compose.ui.platform.ComposeView
@@ -109,26 +102,20 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@+id/imgRepeat" />
 
-    <TextView
+    <androidx.compose.ui.platform.ComposeView
         android:id="@+id/tvProgress"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textColor="@color/colorTitleBlack"
-        android:textSize="@dimen/text_medium"
+        android:layout_width="56dp"
+        android:layout_height="24dp"
         app:layout_constraintBottom_toTopOf="@+id/seekBar"
-        app:layout_constraintStart_toStartOf="@+id/seekBar"
-        tools:text="00:00" />
+        app:layout_constraintStart_toStartOf="@+id/seekBar" />
 
-    <TextView
+    <androidx.compose.ui.platform.ComposeView
         android:id="@+id/tvDuration"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textColor="@color/colorTitleBlack"
-        android:textSize="@dimen/text_medium"
+        android:layout_width="56dp"
+        android:layout_height="24dp"
         app:layout_constraintBottom_toBottomOf="@+id/tvProgress"
         app:layout_constraintEnd_toEndOf="@+id/seekBar"
-        app:layout_constraintTop_toTopOf="@+id/tvProgress"
-        tools:text="00:00" />
+        app:layout_constraintTop_toTopOf="@+id/tvProgress" />
 
     <SeekBar
         android:id="@+id/seekBar"

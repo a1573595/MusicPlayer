@@ -24,6 +24,9 @@ class PlaySongControlsXmlContractTest {
         assertComposeViewHost(controls.getValue("imgRandom"))
         assertComposeViewHost(controls.getValue("imgBackward"))
         assertComposeViewHost(controls.getValue("imgForward"))
+        assertComposeViewHost(controls.getValue("tvName"))
+        assertComposeViewHost(controls.getValue("tvProgress"))
+        assertComposeViewHost(controls.getValue("tvDuration"))
         assertThat(controls.getValue("imgDisc").getAttribute("android:transitionName"))
             .isEqualTo("@string/transition_img_disc")
         assertThat(controls.getValue("imgPlay").tagName)
@@ -36,8 +39,6 @@ class PlaySongControlsXmlContractTest {
             .isEqualTo("@+id/imgPlay")
         assertThat(controls.getValue("imgForward").getAttribute("app:layout_constraintStart_toEndOf"))
             .isEqualTo("@+id/imgPlay")
-        assertThat(controls.getValue("tvName").getAttribute("android:transitionName"))
-            .isEmpty()
     }
 
     private fun assertComposeViewHost(element: Element) {

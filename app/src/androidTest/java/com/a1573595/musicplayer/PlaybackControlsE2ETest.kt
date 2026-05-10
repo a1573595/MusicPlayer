@@ -3,6 +3,7 @@ package com.a1573595.musicplayer
 import android.content.Intent
 import android.view.View
 import android.widget.ImageView
+import android.widget.SeekBar
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
@@ -11,6 +12,7 @@ import androidx.compose.ui.test.assertContentDescriptionEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsOff
 import androidx.compose.ui.test.assertIsOn
+import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
@@ -18,11 +20,15 @@ import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.GrantPermissionRule
+import com.a1573595.musicplayer.domain.song.Song
 import com.a1573595.musicplayer.ui.page.playsong.PlaySongActivity
 import com.a1573595.musicplayer.ui.page.playsong.PlaySongBackwardButtonTestTag
 import com.a1573595.musicplayer.ui.page.playsong.PlaySongForwardButtonTestTag
 import com.a1573595.musicplayer.ui.page.playsong.PlaySongRandomButtonTestTag
 import com.a1573595.musicplayer.ui.page.playsong.PlaySongRepeatButtonTestTag
+import com.a1573595.musicplayer.ui.page.playsong.PlaySongTrackDurationTextTestTag
+import com.a1573595.musicplayer.ui.page.playsong.PlaySongTrackProgressTextTestTag
+import com.a1573595.musicplayer.ui.page.playsong.PlaySongTrackTitleTextTestTag
 import com.a1573595.musicplayer.ui.base.BasePlayerBoundActivity.Companion.EXTRA_SKIP_PLAYER_BINDING_FOR_TESTS
 import org.junit.After
 import org.junit.Assert.assertEquals
@@ -96,6 +102,42 @@ class PlaybackControlsE2ETest {
     }
 
     @Test(timeout = E2E_TEST_TIMEOUT_MILLIS)
+    fun updateSongState_updatesTrackInfoAndSeekBar() {
+        val song =
+            Song(
+                id = "play-song-state",
+                name = "Compose Track State",
+                author = "State Artist",
+                duration = 180_000L
+            )
+
+        scenario.onActivity { activity ->
+            activity.updateSongState(song, isPlaying = false, progress = 42)
+
+            val seekBar = activity.findViewById<SeekBar>(R.id.seekBar)
+            assertEquals(180, seekBar.max)
+            assertEquals(42, seekBar.progress)
+            assertTrue(activity.findViewById<View>(R.id.tvName) is ComposeView)
+            assertTrue(activity.findViewById<View>(R.id.tvProgress) is ComposeView)
+            assertTrue(activity.findViewById<View>(R.id.tvDuration) is ComposeView)
+        }
+        composeRule.waitForIdle()
+
+        composeRule
+            .onNodeWithTag(PlaySongTrackTitleTextTestTag)
+            .assertIsDisplayed()
+            .assertTextEquals("Compose Track State")
+        composeRule
+            .onNodeWithTag(PlaySongTrackProgressTextTestTag)
+            .assertIsDisplayed()
+            .assertTextEquals("00:42")
+        composeRule
+            .onNodeWithTag(PlaySongTrackDurationTextTestTag)
+            .assertIsDisplayed()
+            .assertTextEquals("03:00")
+    }
+
+    @Test(timeout = E2E_TEST_TIMEOUT_MILLIS)
     fun playbackControls_matchComposeHostParityContract() {
         scenario.onActivity {
             it.showRepeat(false)
@@ -139,6 +181,8 @@ class PlaybackControlsE2ETest {
             val disc = activity.findViewById<View>(R.id.imgDisc)
             val play = activity.findViewById<View>(R.id.imgPlay)
             val title = activity.findViewById<View>(R.id.tvName)
+            val progress = activity.findViewById<View>(R.id.tvProgress)
+            val duration = activity.findViewById<View>(R.id.tvDuration)
             val repeat = activity.findViewById<View>(R.id.imgRepeat)
             val random = activity.findViewById<View>(R.id.imgRandom)
             val backward = activity.findViewById<View>(R.id.imgBackward)
@@ -147,10 +191,15 @@ class PlaybackControlsE2ETest {
             assertEquals(activity.getString(R.string.transition_img_disc), disc.transitionName)
             assertEquals(activity.getString(R.string.transition_img_play), play.transitionName)
             assertNull(title.transitionName)
+            assertNull(progress.transitionName)
+            assertNull(duration.transitionName)
             assertNull(repeat.transitionName)
             assertNull(random.transitionName)
             assertNull(backward.transitionName)
             assertNull(forward.transitionName)
+            assertTrue(title is ComposeView)
+            assertTrue(progress is ComposeView)
+            assertTrue(duration is ComposeView)
             assertTrue(repeat is ComposeView)
             assertTrue(random is ComposeView)
             assertTrue(backward is ComposeView)

@@ -41,6 +41,25 @@ class SongListPresenterTest {
     }
 
     @Test
+    fun setPlaybackController_loadsSongsWithInitialFilterKey() = runTest {
+        val dispatcher = StandardTestDispatcher(testScheduler)
+        val view = RecordingSongListView()
+        val player = FakePlaybackController(songs = songs)
+        val presenter = SongListPresenter(
+            view = view,
+            scope = TestScope(dispatcher),
+            mainDispatcher = dispatcher
+        )
+
+        presenter.setPlaybackController(player, initialFilterKey = "metal")
+        advanceUntilIdle()
+
+        assertThat(player.readSongCalls).isEqualTo(1)
+        assertThat(view.loadingEvents).containsExactly("show", "stop").inOrder()
+        assertThat(view.renderedSongs).containsExactly(songs[2])
+    }
+
+    @Test
     fun filterSong_rendersFilteredSongsAndClickPlaysOriginalPosition() = runTest {
         val dispatcher = StandardTestDispatcher(testScheduler)
         val view = RecordingSongListView()

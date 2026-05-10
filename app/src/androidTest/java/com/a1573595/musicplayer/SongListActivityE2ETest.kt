@@ -1,12 +1,14 @@
 package com.a1573595.musicplayer
 
-import android.widget.EditText
+import android.app.Instrumentation
+import android.os.SystemClock
+import android.view.MotionEvent
+import android.view.View
 import androidx.recyclerview.widget.RecyclerView
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.GrantPermissionRule
 import com.a1573595.musicplayer.ui.page.songlist.SongListActivity
-import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
@@ -42,16 +44,16 @@ class SongListActivityE2ETest {
             }
 
             instrumentation.runOnMainSync {
-                val search = activity.findViewById<EditText>(R.id.edName)
                 val recyclerView = activity.findViewById<RecyclerView>(R.id.recyclerView)
+                val searchBar = activity.findViewById<View>(R.id.searchBar)
 
-                assertTrue(search.isShown)
                 assertTrue(recyclerView.isShown)
+                assertTrue(searchBar.isShown)
                 assertTrue(activity.displayedSongs().any { it.name == title })
-
-                search.setText(title)
-                assertEquals(title, search.text.toString())
             }
+
+            instrumentation.tapSearchBarInput(activity)
+            instrumentation.sendStringSync(title)
 
             activity.waitUntil(
                 instrumentation = instrumentation,
@@ -60,10 +62,7 @@ class SongListActivityE2ETest {
                 it.displayedSongs().singleOrNull()?.name == title
             }
 
-            instrumentation.runOnMainSync {
-                val search = activity.findViewById<EditText>(R.id.edName)
-                search.setText("${title}_no_match")
-            }
+            instrumentation.sendStringSync("_no_match")
 
             activity.waitUntil(
                 instrumentation = instrumentation,
@@ -77,6 +76,30 @@ class SongListActivityE2ETest {
             }
             context.stopPlayerServiceForE2E()
             audioFile.delete()
+        }
+    }
+
+    private fun Instrumentation.tapSearchBarInput(activity: SongListActivity) {
+        var x = 0f
+        var y = 0f
+        runOnMainSync {
+            val searchBar = activity.findViewById<View>(R.id.searchBar)
+            val location = IntArray(2)
+            searchBar.getLocationOnScreen(location)
+            x = location[0] + searchBar.width * 0.45f
+            y = location[1] + searchBar.height * 0.5f
+        }
+
+        val downTime = SystemClock.uptimeMillis()
+        val down = MotionEvent.obtain(downTime, downTime, MotionEvent.ACTION_DOWN, x, y, 0)
+        val up = MotionEvent.obtain(downTime, downTime + 50L, MotionEvent.ACTION_UP, x, y, 0)
+
+        try {
+            sendPointerSync(down)
+            sendPointerSync(up)
+        } finally {
+            down.recycle()
+            up.recycle()
         }
     }
 }

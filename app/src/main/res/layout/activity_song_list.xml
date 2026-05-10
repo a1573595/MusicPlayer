@@ -19,39 +19,16 @@
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:paddingStart="8dp"
-                android:paddingEnd="8dp">
+                android:layout_height="match_parent">
 
-                <EditText
-                    android:id="@+id/edName"
+                <androidx.compose.ui.platform.ComposeView
+                    android:id="@+id/searchBar"
                     android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:layout_marginEnd="8dp"
-                    android:background="@null"
-                    android:drawableStart="@drawable/ic_search"
-                    android:drawablePadding="8dp"
-                    android:hint="@string/search_song"
-                    android:importantForAutofill="no"
-                    android:inputType="text"
-                    android:textColor="@color/colorTitleWhite"
-                    android:textColorHint="@color/colorTitleWhite"
-                    android:textSize="@dimen/text_medium"
+                    android:layout_height="0dp"
                     app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toStartOf="@+id/imgInfo"
+                    app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
-
-                <ImageView
-                    android:id="@+id/imgInfo"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="8dp"
-                    app:layout_constraintBottom_toBottomOf="@+id/edName"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="@+id/edName"
-                    app:srcCompat="@drawable/ic_info" />
             </androidx.constraintlayout.widget.ConstraintLayout>
         </com.google.android.material.appbar.CollapsingToolbarLayout>
     </com.google.android.material.appbar.AppBarLayout>

@@ -12,6 +12,7 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.SeekBar
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ViewCompositionStrategy
@@ -51,6 +52,14 @@ abstract class PlaySongActivityBase : BasePlayerBoundActivity<PlaySongPresenter>
     private val favoriteAnimationDelayMillis: Long = 300
 
     private val controlsState = mutableStateOf(PlaySongControlsStateMapper.defaultState())
+    private val trackInfoState =
+        mutableStateOf(
+            PlaySongTrackInfoState(
+                title = "",
+                progress = "",
+                duration = ""
+            )
+        )
     private var isPlayerReady = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -62,9 +71,8 @@ abstract class PlaySongActivityBase : BasePlayerBoundActivity<PlaySongPresenter>
         setBackground()
         applyEdgeToEdgeInsets()
 
-        viewBinding.tvName.isSelected = true
-
         initWindowAnimations()
+        initComposeTrackInfo()
         initComposeControls()
     }
 
@@ -95,12 +103,9 @@ abstract class PlaySongActivityBase : BasePlayerBoundActivity<PlaySongPresenter>
         viewBinding.imgFavorite.removeCallbacks(favoriteAnimationRunnable)
         viewBinding.seekBar.removeCallbacks(seekBarUpdateRunnable)
 
-        viewBinding.tvName.text = song.name
-        viewBinding.tvDuration.text = TimeFormatter.timeMillisToTime(song.duration)
         viewBinding.seekBar.max = (song.duration / 1000).toInt()
         viewBinding.seekBar.progress = progress
-        viewBinding.tvProgress.text =
-            TimeFormatter.timeMillisToTime((viewBinding.seekBar.progress * 1000).toLong())
+        updateTrackInfo(song, progress)
         applyPlayingState(isPlaying)
 
         if (isPlaying) {
@@ -198,6 +203,7 @@ abstract class PlaySongActivityBase : BasePlayerBoundActivity<PlaySongPresenter>
     private fun initSeekBarUpdateRunnable() {
         seekBarUpdateRunnable = Runnable {
             viewBinding.seekBar.progress = viewBinding.seekBar.progress + 1
+            updateTrackProgress()
             viewBinding.seekBar.postDelayed(seekBarUpdateRunnable, seekBarUpdateDelayMillis)
         }
     }
@@ -240,8 +246,7 @@ abstract class PlaySongActivityBase : BasePlayerBoundActivity<PlaySongPresenter>
                     viewBinding.seekBar.removeCallbacks(seekBarUpdateRunnable)
                 }
 
-                viewBinding.tvProgress.text =
-                    TimeFormatter.timeMillisToTime((viewBinding.seekBar.progress * 1000).toLong())
+                updateTrackProgress()
             }
 
             override fun onStartTrackingTouch(s: SeekBar) = Unit
@@ -250,8 +255,7 @@ abstract class PlaySongActivityBase : BasePlayerBoundActivity<PlaySongPresenter>
                 viewBinding.seekBar.removeCallbacks(seekBarUpdateRunnable)
 
                 presenter.seekTo(s.progress)
-                viewBinding.tvProgress.text =
-                    TimeFormatter.timeMillisToTime((viewBinding.seekBar.progress * 1000).toLong())
+                updateTrackProgress()
 
                 viewBinding.seekBar.postDelayed(seekBarUpdateRunnable, seekBarUpdateDelayMillis)
             }
@@ -276,6 +280,35 @@ abstract class PlaySongActivityBase : BasePlayerBoundActivity<PlaySongPresenter>
 
     private fun applyRandomState(isRandom: Boolean) {
         controlsState.value = PlaySongControlsStateMapper.withRandom(controlsState.value, isRandom)
+    }
+
+    private fun initComposeTrackInfo() {
+        listOf(
+            viewBinding.tvName,
+            viewBinding.tvProgress,
+            viewBinding.tvDuration
+        ).forEach {
+            it.setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+        }
+
+        viewBinding.tvName.setContent {
+            MusicPlayerComposeTheme {
+                PlaySongTrackTitleText(
+                    text = trackInfoState.value.title,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+        }
+        viewBinding.tvProgress.setContent {
+            MusicPlayerComposeTheme {
+                PlaySongTrackProgressText(text = trackInfoState.value.progress)
+            }
+        }
+        viewBinding.tvDuration.setContent {
+            MusicPlayerComposeTheme {
+                PlaySongTrackDurationText(text = trackInfoState.value.duration)
+            }
+        }
     }
 
     private fun initComposeControls() {
@@ -323,6 +356,25 @@ abstract class PlaySongActivityBase : BasePlayerBoundActivity<PlaySongPresenter>
             }
         }
     }
+
+    private fun updateTrackInfo(song: Song, progress: Int) {
+        trackInfoState.value =
+            PlaySongTrackInfoState(
+                title = song.name,
+                progress = formatProgress(progress),
+                duration = TimeFormatter.timeMillisToTime(song.duration)
+            )
+    }
+
+    private fun updateTrackProgress() {
+        trackInfoState.value =
+            trackInfoState.value.copy(
+                progress = formatProgress(viewBinding.seekBar.progress)
+            )
+    }
+
+    private fun formatProgress(progress: Int): String =
+        TimeFormatter.timeMillisToTime((progress * 1000).toLong())
 
     private fun onRepeatClick() {
         if (isPlayerReady) {

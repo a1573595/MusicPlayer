@@ -1,14 +1,17 @@
 package com.a1573595.musicplayer
 
 import android.view.View
-import android.widget.TextView
+import androidx.compose.runtime.State
 import androidx.recyclerview.widget.RecyclerView
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.GrantPermissionRule
 import com.a1573595.musicplayer.ui.page.playsong.PlaySongActivity
+import com.a1573595.musicplayer.ui.page.playsong.PlaySongActivityBase
+import com.a1573595.musicplayer.ui.page.playsong.PlaySongTrackInfoState
 import com.a1573595.musicplayer.ui.page.songlist.SongListActivity
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
@@ -73,6 +76,15 @@ class PlaySongNavigationE2ETest {
                 assertTrue(songListActivity.findViewById<View>(R.id.bottomAppBar).isShown)
                 assertTrue(songListActivity.findViewById<View>(R.id.tvName).isShown)
                 assertEquals(title, songListActivity.bottomMiniPlayerSongName())
+                assertEquals(
+                    songListActivity.getString(R.string.transition_img_disc),
+                    songListActivity.findViewById<View>(R.id.imgDisc).transitionName
+                )
+                assertEquals(
+                    songListActivity.getString(R.string.transition_img_play),
+                    songListActivity.findViewById<View>(R.id.btn_play).transitionName
+                )
+                assertNull(songListActivity.findViewById<View>(R.id.tvName).transitionName)
             }
 
             val playSongActivity =
@@ -91,13 +103,13 @@ class PlaySongNavigationE2ETest {
                     description = "PlaySongActivity to show current song"
                 ) { activity ->
                     activity.findViewById<View>(R.id.seekBar).isShown &&
-                        activity.findViewById<TextView>(R.id.tvName).text.toString() == title
+                        activity.trackInfoTitle() == title
                 }
 
                 instrumentation.runOnMainSync {
                     assertEquals(
                         title,
-                        playSongActivity.findViewById<TextView>(R.id.tvName).text.toString()
+                        playSongActivity.trackInfoTitle()
                     )
                 }
             } finally {
@@ -112,5 +124,15 @@ class PlaySongNavigationE2ETest {
             context.stopPlayerServiceForE2E()
             audioFile.delete()
         }
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    private fun PlaySongActivity.trackInfoTitle(): String {
+        val trackInfoStateField =
+            PlaySongActivityBase::class.java.getDeclaredField("trackInfoState").apply {
+                isAccessible = true
+            }
+
+        return (trackInfoStateField.get(this) as State<PlaySongTrackInfoState>).value.title
     }
 }

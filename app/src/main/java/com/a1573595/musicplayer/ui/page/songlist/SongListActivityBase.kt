@@ -26,7 +26,6 @@ import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updateLayoutParams
 import androidx.core.view.updatePadding
-import androidx.core.widget.addTextChangedListener
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.a1573595.musicplayer.R
@@ -43,15 +42,21 @@ import kotlinx.coroutines.launch
 import java.beans.PropertyChangeEvent
 
 abstract class SongListActivityBase : BasePlayerBoundActivity<SongListPresenter>(), SongListView {
+    private companion object {
+        const val KEY_SEARCH_QUERY = "song_list_search_query"
+    }
+
     private lateinit var viewBinding: ActivitySongListBinding
 
     private var loadingDialog: AlertDialog? = null
 
     private lateinit var wheelAnimation: Animation
 
+    private val searchQuery = mutableStateOf("")
     private val bottomMiniPlayerState = mutableStateOf(BottomMiniPlayerState())
 
     private val backHandler = Handler(Looper.getMainLooper())
+    private var isPlayerReady = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -64,9 +69,18 @@ abstract class SongListActivityBase : BasePlayerBoundActivity<SongListPresenter>
         setBackground()
         applyEdgeToEdgeInsets()
 
+        searchQuery.value = savedInstanceState?.getString(KEY_SEARCH_QUERY).orEmpty()
+
         initElementAnimation()
+        initSearchBar()
         initRecyclerView()
         initBottomMiniPlayer()
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        outState.putString(KEY_SEARCH_QUERY, searchQuery.value)
+
+        super.onSaveInstanceState(outState)
     }
 
     override fun onDestroy() {
@@ -78,13 +92,17 @@ abstract class SongListActivityBase : BasePlayerBoundActivity<SongListPresenter>
     }
 
     override fun playerBound(player: PlayerService) {
-        presenter.setPlaybackController(PlayerServicePlaybackController(player))
+        presenter.setPlaybackController(
+            player = PlayerServicePlaybackController(player),
+            initialFilterKey = searchQuery.value
+        )
+        isPlayerReady = true
 
         setListen()
     }
 
     override fun updateState() {
-        presenter.filterSong(viewBinding.edName.text.toString())
+        presenter.filterSong(searchQuery.value)
         presenter.fetchSongState()
     }
 
@@ -145,7 +163,7 @@ abstract class SongListActivityBase : BasePlayerBoundActivity<SongListPresenter>
             }
 
             PlayerService.ACTION_FIND_NEW_SONG, PlayerService.ACTION_NOT_SONG_FOUND -> {
-                presenter.filterSong(viewBinding.edName.text.toString())
+                presenter.filterSong(searchQuery.value)
             }
         }
     }
@@ -189,6 +207,22 @@ abstract class SongListActivityBase : BasePlayerBoundActivity<SongListPresenter>
         controller.order = LayoutAnimationController.ORDER_NORMAL
         controller.delay = 0.3f
         viewBinding.recyclerView.layoutAnimation = controller
+    }
+
+    private fun initSearchBar() {
+        viewBinding.searchBar.setViewCompositionStrategy(
+            ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed
+        )
+        viewBinding.searchBar.setContent {
+            MusicPlayerComposeTheme {
+                SongSearchBar(
+                    query = searchQuery.value,
+                    onQueryChange = ::onSearchQueryChange,
+                    onInfoClick = ::openGithub,
+                    onSearch = { hideKeyBoard() }
+                )
+            }
+        }
     }
 
     private fun initBottomMiniPlayer() {
@@ -240,14 +274,6 @@ abstract class SongListActivityBase : BasePlayerBoundActivity<SongListPresenter>
     }
 
     private fun setListen() {
-        viewBinding.edName.addTextChangedListener {
-            presenter.filterSong(it.toString())
-        }
-
-        viewBinding.imgInfo.setOnClickListener {
-            openGithub()
-        }
-
         viewBinding.btnPlay.setOnClickListener {
             presenter.onSongPlay()
 
@@ -268,6 +294,14 @@ abstract class SongListActivityBase : BasePlayerBoundActivity<SongListPresenter>
         }
     }
 
+    private fun onSearchQueryChange(query: String) {
+        searchQuery.value = query
+
+        if (isPlayerReady) {
+            presenter.filterSong(query)
+        }
+    }
+
     private fun openGithub() {
         val intent =
             Intent(Intent.ACTION_VIEW, "https://github.com/a1573595/MusicPlayer".toUri())
@@ -285,7 +319,7 @@ abstract class SongListActivityBase : BasePlayerBoundActivity<SongListPresenter>
 
     private fun hideKeyBoard() {
         val imm = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
-        imm.hideSoftInputFromWindow(viewBinding.edName.windowToken, 0)
+        imm.hideSoftInputFromWindow(currentFocus?.windowToken ?: viewBinding.root.windowToken, 0)
     }
 
 }

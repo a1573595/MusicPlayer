@@ -17,6 +17,7 @@ class PlaySongSharedElementContractTest {
             projectFile(
                 "app/src/main/java/com/a1573595/musicplayer/ui/page/songlist/SongListActivityBase.kt"
             ).readText()
+        val bottomAppBarClick = songListActivity.bottomAppBarClickBlock()
 
         assertThat(sourceTransitions)
             .containsExactly(
@@ -25,6 +26,8 @@ class PlaySongSharedElementContractTest {
                 "btn_play",
                 "imgPlay"
             )
+        assertThat(sourceTransitions.keys).containsExactly("imgDisc", "btn_play")
+        assertThat(sourceTransitions).doesNotContainKey("tvName")
         assertThat(portraitTransitions)
             .containsExactly(
                 "imgDisc",
@@ -32,6 +35,10 @@ class PlaySongSharedElementContractTest {
                 "imgPlay",
                 "imgPlay"
             )
+        assertThat(portraitTransitions.keys).containsExactly("imgDisc", "imgPlay")
+        assertThat(portraitTransitions).doesNotContainKey("tvName")
+        assertThat(portraitTransitions).doesNotContainKey("tvProgress")
+        assertThat(portraitTransitions).doesNotContainKey("seekBar")
         assertThat(landscapeTransitions)
             .containsExactly(
                 "imgDisc",
@@ -39,13 +46,23 @@ class PlaySongSharedElementContractTest {
                 "imgPlay",
                 "imgPlay"
             )
+        assertThat(landscapeTransitions.keys).containsExactly("imgDisc", "imgPlay")
+        assertThat(landscapeTransitions).doesNotContainKey("tvName")
+        assertThat(landscapeTransitions).doesNotContainKey("tvProgress")
+        assertThat(landscapeTransitions).doesNotContainKey("seekBar")
 
-        assertThat(songListActivity).contains("Pair.create(viewBinding.imgDisc")
-        assertThat(songListActivity).contains("Pair.create(viewBinding.btnPlay")
-        assertThat(songListActivity)
+        assertThat(bottomAppBarClick.sharedElementBindingNames())
+            .containsExactly("imgDisc", "btnPlay")
+            .inOrder()
+        assertThat(bottomAppBarClick).contains("Pair.create(viewBinding.imgDisc")
+        assertThat(bottomAppBarClick).contains("Pair.create(viewBinding.btnPlay")
+        assertThat(bottomAppBarClick)
             .contains("startActivity(Intent(this, PlaySongActivity::class.java)")
-        assertThat(songListActivity).doesNotContain("Pair.create(viewBinding.tvName")
-        assertThat(songListActivity).doesNotContain("viewBinding.tvName.transitionName")
+        assertThat(bottomAppBarClick).contains("if (bottomMiniPlayerState.value.hasSong)")
+        assertThat(bottomAppBarClick.indexOf("if (bottomMiniPlayerState.value.hasSong)"))
+            .isLessThan(bottomAppBarClick.indexOf("startActivity("))
+        assertThat(bottomAppBarClick).doesNotContain("Pair.create(viewBinding.tvName")
+        assertThat(bottomAppBarClick).doesNotContain("viewBinding.tvName.transitionName")
     }
 
     private fun transitionNamesById(path: String): Map<String, String> {
@@ -110,4 +127,22 @@ class PlaySongSharedElementContractTest {
         return candidates.firstOrNull { it.isFile }
             ?: error("Cannot find project file: $path from ${currentDir.absolutePath}")
     }
+
+    private fun String.bottomAppBarClickBlock(): String {
+        val startMarker = "viewBinding.bottomAppBar.setOnClickListener"
+        val endMarker = "private fun onSearchQueryChange"
+        val startIndex = indexOf(startMarker)
+        check(startIndex >= 0) { "Cannot find bottomAppBar click listener" }
+
+        val endIndex = indexOf(endMarker, startIndex)
+        check(endIndex >= 0) { "Cannot find end of bottomAppBar click listener" }
+
+        return substring(startIndex, endIndex)
+    }
+
+    private fun String.sharedElementBindingNames(): List<String> =
+        Regex("""Pair\.create\(viewBinding\.(\w+)""")
+            .findAll(this)
+            .map { it.groupValues[1] }
+            .toList()
 }
