@@ -11,7 +11,7 @@ import android.widget.RemoteViews
 import androidx.core.app.NotificationCompat
 import com.a1573595.musicplayer.R
 import com.a1573595.musicplayer.domain.song.Song
-import com.a1573595.musicplayer.ui.songlist.SongListActivity
+import com.a1573595.musicplayer.ui.songlist.SongListActivityBase
 
 class PlaybackNotificationFactory(
     private val context: Context
@@ -71,7 +71,7 @@ class PlaybackNotificationFactory(
     }
 
     private fun contentIntent(): PendingIntent {
-        val intent = Intent(context, SongListActivity::class.java)
+        val intent = Intent(context, SongListActivityBase::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
         intent.action = Intent.ACTION_MAIN
         intent.addCategory(Intent.CATEGORY_LAUNCHER)

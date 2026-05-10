@@ -5,17 +5,18 @@ import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
 import android.view.animation.LayoutAnimationController
-import android.view.animation.LinearInterpolator
 import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import androidx.activity.addCallback
 import androidx.appcompat.app.AlertDialog
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.core.app.ActivityOptionsCompat
 import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
@@ -28,25 +29,27 @@ import androidx.core.view.updatePadding
 import androidx.core.widget.addTextChangedListener
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.a1573595.musicplayer.ui.base.PlayerBoundActivity
+import com.a1573595.musicplayer.ui.base.BasePlayerBoundActivity
 import com.a1573595.musicplayer.R
 import com.a1573595.musicplayer.databinding.ActivitySongListBinding
-import com.a1573595.musicplayer.databinding.DialogLoadingBinding
 import com.a1573595.musicplayer.domain.player.PlaybackEngine
 import com.a1573595.musicplayer.domain.song.Song
-import com.a1573595.musicplayer.ui.playsong.PlaySongActivity
+import com.a1573595.musicplayer.ui.compose.MusicPlayerComposeTheme
+import com.a1573595.musicplayer.ui.playsong.PlaySongActivityBase
 import com.a1573595.musicplayer.data.player.PlayerService
 import com.a1573595.musicplayer.data.player.PlayerServicePlaybackController
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.launch
 import java.beans.PropertyChangeEvent
 
-class SongListActivity : PlayerBoundActivity<SongListPresenter>(), SongListView {
+class SongListActivityBase : BasePlayerBoundActivity<SongListPresenter>(), SongListView {
     private lateinit var viewBinding: ActivitySongListBinding
 
     private var loadingDialog: AlertDialog? = null
 
     private lateinit var wheelAnimation: Animation
+
+    private val bottomMiniPlayerState = mutableStateOf(BottomMiniPlayerState())
 
     private val backHandler = Handler(Looper.getMainLooper())
 
@@ -63,6 +66,7 @@ class SongListActivity : PlayerBoundActivity<SongListPresenter>(), SongListView 
 
         initElementAnimation()
         initRecyclerView()
+        initBottomMiniPlayer()
     }
 
     override fun onDestroy() {
@@ -88,32 +92,22 @@ class SongListActivity : PlayerBoundActivity<SongListPresenter>(), SongListView 
 
     override fun showLoading() {
         lifecycleScope.launch {
-            val loadViewBinding =
-                DialogLoadingBinding.inflate(LayoutInflater.from(this@SongListActivity))
-
-            val animator = ValueAnimator.ofInt(0, 8).apply {
-                duration = 750
-                interpolator = LinearInterpolator()
-                repeatCount = ValueAnimator.INFINITE
-
-                addUpdateListener {
-                    loadViewBinding.imgLoad.rotation = (it.animatedValue as Int).toFloat() * 45
-                    loadViewBinding.imgLoad.requestLayout()
+            val loadingView = ComposeView(this@SongListActivityBase).apply {
+                setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnDetachedFromWindow)
+                setContent {
+                    MusicPlayerComposeTheme {
+                        LoadingDialogContent()
+                    }
                 }
             }
 
             loadingDialog = MaterialAlertDialogBuilder(context()).create().apply {
                 window?.setBackgroundDrawableResource(android.R.color.transparent)
-                setView(loadViewBinding.root)
+                setView(loadingView)
                 setCancelable(false)
-                setOnDismissListener {
-                    animator.removeAllListeners()
-                    animator.cancel()
-                }
                 show()
+                window?.setBackgroundDrawableResource(android.R.color.transparent)
             }
-
-            animator.start()
         }
     }
 
@@ -132,8 +126,8 @@ class SongListActivity : PlayerBoundActivity<SongListPresenter>(), SongListView 
 
     override fun updateSongState(song: Song, isPlaying: Boolean) {
         lifecycleScope.launch {
-            viewBinding.tvName.text = song.name
-            viewBinding.tvArtist.text = song.author
+            bottomMiniPlayerState.value =
+                BottomMiniPlayerState(songName = song.name, artist = song.author)
             viewBinding.btnPlay.setImageResource(if (isPlaying) R.drawable.ic_pause else R.drawable.ic_play)
 
             if (isPlaying) {
@@ -197,6 +191,26 @@ class SongListActivity : PlayerBoundActivity<SongListPresenter>(), SongListView 
         viewBinding.recyclerView.layoutAnimation = controller
     }
 
+    private fun initBottomMiniPlayer() {
+        viewBinding.tvName.setViewCompositionStrategy(
+            ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed
+        )
+        viewBinding.tvArtist.setViewCompositionStrategy(
+            ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed
+        )
+
+        viewBinding.tvName.setContent {
+            MusicPlayerComposeTheme {
+                BottomMiniPlayerTitle(songName = bottomMiniPlayerState.value.songName)
+            }
+        }
+        viewBinding.tvArtist.setContent {
+            MusicPlayerComposeTheme {
+                BottomMiniPlayerArtist(artist = bottomMiniPlayerState.value.artist)
+            }
+        }
+    }
+
     private fun applyEdgeToEdgeInsets() {
         val actionBarHeight = getActionBarHeight()
 
@@ -250,7 +264,7 @@ class SongListActivity : PlayerBoundActivity<SongListPresenter>(), SongListView 
         }
 
         viewBinding.bottomAppBar.setOnClickListener {
-            if (viewBinding.tvName.text.isNotEmpty() || viewBinding.tvArtist.text.isNotEmpty()) {
+            if (bottomMiniPlayerState.value.hasSong) {
                 val p1: Pair<View, String> =
                     Pair.create(viewBinding.imgDisc, viewBinding.imgDisc.transitionName)
                 val p2: Pair<View, String> =
@@ -260,7 +274,7 @@ class SongListActivity : PlayerBoundActivity<SongListPresenter>(), SongListView 
 
                 val options = ActivityOptionsCompat.makeSceneTransitionAnimation(this, p1, p2, p3)
 
-                startActivity(Intent(this, PlaySongActivity::class.java), options.toBundle())
+                startActivity(Intent(this, PlaySongActivityBase::class.java), options.toBundle())
             }
         }
     }

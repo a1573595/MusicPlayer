@@ -60,6 +60,7 @@ dependencies {
     implementation(coroutinesBom)
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android")
     implementation(composeBom)
+    implementation("androidx.compose.animation:animation-core")
     implementation("androidx.compose.foundation:foundation")
     implementation("androidx.compose.material3:material3")
     implementation("androidx.compose.ui:ui")

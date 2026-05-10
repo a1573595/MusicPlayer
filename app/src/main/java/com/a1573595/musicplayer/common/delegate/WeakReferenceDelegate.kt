@@ -7,8 +7,6 @@ import kotlin.reflect.KProperty
 class WeakReferenceDelegate<T : Any>(initializer: () -> T?) {
     var weakReference = WeakReference<T?>(initializer())
 
-    constructor() : this({ null })
-
     operator fun getValue(thisRef: Any?, property: KProperty<*>): T? {
         Timber.d("WeakReferenceDelegate Delegate getValue")
         return weakReference.get()

@@ -90,16 +90,11 @@
                 app:layout_constraintTop_toTopOf="parent"
                 app:srcCompat="@drawable/ic_disc" />
 
-            <TextView
+            <androidx.compose.ui.platform.ComposeView
                 android:id="@+id/tvName"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
-                android:ellipsize="marquee"
-                android:marqueeRepeatLimit="marquee_forever"
-                android:singleLine="true"
-                android:textColor="@color/colorTitleWhite"
-                android:textSize="@dimen/text_medium"
                 android:transitionName="tvName"
                 app:layout_constraintBottom_toTopOf="@+id/tvArtist"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -110,15 +105,11 @@
                 app:layout_constraintWidth_percent=".6"
                 tools:text="Hello" />
 
-            <TextView
+            <androidx.compose.ui.platform.ComposeView
                 android:id="@+id/tvArtist"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="2dp"
-                android:ellipsize="end"
-                android:singleLine="true"
-                android:textColor="@color/colorTitleWhite"
-                android:textSize="@dimen/text_small"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="@+id/tvName"
                 app:layout_constraintHorizontal_bias="0.0"
