@@ -20,11 +20,11 @@ import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.rule.GrantPermissionRule
-import com.a1573595.musicplayer.ui.playsong.PlaySongActivity
-import com.a1573595.musicplayer.ui.playsong.PlaySongBackwardButtonTestTag
-import com.a1573595.musicplayer.ui.playsong.PlaySongForwardButtonTestTag
-import com.a1573595.musicplayer.ui.playsong.PlaySongRandomButtonTestTag
-import com.a1573595.musicplayer.ui.playsong.PlaySongRepeatButtonTestTag
+import com.a1573595.musicplayer.ui.page.playsong.PlaySongActivity
+import com.a1573595.musicplayer.ui.page.playsong.PlaySongBackwardButtonTestTag
+import com.a1573595.musicplayer.ui.page.playsong.PlaySongForwardButtonTestTag
+import com.a1573595.musicplayer.ui.page.playsong.PlaySongRandomButtonTestTag
+import com.a1573595.musicplayer.ui.page.playsong.PlaySongRepeatButtonTestTag
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue

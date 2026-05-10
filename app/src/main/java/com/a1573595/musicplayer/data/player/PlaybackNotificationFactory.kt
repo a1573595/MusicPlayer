@@ -11,7 +11,7 @@ import android.widget.RemoteViews
 import androidx.core.app.NotificationCompat
 import com.a1573595.musicplayer.R
 import com.a1573595.musicplayer.domain.song.Song
-import com.a1573595.musicplayer.ui.songlist.SongListActivity
+import com.a1573595.musicplayer.ui.page.songlist.SongListActivity
 
 class PlaybackNotificationFactory(
     private val context: Context
