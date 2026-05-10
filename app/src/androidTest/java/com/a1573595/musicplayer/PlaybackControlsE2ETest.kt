@@ -1,5 +1,6 @@
 package com.a1573595.musicplayer
 
+import android.content.Intent
 import android.view.View
 import android.widget.ImageView
 import androidx.compose.ui.platform.ComposeView
@@ -10,24 +11,24 @@ import androidx.compose.ui.test.assertContentDescriptionEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsOff
 import androidx.compose.ui.test.assertIsOn
-import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
+import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
-import androidx.test.espresso.Espresso.onView
-import androidx.test.espresso.action.ViewActions.click
-import androidx.test.espresso.assertion.ViewAssertions.matches
-import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
-import androidx.test.espresso.matcher.ViewMatchers.withId
+import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.GrantPermissionRule
 import com.a1573595.musicplayer.ui.page.playsong.PlaySongActivity
 import com.a1573595.musicplayer.ui.page.playsong.PlaySongBackwardButtonTestTag
 import com.a1573595.musicplayer.ui.page.playsong.PlaySongForwardButtonTestTag
 import com.a1573595.musicplayer.ui.page.playsong.PlaySongRandomButtonTestTag
 import com.a1573595.musicplayer.ui.page.playsong.PlaySongRepeatButtonTestTag
+import com.a1573595.musicplayer.ui.base.BasePlayerBoundActivity.Companion.EXTRA_SKIP_PLAYER_BINDING_FOR_TESTS
+import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.RuleChain
@@ -35,7 +36,9 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 class PlaybackControlsE2ETest {
-    private val composeRule = createAndroidComposeRule<PlaySongActivity>()
+    private val composeRule = createEmptyComposeRule()
+
+    private lateinit var scenario: ActivityScenario<PlaySongActivity>
 
     @get:Rule
     val ruleChain: RuleChain =
@@ -43,7 +46,31 @@ class PlaybackControlsE2ETest {
             .outerRule(GrantPermissionRule.grant(*e2ePermissions()))
             .around(composeRule)
 
-    @Test
+    @Before
+    fun launchActivity() {
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        context.stopPlayerServiceForE2E()
+
+        scenario =
+            ActivityScenario.launch(
+                Intent(context, PlaySongActivity::class.java).apply {
+                    putExtra(EXTRA_SKIP_PLAYER_BINDING_FOR_TESTS, true)
+                }
+            )
+        composeRule.waitForIdle()
+    }
+
+    @After
+    fun closeActivity() {
+        if (::scenario.isInitialized) {
+            scenario.close()
+        }
+        InstrumentationRegistry.getInstrumentation()
+            .targetContext
+            .stopPlayerServiceForE2E()
+    }
+
+    @Test(timeout = E2E_TEST_TIMEOUT_MILLIS)
     fun playbackControls_canBeTappedWithoutCrash() {
         composeRule
             .onNodeWithTag(PlaySongRepeatButtonTestTag)
@@ -57,18 +84,22 @@ class PlaybackControlsE2ETest {
             .onNodeWithTag(PlaySongBackwardButtonTestTag)
             .assertIsDisplayed()
             .performClick()
-        onView(withId(R.id.imgPlay)).check(matches(isDisplayed())).perform(click())
+        scenario.onActivity {
+            val play = it.findViewById<View>(R.id.imgPlay)
+            assertTrue(play.isShown)
+            play.performClick()
+        }
         composeRule
             .onNodeWithTag(PlaySongForwardButtonTestTag)
             .assertIsDisplayed()
             .performClick()
     }
 
-    @Test
+    @Test(timeout = E2E_TEST_TIMEOUT_MILLIS)
     fun playbackControls_matchComposeHostParityContract() {
-        composeRule.runOnUiThread {
-            composeRule.activity.showRepeat(false)
-            composeRule.activity.showRandom(false)
+        scenario.onActivity {
+            it.showRepeat(false)
+            it.showRandom(false)
         }
         composeRule.waitForIdle()
 
@@ -83,9 +114,9 @@ class PlaybackControlsE2ETest {
             .assertIsOff()
             .assert(SemanticsMatcher.expectValue(SemanticsProperties.StateDescription, "Random off"))
 
-        composeRule.runOnUiThread {
-            composeRule.activity.showRepeat(true)
-            composeRule.activity.showRandom(true)
+        scenario.onActivity {
+            it.showRepeat(true)
+            it.showRandom(true)
         }
         composeRule.waitForIdle()
 
@@ -104,8 +135,7 @@ class PlaybackControlsE2ETest {
             .onNodeWithTag(PlaySongForwardButtonTestTag)
             .assertContentDescriptionEquals("Next")
 
-        composeRule.runOnIdle {
-            val activity = composeRule.activity
+        scenario.onActivity { activity ->
             val disc = activity.findViewById<View>(R.id.imgDisc)
             val play = activity.findViewById<View>(R.id.imgPlay)
             val title = activity.findViewById<View>(R.id.tvName)

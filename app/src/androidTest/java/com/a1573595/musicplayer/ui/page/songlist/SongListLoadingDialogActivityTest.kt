@@ -5,6 +5,7 @@ import android.view.View
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.GrantPermissionRule
+import com.a1573595.musicplayer.E2E_TEST_TIMEOUT_MILLIS
 import com.a1573595.musicplayer.R
 import com.a1573595.musicplayer.e2ePermissions
 import com.a1573595.musicplayer.launchActivity
@@ -19,7 +20,7 @@ class SongListLoadingDialogActivityTest {
     @get:Rule
     val permissions: GrantPermissionRule = GrantPermissionRule.grant(*e2ePermissions())
 
-    @Test
+    @Test(timeout = E2E_TEST_TIMEOUT_MILLIS)
     fun showLoading_togglesLoadingDialogVisibility() {
         val instrumentation = InstrumentationRegistry.getInstrumentation()
         val activity = instrumentation.launchActivity(

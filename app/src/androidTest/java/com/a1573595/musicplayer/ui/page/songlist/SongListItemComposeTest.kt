@@ -5,6 +5,7 @@ import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import com.a1573595.musicplayer.E2E_TEST_TIMEOUT_MILLIS
 import com.a1573595.musicplayer.domain.song.Song
 import com.a1573595.musicplayer.ui.compose.MusicPlayerComposeTheme
 import org.junit.Assert.assertEquals
@@ -15,7 +16,7 @@ class SongListItemComposeTest {
     @get:Rule
     val composeRule = createComposeRule()
 
-    @Test
+    @Test(timeout = E2E_TEST_TIMEOUT_MILLIS)
     fun songListItem_showsSongAndHandlesClick() {
         var clickCount = 0
 

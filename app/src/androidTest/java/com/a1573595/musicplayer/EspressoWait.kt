@@ -16,6 +16,7 @@ import org.hamcrest.Matcher
 import org.hamcrest.TypeSafeMatcher
 
 const val E2E_WAIT_TIMEOUT_MILLIS = 10_000L
+const val E2E_TEST_TIMEOUT_MILLIS = 30_000L
 
 private const val E2E_POLL_INTERVAL_MILLIS = 50L
 

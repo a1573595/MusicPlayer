@@ -8,7 +8,8 @@ import android.provider.MediaStore
 
 class TestAudioFile private constructor(
     private val context: Context,
-    val uri: Uri
+    val uri: Uri,
+    val title: String
 ) {
     fun delete() {
         context.contentResolver.delete(uri, null, null)
@@ -52,7 +53,21 @@ class TestAudioFile private constructor(
                 resolver.update(uri, values, null, null)
             }
 
-            return TestAudioFile(context, uri)
+            return TestAudioFile(
+                context = context,
+                uri = uri,
+                title = resolver.queryTitle(uri) ?: title
+            )
+        }
+
+        private fun android.content.ContentResolver.queryTitle(uri: Uri): String? {
+            return query(uri, arrayOf(MediaStore.Audio.Media.TITLE), null, null, null)?.use {
+                if (it.moveToFirst()) {
+                    it.getString(it.getColumnIndexOrThrow(MediaStore.Audio.Media.TITLE))
+                } else {
+                    null
+                }
+            }
         }
 
         private fun silentWav(): ByteArray {

@@ -10,6 +10,7 @@ import androidx.compose.ui.test.assertIsOn
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
+import com.a1573595.musicplayer.E2E_TEST_TIMEOUT_MILLIS
 import com.a1573595.musicplayer.ui.compose.MusicPlayerComposeTheme
 import org.junit.Assert.assertEquals
 import org.junit.Rule
@@ -19,7 +20,7 @@ class PlaySongControlsContentComposeTest {
     @get:Rule
     val composeRule = createComposeRule()
 
-    @Test
+    @Test(timeout = E2E_TEST_TIMEOUT_MILLIS)
     fun playSongControls_areDisplayedAndClickable() {
         val clicks = mutableListOf<String>()
 
@@ -77,7 +78,7 @@ class PlaySongControlsContentComposeTest {
         assertEquals(listOf("repeat", "random", "backward", "play", "forward"), clicks)
     }
 
-    @Test
+    @Test(timeout = E2E_TEST_TIMEOUT_MILLIS)
     fun playPauseButton_usesPauseActionWhenPlaying() {
         composeRule.setContent {
             MusicPlayerComposeTheme {
@@ -99,7 +100,7 @@ class PlaySongControlsContentComposeTest {
             .assert(SemanticsMatcher.expectValue(SemanticsProperties.StateDescription, "Playing"))
     }
 
-    @Test
+    @Test(timeout = E2E_TEST_TIMEOUT_MILLIS)
     fun repeatAndRandomButtons_reflectOppositeStates() {
         composeRule.setContent {
             MusicPlayerComposeTheme {
