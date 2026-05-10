@@ -30,8 +30,8 @@ import java.beans.PropertyChangeEvent
 
 class PlaySongActivity : PlayerBoundActivity<PlaySongPresenter>(), PlaySongView {
     companion object {
-        private val STATE_PLAY = intArrayOf(R.attr.state_pause)
-        private val STATE_PAUSE = intArrayOf(-R.attr.state_pause)
+        private val statePlay = intArrayOf(R.attr.state_pause)
+        private val statePause = intArrayOf(-R.attr.state_pause)
     }
 
     private lateinit var viewBinding: ActivityPlaySongBinding
@@ -91,7 +91,7 @@ class PlaySongActivity : PlayerBoundActivity<PlaySongPresenter>(), PlaySongView 
         viewBinding.seekBar.progress = progress
         viewBinding.tvProgress.text =
             TimeFormatter.timeMillisToTime((viewBinding.seekBar.progress * 1000).toLong())
-        viewBinding.imgPlay.setImageState(if (isPlaying) STATE_PLAY else STATE_PAUSE, false)
+        viewBinding.imgPlay.setImageState(if (isPlaying) statePlay else statePause, false)
 
         if (isPlaying) {
             viewBinding.imgFavorite.post(favoriteAnimationRunnable)

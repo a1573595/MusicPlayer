@@ -16,9 +16,9 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import java.beans.PropertyChangeListener
 
 abstract class PlayerBoundActivity<P : BasePresenter<*>> : BaseActivity<P>(), PropertyChangeListener {
-    private val REQUEST_WRITE_EXTERNAL_STORAGE: Int = 10
-    private val REQUEST_READ_MEDIA_AUDIO: Int = 11
-    private val REQUEST_POST_NOTIFICATIONS: Int = 12
+    private val requestWriteExternalStorage: Int = 10
+    private val requestReadMediaAudio: Int = 11
+    private val requestPostNotifications: Int = 12
 
     private lateinit var player: PlayerService
 
@@ -91,26 +91,26 @@ abstract class PlayerBoundActivity<P : BasePresenter<*>> : BaseActivity<P>(), Pr
 
         if (grantResults.isEmpty()) return
         when (requestCode) {
-            REQUEST_WRITE_EXTERNAL_STORAGE, REQUEST_READ_MEDIA_AUDIO -> if (grantResults[0] == PERMISSION_GRANTED) {
+            requestWriteExternalStorage, requestReadMediaAudio -> if (grantResults[0] == PERMISSION_GRANTED) {
                 bindPlayerService()
                 requestNotificationPermissionIfNeeded()
             } else {
                 showNeedPermissionDialog()
             }
 
-            REQUEST_POST_NOTIFICATIONS -> Unit
+            requestPostNotifications -> Unit
         }
     }
 
     private fun checkPermission() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (!hasPermission(READ_MEDIA_AUDIO)) {
-                requestPermission(REQUEST_READ_MEDIA_AUDIO, READ_MEDIA_AUDIO)
+                requestPermission(requestReadMediaAudio, READ_MEDIA_AUDIO)
             } else {
                 requestNotificationPermissionIfNeeded()
             }
         } else if (!hasPermission(READ_EXTERNAL_STORAGE)) {
-            requestPermission(REQUEST_WRITE_EXTERNAL_STORAGE, READ_EXTERNAL_STORAGE)
+            requestPermission(requestWriteExternalStorage, READ_EXTERNAL_STORAGE)
         }
     }
 
@@ -136,7 +136,7 @@ abstract class PlayerBoundActivity<P : BasePresenter<*>> : BaseActivity<P>(), Pr
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
             !hasPermission(POST_NOTIFICATIONS)
         ) {
-            requestPermission(REQUEST_POST_NOTIFICATIONS, POST_NOTIFICATIONS)
+            requestPermission(requestPostNotifications, POST_NOTIFICATIONS)
         }
     }
 

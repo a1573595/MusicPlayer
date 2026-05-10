@@ -1,38 +1,56 @@
 package com.a1573595.musicplayer.ui.songlist
 
-import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.a1573595.musicplayer.common.format.TimeFormatter
-import com.a1573595.musicplayer.databinding.AdapterSongListBinding
 import com.a1573595.musicplayer.domain.song.Song
+import com.a1573595.musicplayer.ui.compose.MusicPlayerComposeTheme
 
 class SongListAdapter(private val onSongClick: (Int) -> Unit) :
     ListAdapter<Song, SongListAdapter.SongHolder>(SongItemCallback()) {
-    inner class SongHolder(val viewBinding: AdapterSongListBinding) :
-        RecyclerView.ViewHolder(viewBinding.root) {
+
+    inner class SongHolder(private val composeView: ComposeView) :
+        RecyclerView.ViewHolder(composeView) {
         init {
-            itemView.setOnClickListener {
-                val position = bindingAdapterPosition
-                if (position != RecyclerView.NO_POSITION) {
-                    onSongClick(position)
+            composeView.setViewCompositionStrategy(
+                ViewCompositionStrategy.DisposeOnDetachedFromWindowOrReleasedFromPool
+            )
+        }
+
+        fun bind(song: Song) {
+            composeView.setContent {
+                MusicPlayerComposeTheme {
+                    SongListItem(
+                        song = song,
+                        duration = TimeFormatter.timeMillisToTime(song.duration),
+                        onClick = {
+                            val position = bindingAdapterPosition
+                            if (position != RecyclerView.NO_POSITION) {
+                                onSongClick(position)
+                            }
+                        }
+                    )
                 }
             }
         }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SongHolder {
-        val viewBinding =
-            AdapterSongListBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-        return SongHolder(viewBinding)
+        val composeView =
+            ComposeView(parent.context).apply {
+                layoutParams =
+                    RecyclerView.LayoutParams(
+                        RecyclerView.LayoutParams.MATCH_PARENT,
+                        RecyclerView.LayoutParams.WRAP_CONTENT
+                    )
+            }
+        return SongHolder(composeView)
     }
 
     override fun onBindViewHolder(holder: SongHolder, position: Int) {
-        val song: Song = getItem(position)
-
-        holder.viewBinding.tvName.text = song.name
-        holder.viewBinding.tvArtist.text = song.author
-        holder.viewBinding.tvDuration.text = TimeFormatter.timeMillisToTime(song.duration)
+        holder.bind(getItem(position))
     }
 }
