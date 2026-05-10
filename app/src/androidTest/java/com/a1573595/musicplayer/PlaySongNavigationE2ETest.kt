@@ -13,7 +13,7 @@ import androidx.test.espresso.matcher.ViewMatchers.isRoot
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.rule.GrantPermissionRule
-import com.a1573595.musicplayer.ui.songlist.SongListActivityBase
+import com.a1573595.musicplayer.ui.songlist.SongListActivity
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -29,7 +29,7 @@ class PlaySongNavigationE2ETest {
         val testAudio = TestAudioFile.insert(context)
 
         try {
-            ActivityScenario.launch(SongListActivityBase::class.java).use {
+            ActivityScenario.launch(SongListActivity::class.java).use {
                 onView(isRoot()).perform(
                     waitUntil(
                         recyclerViewWithItemCountAtLeast(1),

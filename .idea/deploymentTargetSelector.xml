@@ -4,10 +4,10 @@
     <selectionStates>
       <SelectionState runConfigName="app">
         <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2026-05-10T00:08:38.833510Z">
+        <DropdownSelection timestamp="2026-05-10T00:17:45.352963Z">
           <Target type="DEFAULT_BOOT">
             <handle>
-              <DeviceId pluginId="PhysicalDevice" identifier="serial=38161FDJG00B2U" />
+              <DeviceId pluginId="LocalEmulator" identifier="path=/Users/chien/.android/avd/Samsung_Galaxy_A13.avd" />
             </handle>
           </Target>
         </DropdownSelection>

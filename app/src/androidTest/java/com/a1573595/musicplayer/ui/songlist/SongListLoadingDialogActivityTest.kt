@@ -14,7 +14,7 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 class SongListLoadingDialogActivityTest {
-    private val composeRule = createAndroidComposeRule<SongListActivityBase>()
+    private val composeRule = createAndroidComposeRule<SongListActivity>()
 
     @get:Rule
     val ruleChain: RuleChain =

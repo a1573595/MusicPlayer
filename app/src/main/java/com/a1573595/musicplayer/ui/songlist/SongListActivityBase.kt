@@ -35,14 +35,14 @@ import com.a1573595.musicplayer.databinding.ActivitySongListBinding
 import com.a1573595.musicplayer.domain.player.PlaybackEngine
 import com.a1573595.musicplayer.domain.song.Song
 import com.a1573595.musicplayer.ui.compose.MusicPlayerComposeTheme
-import com.a1573595.musicplayer.ui.playsong.PlaySongActivityBase
+import com.a1573595.musicplayer.ui.playsong.PlaySongActivity
 import com.a1573595.musicplayer.data.player.PlayerService
 import com.a1573595.musicplayer.data.player.PlayerServicePlaybackController
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.launch
 import java.beans.PropertyChangeEvent
 
-class SongListActivityBase : BasePlayerBoundActivity<SongListPresenter>(), SongListView {
+abstract class SongListActivityBase : BasePlayerBoundActivity<SongListPresenter>(), SongListView {
     private lateinit var viewBinding: ActivitySongListBinding
 
     private var loadingDialog: AlertDialog? = null
@@ -274,7 +274,7 @@ class SongListActivityBase : BasePlayerBoundActivity<SongListPresenter>(), SongL
 
                 val options = ActivityOptionsCompat.makeSceneTransitionAnimation(this, p1, p2, p3)
 
-                startActivity(Intent(this, PlaySongActivityBase::class.java), options.toBundle())
+                startActivity(Intent(this, PlaySongActivity::class.java), options.toBundle())
             }
         }
     }

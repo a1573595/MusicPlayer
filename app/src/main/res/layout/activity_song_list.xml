@@ -72,6 +72,9 @@
         android:layout_gravity="bottom"
         android:backgroundTint="@color/colorPrimaryDark"
         app:fabAlignmentMode="end"
+        app:fabCradleMargin="8dp"
+        app:fabCradleRoundedCornerRadius="16dp"
+        app:fabCradleVerticalOffset="8dp"
         app:hideOnScroll="true">
 
         <androidx.constraintlayout.widget.ConstraintLayout
@@ -123,7 +126,7 @@
         android:id="@+id/btn_play"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:transitionName="btnPlay"
+        android:transitionName="imgPlay"
         app:backgroundTint="@color/colorPrimary"
         app:layout_anchor="@id/bottomAppBar"
         app:rippleColor="@color/colorPrimary"

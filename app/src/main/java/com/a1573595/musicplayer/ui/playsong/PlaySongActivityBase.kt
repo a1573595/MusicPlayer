@@ -28,7 +28,7 @@ import com.a1573595.musicplayer.data.player.PlayerService
 import com.a1573595.musicplayer.data.player.PlayerServicePlaybackController
 import java.beans.PropertyChangeEvent
 
-class PlaySongActivityBase : BasePlayerBoundActivity<PlaySongPresenter>(), PlaySongView {
+abstract class PlaySongActivityBase : BasePlayerBoundActivity<PlaySongPresenter>(), PlaySongView {
     companion object {
         private val statePlay = intArrayOf(R.attr.state_pause)
         private val statePause = intArrayOf(-R.attr.state_pause)

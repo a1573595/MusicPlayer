@@ -9,7 +9,7 @@ import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.rule.GrantPermissionRule
-import com.a1573595.musicplayer.ui.songlist.SongListActivityBase
+import com.a1573595.musicplayer.ui.songlist.SongListActivity
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -20,7 +20,7 @@ class SongListActivityE2ETest {
     val permissions: GrantPermissionRule = GrantPermissionRule.grant(*e2ePermissions())
 
     @get:Rule
-    val scenarioRule = ActivityScenarioRule(SongListActivityBase::class.java)
+    val scenarioRule = ActivityScenarioRule(SongListActivity::class.java)
 
     @Test
     fun launchAndSearch_doesNotCrash() {
