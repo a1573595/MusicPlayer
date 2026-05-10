@@ -40,7 +40,8 @@ class PlaySongNavigationE2ETest {
                 onView(withId(R.id.recyclerView))
                     .perform(actionOnItemAtPosition<RecyclerView.ViewHolder>(0, click()))
 
-                onView(withId(R.id.bottomAppBar))
+                onView(withId(R.id.bottomAppBar)).check(matches(isDisplayed()))
+                onView(withId(R.id.tvName))
                     .check(matches(isDisplayed()))
                     .perform(click())
 

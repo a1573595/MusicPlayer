@@ -45,6 +45,8 @@ abstract class PlaySongActivityBase : BasePlayerBoundActivity<PlaySongPresenter>
     private var favoriteAnimationRunnable: Runnable = Runnable {}
     private val favoriteAnimationDelayMillis: Long = 300
 
+    private var controlsState = PlaySongControlsStateMapper.defaultState()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         hideStatusBar()
@@ -91,7 +93,7 @@ abstract class PlaySongActivityBase : BasePlayerBoundActivity<PlaySongPresenter>
         viewBinding.seekBar.progress = progress
         viewBinding.tvProgress.text =
             TimeFormatter.timeMillisToTime((viewBinding.seekBar.progress * 1000).toLong())
-        viewBinding.imgPlay.setImageState(if (isPlaying) statePlay else statePause, false)
+        applyPlayingState(isPlaying)
 
         if (isPlaying) {
             viewBinding.imgFavorite.post(favoriteAnimationRunnable)
@@ -103,11 +105,11 @@ abstract class PlaySongActivityBase : BasePlayerBoundActivity<PlaySongPresenter>
     }
 
     override fun showRepeat(isRepeat: Boolean) {
-        viewBinding.imgRepeat.imageAlpha = if (isRepeat) 255 else 80
+        applyRepeatState(isRepeat)
     }
 
     override fun showRandom(isRandom: Boolean) {
-        viewBinding.imgRandom.imageAlpha = if (isRandom) 255 else 80
+        applyRandomState(isRandom)
     }
 
     override fun propertyChange(event: PropertyChangeEvent) {
@@ -225,11 +227,11 @@ abstract class PlaySongActivityBase : BasePlayerBoundActivity<PlaySongPresenter>
         }
 
         viewBinding.imgRepeat.setOnClickListener {
-            viewBinding.imgRepeat.imageAlpha = if (presenter.updateRepeat()) 255 else 80
+            applyRepeatState(presenter.updateRepeat())
         }
 
         viewBinding.imgRandom.setOnClickListener {
-            viewBinding.imgRandom.imageAlpha = if (presenter.updateRandom()) 255 else 80
+            applyRandomState(presenter.updateRandom())
         }
 
         viewBinding.seekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
@@ -270,5 +272,25 @@ abstract class PlaySongActivityBase : BasePlayerBoundActivity<PlaySongPresenter>
 
             it.startAnimation(scaleAnimation)
         }
+    }
+
+    private fun applyPlayingState(isPlaying: Boolean) {
+        controlsState = PlaySongControlsStateMapper.withPlaying(controlsState, isPlaying)
+        viewBinding.imgPlay.setImageState(
+            if (controlsState.isPlaying) statePlay else statePause,
+            false
+        )
+    }
+
+    private fun applyRepeatState(isRepeat: Boolean) {
+        controlsState = PlaySongControlsStateMapper.withRepeat(controlsState, isRepeat)
+        viewBinding.imgRepeat.imageAlpha =
+            PlaySongControlsStateMapper.controlAlpha(controlsState.isRepeat)
+    }
+
+    private fun applyRandomState(isRandom: Boolean) {
+        controlsState = PlaySongControlsStateMapper.withRandom(controlsState, isRandom)
+        viewBinding.imgRandom.imageAlpha =
+            PlaySongControlsStateMapper.controlAlpha(controlsState.isRandom)
     }
 }

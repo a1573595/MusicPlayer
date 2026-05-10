@@ -2,6 +2,7 @@ package com.a1573595.musicplayer.ui.songlist
 
 import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -19,6 +20,7 @@ import com.a1573595.musicplayer.ui.compose.MusicPlayerComposeTheme
 
 const val BottomMiniPlayerTitleTestTag = "bottom_mini_player_title"
 const val BottomMiniPlayerArtistTestTag = "bottom_mini_player_artist"
+const val BottomMiniPlayerContentTestTag = "bottom_mini_player_content"
 
 data class BottomMiniPlayerState(
     val songName: String = "",
@@ -26,6 +28,23 @@ data class BottomMiniPlayerState(
 ) {
     val hasSong: Boolean
         get() = songName.isNotEmpty() || artist.isNotEmpty()
+}
+
+@Composable
+fun BottomMiniPlayerContent(
+    state: BottomMiniPlayerState,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        verticalArrangement = Arrangement.spacedBy(2.dp),
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .testTag(BottomMiniPlayerContentTestTag)
+    ) {
+        BottomMiniPlayerTitle(songName = state.songName)
+        BottomMiniPlayerArtist(artist = state.artist)
+    }
 }
 
 @Composable
@@ -75,10 +94,13 @@ private fun BottomMiniPlayerContentPreview() {
                     .background(MaterialTheme.colorScheme.primary)
                     .padding(8.dp)
         ) {
-            Column {
-                BottomMiniPlayerTitle(songName = "Hello")
-                BottomMiniPlayerArtist(artist = "Adele")
-            }
+            BottomMiniPlayerContent(
+                state =
+                    BottomMiniPlayerState(
+                        songName = "Hello",
+                        artist = "Adele"
+                    )
+            )
         }
     }
 }

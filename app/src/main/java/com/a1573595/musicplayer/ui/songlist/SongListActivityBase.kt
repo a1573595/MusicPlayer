@@ -195,18 +195,9 @@ abstract class SongListActivityBase : BasePlayerBoundActivity<SongListPresenter>
         viewBinding.tvName.setViewCompositionStrategy(
             ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed
         )
-        viewBinding.tvArtist.setViewCompositionStrategy(
-            ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed
-        )
-
         viewBinding.tvName.setContent {
             MusicPlayerComposeTheme {
-                BottomMiniPlayerTitle(songName = bottomMiniPlayerState.value.songName)
-            }
-        }
-        viewBinding.tvArtist.setContent {
-            MusicPlayerComposeTheme {
-                BottomMiniPlayerArtist(artist = bottomMiniPlayerState.value.artist)
+                BottomMiniPlayerContent(state = bottomMiniPlayerState.value)
             }
         }
     }
@@ -267,12 +258,10 @@ abstract class SongListActivityBase : BasePlayerBoundActivity<SongListPresenter>
             if (bottomMiniPlayerState.value.hasSong) {
                 val p1: Pair<View, String> =
                     Pair.create(viewBinding.imgDisc, viewBinding.imgDisc.transitionName)
-                val p2: Pair<View, String> =
-                    Pair.create(viewBinding.tvName, viewBinding.tvName.transitionName)
                 val p3: Pair<View, String> =
                     Pair.create(viewBinding.btnPlay, viewBinding.btnPlay.transitionName)
 
-                val options = ActivityOptionsCompat.makeSceneTransitionAnimation(this, p1, p2, p3)
+                val options = ActivityOptionsCompat.makeSceneTransitionAnimation(this, p1, p3)
 
                 startActivity(Intent(this, PlaySongActivity::class.java), options.toBundle())
             }

@@ -46,7 +46,7 @@
             android:id="@+id/imgDisc"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:transitionName="imgDisc"
+            android:transitionName="@string/transition_img_disc"
             app:srcCompat="@drawable/ic_disc" />
     </FrameLayout>
 
@@ -120,7 +120,6 @@
             android:singleLine="true"
             android:textColor="@color/colorTitleBlack"
             android:textSize="@dimen/text_large"
-            android:transitionName="tvName"
             tools:text="Hello" />
     </FrameLayout>
 
@@ -163,7 +162,7 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginBottom="24dp"
-        android:transitionName="imgPlay"
+        android:transitionName="@string/transition_img_play"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintDimensionRatio="1:1"
         app:layout_constraintEnd_toEndOf="parent"

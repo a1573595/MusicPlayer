@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name" translatable="false">MusicPlayer</string>
+    <string name="transition_img_disc" translatable="false">imgDisc</string>
+    <string name="transition_img_play" translatable="false">imgPlay</string>
 
     <string name="agree">Agree</string>
     <string name="disagree">Disagree</string>

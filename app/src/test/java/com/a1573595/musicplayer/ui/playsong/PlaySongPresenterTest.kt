@@ -28,6 +28,20 @@ class PlaySongPresenterTest {
     }
 
     @Test
+    fun setPlaybackController_fetchesCurrentPlaybackModes() {
+        val view = RecordingPlaySongView()
+        val player = FakePlaybackController(songs = listOf(song), currentSong = song).apply {
+            isRepeat = true
+            isRandom = true
+        }
+
+        PlaySongPresenter(view).setPlaybackController(player)
+
+        assertThat(view.repeatStates).containsExactly(true)
+        assertThat(view.randomStates).containsExactly(true)
+    }
+
+    @Test
     fun updateRepeatAndRandom_togglePlaybackMode() {
         val view = RecordingPlaySongView()
         val player = FakePlaybackController(songs = listOf(song), currentSong = song)

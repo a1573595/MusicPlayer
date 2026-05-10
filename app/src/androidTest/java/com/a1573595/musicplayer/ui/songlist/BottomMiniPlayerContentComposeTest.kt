@@ -1,10 +1,9 @@
 package com.a1573595.musicplayer.ui.songlist
 
-import androidx.compose.foundation.layout.Column
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
-import androidx.compose.ui.test.onNodeWithText
 import com.a1573595.musicplayer.ui.compose.MusicPlayerComposeTheme
 import org.junit.Rule
 import org.junit.Test
@@ -17,16 +16,24 @@ class BottomMiniPlayerContentComposeTest {
     fun bottomMiniPlayerText_isDisplayed() {
         composeRule.setContent {
             MusicPlayerComposeTheme {
-                Column {
-                    BottomMiniPlayerTitle(songName = "Song Name")
-                    BottomMiniPlayerArtist(artist = "Artist Name")
-                }
+                BottomMiniPlayerContent(
+                    state =
+                        BottomMiniPlayerState(
+                            songName = "Song Name",
+                            artist = "Artist Name"
+                        )
+                )
             }
         }
 
-        composeRule.onNodeWithTag(BottomMiniPlayerTitleTestTag).assertIsDisplayed()
-        composeRule.onNodeWithTag(BottomMiniPlayerArtistTestTag).assertIsDisplayed()
-        composeRule.onNodeWithText("Song Name").assertIsDisplayed()
-        composeRule.onNodeWithText("Artist Name").assertIsDisplayed()
+        composeRule.onNodeWithTag(BottomMiniPlayerContentTestTag).assertIsDisplayed()
+        composeRule
+            .onNodeWithTag(BottomMiniPlayerTitleTestTag)
+            .assertIsDisplayed()
+            .assertTextEquals("Song Name")
+        composeRule
+            .onNodeWithTag(BottomMiniPlayerArtistTestTag)
+            .assertIsDisplayed()
+            .assertTextEquals("Artist Name")
     }
 }
