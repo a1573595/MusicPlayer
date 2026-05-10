@@ -11,6 +11,10 @@ import android.view.animation.DecelerateInterpolator
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.SeekBar
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
@@ -26,6 +30,7 @@ import com.a1573595.musicplayer.domain.player.PlaybackEngine
 import com.a1573595.musicplayer.domain.song.Song
 import com.a1573595.musicplayer.data.player.PlayerService
 import com.a1573595.musicplayer.data.player.PlayerServicePlaybackController
+import com.a1573595.musicplayer.ui.compose.MusicPlayerComposeTheme
 import java.beans.PropertyChangeEvent
 
 abstract class PlaySongActivityBase : BasePlayerBoundActivity<PlaySongPresenter>(), PlaySongView {
@@ -45,7 +50,8 @@ abstract class PlaySongActivityBase : BasePlayerBoundActivity<PlaySongPresenter>
     private var favoriteAnimationRunnable: Runnable = Runnable {}
     private val favoriteAnimationDelayMillis: Long = 300
 
-    private var controlsState = PlaySongControlsStateMapper.defaultState()
+    private val controlsState = mutableStateOf(PlaySongControlsStateMapper.defaultState())
+    private var isPlayerReady = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -59,6 +65,7 @@ abstract class PlaySongActivityBase : BasePlayerBoundActivity<PlaySongPresenter>
         viewBinding.tvName.isSelected = true
 
         initWindowAnimations()
+        initComposeControls()
     }
 
     override fun onStop() {
@@ -73,6 +80,7 @@ abstract class PlaySongActivityBase : BasePlayerBoundActivity<PlaySongPresenter>
         initSeekBarUpdateRunnable()
 
         presenter.setPlaybackController(PlayerServicePlaybackController(player))
+        isPlayerReady = true
 
         setListen()
     }
@@ -226,14 +234,6 @@ abstract class PlaySongActivityBase : BasePlayerBoundActivity<PlaySongPresenter>
             onBackPressedDispatcher.onBackPressed()
         }
 
-        viewBinding.imgRepeat.setOnClickListener {
-            applyRepeatState(presenter.updateRepeat())
-        }
-
-        viewBinding.imgRandom.setOnClickListener {
-            applyRandomState(presenter.updateRandom())
-        }
-
         viewBinding.seekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(s: SeekBar, progress: Int, fromUser: Boolean) {
                 if (fromUser) {
@@ -257,40 +257,96 @@ abstract class PlaySongActivityBase : BasePlayerBoundActivity<PlaySongPresenter>
             }
         })
 
-        viewBinding.imgBackward.setOnClickListener {
-            presenter.skipToPrevious()
-
-            it.startAnimation(scaleAnimation)
-        }
-
         viewBinding.imgPlay.setOnClickListener {
             presenter.onSongPlay()
-        }
-
-        viewBinding.imgForward.setOnClickListener {
-            presenter.skipToNext()
-
-            it.startAnimation(scaleAnimation)
         }
     }
 
     private fun applyPlayingState(isPlaying: Boolean) {
-        controlsState = PlaySongControlsStateMapper.withPlaying(controlsState, isPlaying)
+        controlsState.value = PlaySongControlsStateMapper.withPlaying(controlsState.value, isPlaying)
         viewBinding.imgPlay.setImageState(
-            if (controlsState.isPlaying) statePlay else statePause,
+            if (controlsState.value.isPlaying) statePlay else statePause,
             false
         )
     }
 
     private fun applyRepeatState(isRepeat: Boolean) {
-        controlsState = PlaySongControlsStateMapper.withRepeat(controlsState, isRepeat)
-        viewBinding.imgRepeat.imageAlpha =
-            PlaySongControlsStateMapper.controlAlpha(controlsState.isRepeat)
+        controlsState.value = PlaySongControlsStateMapper.withRepeat(controlsState.value, isRepeat)
     }
 
     private fun applyRandomState(isRandom: Boolean) {
-        controlsState = PlaySongControlsStateMapper.withRandom(controlsState, isRandom)
-        viewBinding.imgRandom.imageAlpha =
-            PlaySongControlsStateMapper.controlAlpha(controlsState.isRandom)
+        controlsState.value = PlaySongControlsStateMapper.withRandom(controlsState.value, isRandom)
+    }
+
+    private fun initComposeControls() {
+        listOf(
+            viewBinding.imgRepeat,
+            viewBinding.imgRandom,
+            viewBinding.imgBackward,
+            viewBinding.imgForward
+        ).forEach {
+            it.setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+        }
+
+        viewBinding.imgRepeat.setContent {
+            MusicPlayerComposeTheme {
+                PlaySongRepeatControl(
+                    checked = controlsState.value.isRepeat,
+                    onClick = ::onRepeatClick,
+                    modifier = Modifier.fillMaxSize()
+                )
+            }
+        }
+        viewBinding.imgRandom.setContent {
+            MusicPlayerComposeTheme {
+                PlaySongRandomControl(
+                    checked = controlsState.value.isRandom,
+                    onClick = ::onRandomClick,
+                    modifier = Modifier.fillMaxSize()
+                )
+            }
+        }
+        viewBinding.imgBackward.setContent {
+            MusicPlayerComposeTheme {
+                PlaySongBackwardControl(
+                    onClick = ::onBackwardClick,
+                    modifier = Modifier.fillMaxSize()
+                )
+            }
+        }
+        viewBinding.imgForward.setContent {
+            MusicPlayerComposeTheme {
+                PlaySongForwardControl(
+                    onClick = ::onForwardClick,
+                    modifier = Modifier.fillMaxSize()
+                )
+            }
+        }
+    }
+
+    private fun onRepeatClick() {
+        if (isPlayerReady) {
+            applyRepeatState(presenter.updateRepeat())
+        }
+    }
+
+    private fun onRandomClick() {
+        if (isPlayerReady) {
+            applyRandomState(presenter.updateRandom())
+        }
+    }
+
+    private fun onBackwardClick() {
+        if (isPlayerReady) {
+            presenter.skipToPrevious()
+            viewBinding.imgBackward.startAnimation(scaleAnimation)
+        }
+    }
+
+    private fun onForwardClick() {
+        if (isPlayerReady) {
+            presenter.skipToNext()
+            viewBinding.imgForward.startAnimation(scaleAnimation)
+        }
     }
 }

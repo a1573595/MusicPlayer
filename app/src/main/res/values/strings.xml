@@ -4,6 +4,19 @@
     <string name="transition_img_disc" translatable="false">imgDisc</string>
     <string name="transition_img_play" translatable="false">imgPlay</string>
 
+    <string name="play_song_control_next">Next</string>
+    <string name="play_song_control_pause">Pause</string>
+    <string name="play_song_control_paused">Paused</string>
+    <string name="play_song_control_play">Play</string>
+    <string name="play_song_control_playing">Playing</string>
+    <string name="play_song_control_previous">Previous</string>
+    <string name="play_song_control_random">Random</string>
+    <string name="play_song_control_random_off">Random off</string>
+    <string name="play_song_control_random_on">Random on</string>
+    <string name="play_song_control_repeat">Repeat</string>
+    <string name="play_song_control_repeat_off">Repeat off</string>
+    <string name="play_song_control_repeat_on">Repeat on</string>
+
     <string name="agree">Agree</string>
     <string name="disagree">Disagree</string>
     <string name="found_new_song">Fond new song</string>

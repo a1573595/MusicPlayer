@@ -20,21 +20,32 @@ class PlaySongControlsXmlContractTest {
     private fun assertControlsContract(path: String) {
         val controls = elementsById(path)
 
-        assertThat(controls.getValue("imgRepeat").getAttribute("app:srcCompat"))
-            .isEqualTo("@drawable/ic_repeat")
-        assertThat(controls.getValue("imgRandom").getAttribute("app:srcCompat"))
-            .isEqualTo("@drawable/ic_random")
-        assertThat(controls.getValue("imgBackward").getAttribute("app:srcCompat"))
-            .isEqualTo("@drawable/ic_next")
-        assertThat(controls.getValue("imgBackward").getAttribute("android:rotation"))
-            .isEqualTo("180")
+        assertComposeViewHost(controls.getValue("imgRepeat"))
+        assertComposeViewHost(controls.getValue("imgRandom"))
+        assertComposeViewHost(controls.getValue("imgBackward"))
+        assertComposeViewHost(controls.getValue("imgForward"))
+        assertThat(controls.getValue("imgDisc").getAttribute("android:transitionName"))
+            .isEqualTo("@string/transition_img_disc")
+        assertThat(controls.getValue("imgPlay").tagName)
+            .isEqualTo("ImageView")
         assertThat(controls.getValue("imgPlay").getAttribute("app:srcCompat"))
             .isEqualTo("@drawable/selector_play_pause")
         assertThat(controls.getValue("imgPlay").getAttribute("android:transitionName"))
             .isEqualTo("@string/transition_img_play")
-        assertThat(controls.getValue("imgForward").getAttribute("app:srcCompat"))
-            .isEqualTo("@drawable/ic_next")
+        assertThat(controls.getValue("imgBackward").getAttribute("app:layout_constraintEnd_toStartOf"))
+            .isEqualTo("@+id/imgPlay")
+        assertThat(controls.getValue("imgForward").getAttribute("app:layout_constraintStart_toEndOf"))
+            .isEqualTo("@+id/imgPlay")
         assertThat(controls.getValue("tvName").getAttribute("android:transitionName"))
+            .isEmpty()
+    }
+
+    private fun assertComposeViewHost(element: Element) {
+        assertThat(element.tagName)
+            .isEqualTo("androidx.compose.ui.platform.ComposeView")
+        assertThat(element.getAttribute("android:transitionName"))
+            .isEmpty()
+        assertThat(element.getAttribute("app:srcCompat"))
             .isEmpty()
     }
 

@@ -1,27 +1,34 @@
 package com.a1573595.musicplayer.ui.playsong
 
+import androidx.compose.foundation.LocalIndication
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.IconToggleButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
+import androidx.compose.ui.semantics.toggleableState
+import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.a1573595.musicplayer.R
 import com.a1573595.musicplayer.ui.compose.MusicPlayerComposeTheme
@@ -56,21 +63,17 @@ fun PlaySongControlsContent(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.fillMaxWidth()
         ) {
-            PlaySongToggleControlButton(
-                iconRes = R.drawable.ic_repeat,
-                contentDescription = "Repeat",
-                stateDescription = if (state.isRepeat) "Repeat on" else "Repeat off",
+            PlaySongRepeatControl(
                 checked = state.isRepeat,
                 onClick = onRepeatClick,
-                testTag = PlaySongRepeatButtonTestTag
+                modifier = Modifier.size(48.dp),
+                iconModifier = Modifier.size(32.dp)
             )
-            PlaySongToggleControlButton(
-                iconRes = R.drawable.ic_random,
-                contentDescription = "Random",
-                stateDescription = if (state.isRandom) "Random on" else "Random off",
+            PlaySongRandomControl(
                 checked = state.isRandom,
                 onClick = onRandomClick,
-                testTag = PlaySongRandomButtonTestTag
+                modifier = Modifier.size(48.dp),
+                iconModifier = Modifier.size(32.dp)
             )
         }
 
@@ -78,30 +81,146 @@ fun PlaySongControlsContent(
             horizontalArrangement = Arrangement.spacedBy(48.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            PlaySongControlButton(
-                iconRes = R.drawable.ic_next,
-                contentDescription = "Previous",
+            PlaySongBackwardControl(
                 onClick = onBackwardClick,
-                testTag = PlaySongBackwardButtonTestTag,
-                iconModifier = Modifier.graphicsLayer(rotationZ = 180f)
+                modifier = Modifier.size(48.dp),
+                iconModifier = Modifier.size(32.dp)
             )
-            PlaySongControlButton(
-                iconRes = if (state.isPlaying) R.drawable.ic_pause else R.drawable.ic_play,
-                contentDescription = if (state.isPlaying) "Pause" else "Play",
-                stateDescription = if (state.isPlaying) "Playing" else "Paused",
+            PlaySongPlayPauseControl(
+                isPlaying = state.isPlaying,
                 onClick = onPlayPauseClick,
-                testTag = PlaySongPlayPauseButtonTestTag,
-                buttonSize = 64.dp,
-                iconSize = 48.dp
+                modifier = Modifier.size(64.dp),
+                iconModifier = Modifier.size(48.dp)
             )
-            PlaySongControlButton(
-                iconRes = R.drawable.ic_next,
-                contentDescription = "Next",
+            PlaySongForwardControl(
                 onClick = onForwardClick,
-                testTag = PlaySongForwardButtonTestTag
+                modifier = Modifier.size(48.dp),
+                iconModifier = Modifier.size(32.dp)
             )
         }
     }
+}
+
+@Composable
+fun PlaySongRepeatControl(
+    checked: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    iconModifier: Modifier = Modifier.fillMaxSize()
+) {
+    PlaySongToggleControlButton(
+        iconRes = R.drawable.ic_repeat,
+        contentDescription = stringResource(id = R.string.play_song_control_repeat),
+        stateDescription =
+            stringResource(
+                id =
+                    if (checked) {
+                        R.string.play_song_control_repeat_on
+                    } else {
+                        R.string.play_song_control_repeat_off
+                    }
+            ),
+        checked = checked,
+        onClick = onClick,
+        testTag = PlaySongRepeatButtonTestTag,
+        modifier = modifier,
+        iconModifier = iconModifier
+    )
+}
+
+@Composable
+fun PlaySongRandomControl(
+    checked: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    iconModifier: Modifier = Modifier.fillMaxSize()
+) {
+    PlaySongToggleControlButton(
+        iconRes = R.drawable.ic_random,
+        contentDescription = stringResource(id = R.string.play_song_control_random),
+        stateDescription =
+            stringResource(
+                id =
+                    if (checked) {
+                        R.string.play_song_control_random_on
+                    } else {
+                        R.string.play_song_control_random_off
+                    }
+            ),
+        checked = checked,
+        onClick = onClick,
+        testTag = PlaySongRandomButtonTestTag,
+        modifier = modifier,
+        iconModifier = iconModifier
+    )
+}
+
+@Composable
+fun PlaySongBackwardControl(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    iconModifier: Modifier = Modifier.fillMaxSize()
+) {
+    PlaySongControlButton(
+        iconRes = R.drawable.ic_next,
+        contentDescription = stringResource(id = R.string.play_song_control_previous),
+        onClick = onClick,
+        testTag = PlaySongBackwardButtonTestTag,
+        modifier = modifier,
+        iconModifier = iconModifier.graphicsLayer(rotationZ = 180f),
+        showRipple = false
+    )
+}
+
+@Composable
+fun PlaySongForwardControl(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    iconModifier: Modifier = Modifier.fillMaxSize()
+) {
+    PlaySongControlButton(
+        iconRes = R.drawable.ic_next,
+        contentDescription = stringResource(id = R.string.play_song_control_next),
+        onClick = onClick,
+        testTag = PlaySongForwardButtonTestTag,
+        modifier = modifier,
+        iconModifier = iconModifier,
+        showRipple = false
+    )
+}
+
+@Composable
+fun PlaySongPlayPauseControl(
+    isPlaying: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    iconModifier: Modifier = Modifier.fillMaxSize()
+) {
+    PlaySongControlButton(
+        iconRes = if (isPlaying) R.drawable.ic_pause else R.drawable.ic_play,
+        contentDescription =
+            stringResource(
+                id =
+                    if (isPlaying) {
+                        R.string.play_song_control_pause
+                    } else {
+                        R.string.play_song_control_play
+                    }
+            ),
+        stateDescription =
+            stringResource(
+                id =
+                    if (isPlaying) {
+                        R.string.play_song_control_playing
+                    } else {
+                        R.string.play_song_control_paused
+                    }
+            ),
+        onClick = onClick,
+        testTag = PlaySongPlayPauseButtonTestTag,
+        modifier = modifier,
+        iconModifier = iconModifier
+    )
 }
 
 @Composable
@@ -113,27 +232,24 @@ private fun PlaySongToggleControlButton(
     onClick: () -> Unit,
     testTag: String,
     modifier: Modifier = Modifier,
-    buttonSize: Dp = 48.dp,
-    iconSize: Dp = 32.dp
+    iconModifier: Modifier = Modifier
 ) {
-    IconToggleButton(
+    PlaySongControlButtonContainer(
+        contentDescription = contentDescription,
+        stateDescription = stateDescription,
+        onClick = onClick,
+        testTag = testTag,
+        modifier = modifier,
         checked = checked,
-        onCheckedChange = { onClick() },
-        modifier =
-            modifier
-                .size(buttonSize)
-                .alpha(PlaySongControlsStateMapper.controlAlphaFraction(checked))
-                .semantics {
-                    this.contentDescription = contentDescription
-                    this.stateDescription = stateDescription
-                }
-                .testTag(testTag)
+        role = Role.Checkbox
     ) {
         Icon(
             painter = painterResource(id = iconRes),
             contentDescription = null,
             tint = MaterialTheme.colorScheme.onBackground,
-            modifier = Modifier.size(iconSize)
+            modifier =
+                iconModifier
+                    .alpha(PlaySongControlsStateMapper.controlAlphaFraction(checked))
         )
     }
 }
@@ -148,20 +264,16 @@ private fun PlaySongControlButton(
     iconModifier: Modifier = Modifier,
     stateDescription: String? = null,
     active: Boolean = true,
-    buttonSize: Dp = 48.dp,
-    iconSize: Dp = 32.dp
+    showRipple: Boolean = true
 ) {
-    IconButton(
+    PlaySongControlButtonContainer(
+        contentDescription = contentDescription,
+        stateDescription = stateDescription,
         onClick = onClick,
-        modifier =
-            modifier
-                .size(buttonSize)
-                .alpha(PlaySongControlsStateMapper.controlAlphaFraction(active))
-                .semantics {
-                    this.contentDescription = contentDescription
-                    stateDescription?.let { this.stateDescription = it }
-                }
-                .testTag(testTag)
+        testTag = testTag,
+        modifier = modifier,
+        role = Role.Button,
+        showRipple = showRipple
     ) {
         Icon(
             painter = painterResource(id = iconRes),
@@ -169,8 +281,52 @@ private fun PlaySongControlButton(
             tint = MaterialTheme.colorScheme.onBackground,
             modifier =
                 iconModifier
-                    .size(iconSize)
+                    .alpha(PlaySongControlsStateMapper.controlAlphaFraction(active))
         )
+    }
+}
+
+@Composable
+private fun PlaySongControlButtonContainer(
+    contentDescription: String,
+    stateDescription: String?,
+    onClick: () -> Unit,
+    testTag: String,
+    modifier: Modifier = Modifier,
+    checked: Boolean? = null,
+    role: Role,
+    showRipple: Boolean = true,
+    content: @Composable () -> Unit
+) {
+    val interactionSource = remember { MutableInteractionSource() }
+    val indication = if (showRipple) LocalIndication.current else null
+
+    Box(
+        contentAlignment = Alignment.Center,
+        modifier =
+            modifier
+                .fillMaxSize()
+                .clickable(
+                    interactionSource = interactionSource,
+                    indication = indication,
+                    role = role,
+                    onClick = onClick
+                )
+                .semantics {
+                    this.contentDescription = contentDescription
+                    stateDescription?.let { this.stateDescription = it }
+                    checked?.let {
+                        toggleableState =
+                            if (it) {
+                                ToggleableState.On
+                            } else {
+                                ToggleableState.Off
+                            }
+                    }
+                }
+                .testTag(testTag)
+    ) {
+        content()
     }
 }
 

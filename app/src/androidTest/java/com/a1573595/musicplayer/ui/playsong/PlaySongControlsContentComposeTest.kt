@@ -56,11 +56,17 @@ class PlaySongControlsContentComposeTest {
             .assert(SemanticsMatcher.expectValue(SemanticsProperties.StateDescription, "Random off"))
         composeRule.onNodeWithTag(PlaySongBackwardButtonTestTag).assertIsDisplayed()
         composeRule
+            .onNodeWithTag(PlaySongBackwardButtonTestTag)
+            .assertContentDescriptionEquals("Previous")
+        composeRule
             .onNodeWithTag(PlaySongPlayPauseButtonTestTag)
             .assertIsDisplayed()
             .assertContentDescriptionEquals("Play")
             .assert(SemanticsMatcher.expectValue(SemanticsProperties.StateDescription, "Paused"))
         composeRule.onNodeWithTag(PlaySongForwardButtonTestTag).assertIsDisplayed()
+        composeRule
+            .onNodeWithTag(PlaySongForwardButtonTestTag)
+            .assertContentDescriptionEquals("Next")
 
         composeRule.onNodeWithTag(PlaySongRepeatButtonTestTag).performClick()
         composeRule.onNodeWithTag(PlaySongRandomButtonTestTag).performClick()

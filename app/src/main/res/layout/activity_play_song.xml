@@ -65,29 +65,25 @@
         app:srcCompat="@drawable/ic_love"
         app:tint="@android:color/holo_red_dark" />
 
-    <ImageView
+    <androidx.compose.ui.platform.ComposeView
         android:id="@+id/imgRepeat"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:background="@drawable/ripple_transparent"
         app:layout_constraintBottom_toTopOf="@+id/tvProgress"
         app:layout_constraintDimensionRatio="1:1"
         app:layout_constraintStart_toStartOf="@+id/imgBackground"
         app:layout_constraintTop_toBottomOf="@+id/imgBackground"
-        app:layout_constraintWidth_percent=".12"
-        app:srcCompat="@drawable/ic_repeat" />
+        app:layout_constraintWidth_percent=".12" />
 
-    <ImageView
+    <androidx.compose.ui.platform.ComposeView
         android:id="@+id/imgRandom"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:background="@drawable/ripple_transparent"
         app:layout_constraintBottom_toBottomOf="@+id/imgRepeat"
         app:layout_constraintDimensionRatio="1:1"
         app:layout_constraintEnd_toEndOf="@+id/imgBackground"
         app:layout_constraintTop_toTopOf="@+id/imgRepeat"
-        app:layout_constraintWidth_percent=".12"
-        app:srcCompat="@drawable/ic_random" />
+        app:layout_constraintWidth_percent=".12" />
 
     <TextView
         android:id="@+id/tvProgress"
@@ -144,18 +140,16 @@
         app:layout_constraintEnd_toEndOf="@+id/imgRandom"
         app:layout_constraintStart_toStartOf="@+id/imgRepeat" />
 
-    <ImageView
+    <androidx.compose.ui.platform.ComposeView
         android:id="@+id/imgBackward"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:rotation="180"
         app:layout_constraintBottom_toBottomOf="@+id/imgPlay"
         app:layout_constraintDimensionRatio="1:1"
         app:layout_constraintEnd_toStartOf="@+id/imgPlay"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/imgPlay"
-        app:layout_constraintWidth_percent=".1"
-        app:srcCompat="@drawable/ic_next" />
+        app:layout_constraintWidth_percent=".1" />
 
     <ImageView
         android:id="@+id/imgPlay"
@@ -170,7 +164,7 @@
         app:layout_constraintWidth_percent=".13"
         app:srcCompat="@drawable/selector_play_pause" />
 
-    <ImageView
+    <androidx.compose.ui.platform.ComposeView
         android:id="@+id/imgForward"
         android:layout_width="0dp"
         android:layout_height="0dp"
@@ -179,6 +173,5 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/imgPlay"
         app:layout_constraintTop_toTopOf="@+id/imgPlay"
-        app:layout_constraintWidth_percent=".1"
-        app:srcCompat="@drawable/ic_next" />
+        app:layout_constraintWidth_percent=".1" />
 </androidx.constraintlayout.widget.ConstraintLayout>

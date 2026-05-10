@@ -1,5 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="play_song_control_next">下一首</string>
+    <string name="play_song_control_pause">暫停</string>
+    <string name="play_song_control_paused">已暫停</string>
+    <string name="play_song_control_play">播放</string>
+    <string name="play_song_control_playing">播放中</string>
+    <string name="play_song_control_previous">上一首</string>
+    <string name="play_song_control_random">隨機播放</string>
+    <string name="play_song_control_random_off">隨機播放關閉</string>
+    <string name="play_song_control_random_on">隨機播放開啟</string>
+    <string name="play_song_control_repeat">重複播放</string>
+    <string name="play_song_control_repeat_off">重複播放關閉</string>
+    <string name="play_song_control_repeat_on">重複播放開啟</string>
+
     <string name="agree">同意</string>
     <string name="disagree">不同意</string>
     <string name="found_new_song">找到新歌曲</string>
